@@ -78,6 +78,12 @@ public class Leelaz {
   private long startPonderTime;
   private boolean showStopTips = true;
 
+  /**
+   * 引擎内部局面是否与当前视图节点一致。 复盘分析回看时，previousMove 会向引擎发 undo，引擎局面跟随视图，此值为 true；
+   * 对局/野狐同步时引擎局面固定在主分支末尾，用户回看不动引擎，此值为 false。
+   */
+  private volatile boolean engineFollowsView = true;
+
   // fixed_handicap
   public boolean isSettingHandicap = false;
 
@@ -583,8 +589,7 @@ public class Leelaz {
     }
     currentTotalPlayouts = MoveData.getPlayouts(bestMoves);
     if (Lizzie.config.isDoubleEngineMode() && Lizzie.leelaz2 != null && this == Lizzie.leelaz2)
-      Lizzie.board
-          .getData()
+      infoTargetData()
           .tryToSetBestMoves2(bestMoves, bestMovesEnginename, true, currentTotalPlayouts);
     else {
       if (EngineManager.isEngineGame && Lizzie.config.enginePkPonder) {
@@ -596,13 +601,11 @@ public class Leelaz {
                 && this
                     == Lizzie.engineManager.engineList.get(
                         EngineManager.engineGameInfo.whiteEngineIndex)) {
-          Lizzie.board
-              .getData()
+          infoTargetData()
               .tryToSetBestMoves(bestMoves, bestMovesEnginename, true, currentTotalPlayouts);
         }
       } else
-        Lizzie.board
-            .getData()
+        infoTargetData()
             .tryToSetBestMoves(bestMoves, bestMovesEnginename, true, currentTotalPlayouts);
     }
     return bestMoves;
@@ -1520,6 +1523,15 @@ public class Leelaz {
     if (Lizzie.board == null) return null;
     BoardHistoryNode cur = Lizzie.board.getHistory().getCurrentHistoryNode();
     BoardHistoryNode mainEnd = Lizzie.board.getHistory().getMainEnd();
+
+    // 复盘分析：引擎局面跟随视图，info 写到当前视图节点，
+    // 这样回看到的那一步才能收到算力分析。
+    if (engineFollowsView) {
+      return cur.getData();
+    }
+
+    // 对局/野狐同步：引擎局面固定在主分支末尾，info 写到末尾，
+    // 避免污染用户正在回看的历史节点。
     if (cur == mainEnd) {
       return Lizzie.board.getData();
     }
@@ -3067,6 +3079,7 @@ public class Leelaz {
       }
       bestMoves = new ArrayList<>();
       currentTotalPlayouts = 0;
+      engineFollowsView = true; // 新局/清盘后默认跟随视图
       if (isPondering) ponder();
       currentCmdNum = Math.max(cmdNumber - 2, currentCmdNum);
     }
@@ -3090,8 +3103,13 @@ public class Leelaz {
       sendCommand("undo");
       bestMoves = new ArrayList<>();
       currentTotalPlayouts = 0;
-      if (isPondering)
-        if (Lizzie.config.isAutoAna
+      if (isPondering) {
+        boolean inGame =
+            Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz;
+        if (inGame) {
+          // 对局中回看：无前缀 ponder，避免轮次错位翻色
+          ponder();
+        } else if (Lizzie.config.isAutoAna
             || ((Lizzie.config.analyzeBlack && Lizzie.board.getHistory().isBlacksTurn())
                 || (Lizzie.config.analyzeWhite && !Lizzie.board.getHistory().isBlacksTurn())))
           ponder(addPlayer, blackToPlay);
@@ -3099,6 +3117,7 @@ public class Leelaz {
           nameCmdfornoponder();
           underPonder = true;
         }
+      }
     }
   }
 
@@ -3340,6 +3359,14 @@ public class Leelaz {
 
   public void notPondering() {
     isPondering = false;
+  }
+
+  public void setEngineFollowsView(boolean follows) {
+    this.engineFollowsView = follows;
+  }
+
+  public boolean isEngineFollowsView() {
+    return engineFollowsView;
   }
 
   public class WinrateStats {
