@@ -311,8 +311,8 @@ public class SGFParser {
 
     String blackPlayer = "", whitePlayer = "";
     String result = "";
-    // boolean isChineseRule = true;
-    // boolean hasHandicap = false;
+    // 载入棋谱时记录规则，解析结束后同步给引擎
+    String sgfRules = null;
     Double komi = Lizzie.board.getHistory().getGameInfo().getKomi();
     // Support unicode characters (UTF-8)
     int len = value.length();
@@ -715,26 +715,12 @@ public class SGFParser {
             } catch (NumberFormatException e) {
               e.printStackTrace();
             }
-          }
-          //          else if (tag.equals("HA")) {
-          //            try {
-          //              if (!tagContent.trim().isEmpty()) {
-          //                if (Integer.parseInt(tagContent.trim()) > 0) hasHandicap = true;
-          //              }
-          //            } catch (NumberFormatException e) {
-          //              e.printStackTrace();
-          //            }
-          //          }
-          //          else if (tag.equals("RU")) {
-          //            if (!tagContent.trim().isEmpty()) {
-          //              String rules = tagContent.toLowerCase();
-          //              if (rules.contains("japanese")
-          //                  || rules.contains("jp")
-          //                  || rules.contains("korean")
-          //                  || rules.contains("kr")) isChineseRule = false;
-          //            }
-          //          }
-          else {
+          } else if (tag.equals("RU")) {
+            // 记录棋谱规则，解析结束后同步给引擎
+            if (!tagContent.trim().isEmpty()) {
+              sgfRules = tagContent.trim();
+            }
+          } else {
             if (moveStart) {
               // Other SGF node properties
               if ("AE".equals(tag)) {
@@ -819,6 +805,10 @@ public class SGFParser {
         }
       }
     }
+    // 载入棋谱后，按棋谱里的 RU 切换引擎规则
+    if (sgfRules != null && !sgfRules.isEmpty()) {
+      applyRulesToEngine(sgfRules);
+    }
     Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
     Lizzie.frame.setResult(result);
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
@@ -836,6 +826,62 @@ public class SGFParser {
     }
     Lizzie.config.playSound = oriPlaySound;
     return true;
+  }
+
+  /**
+   * 把棋谱里的 RU 规则转换成 KataGo 的 kata-set-rules 命令，并同步到棋盘状态。 支持的写法：Chinese / Japanese / Korean / AGA /
+   * Tromp-Taylor / New Zealand / 中古等。
+   */
+  private static void applyRulesToEngine(String sgfRules) {
+    String rule = sgfRules.trim();
+    String lower = rule.toLowerCase();
+    String kataRule;
+    int specific = -1;
+
+    if (lower.contains("japanese") || lower.contains("jp") || lower.contains("日本")) {
+      kataRule = "japanese";
+      specific = 3;
+    } else if (lower.contains("korean") || lower.contains("kr") || lower.contains("韩国")) {
+      kataRule = "korean";
+      specific = 3; // KataGo 的 korean 与 japanese 接近，用 japanese 也可，这里用 korean
+    } else if (lower.contains("aga")) {
+      kataRule = "aga";
+      specific = 5;
+    } else if (lower.contains("tromp") || lower.contains("tt")) {
+      kataRule = "tromp-taylor";
+      specific = 4;
+    } else if (lower.contains("new zealand") || lower.contains("nz")) {
+      kataRule = "new-zealand";
+      specific = 5;
+    } else if (lower.contains("chinese")
+        || lower.contains("chn")
+        || lower.contains("中国")
+        || lower.contains("中古")
+        || lower.contains("ancient")) {
+      kataRule = "chinese";
+      specific = 1;
+    } else {
+      // 未知规则，默认 Chinese，避免引擎报错
+      kataRule = "chinese";
+      specific = 1;
+    }
+
+    // 同步到棋盘状态，供保存 SGF 时写 RU
+    if (Lizzie.leelaz != null) {
+      Lizzie.leelaz.usingSpecificRules = specific;
+    }
+
+    // 同步给引擎（KataGo 支持 kata-set-rules）
+    if (Lizzie.leelaz != null && Lizzie.leelaz.isKatago && EngineManager.currentEngineNo >= 0) {
+      Lizzie.leelaz.sendCommand("kata-set-rules " + kataRule);
+    }
+    // 双引擎模式下同步给 leelaz2
+    if (Lizzie.leelaz2 != null && Lizzie.leelaz2.isKatago) {
+      Lizzie.leelaz2.sendCommand("kata-set-rules " + kataRule);
+    }
+    if (Lizzie.gtpConsole != null) {
+      Lizzie.gtpConsole.addLine("[SGF] 载入规则: " + sgfRules + " -> " + kataRule + "\n");
+    }
   }
 
   public static String saveToString(boolean forUpload) throws IOException {
