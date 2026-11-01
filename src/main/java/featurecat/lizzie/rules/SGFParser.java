@@ -997,13 +997,50 @@ public class SGFParser {
 
     // add SGF header
     StringBuilder builder = new StringBuilder("(;");
+    // 规范化贴目与规则，确保 SGF 能被正确解析
+    String komiStr;
+    if (Math.abs(komi - Math.round(komi)) < 1e-9) {
+      komiStr = String.valueOf((int) Math.round(komi));
+    } else {
+      komiStr = String.format(java.util.Locale.ENGLISH, "%.1f", komi);
+    }
+    // 规则：从引擎或棋盘推断，默认 Chinese
+    String ruStr = "Chinese";
+    try {
+      if (Lizzie.leelaz != null && Lizzie.leelaz.isKatago) {
+        switch (Lizzie.leelaz.usingSpecificRules) {
+          case 1:
+            ruStr = "Chinese";
+            break;
+          case 2:
+            ruStr = "Chinese";
+            break; // 中古规则按 Chinese 写，兼容性更好
+          case 3:
+            ruStr = "Japanese";
+            break;
+          case 4:
+            ruStr = "Tromp-Taylor";
+            break;
+          case 5:
+            ruStr = "Other";
+            break;
+          default:
+            ruStr = "Chinese";
+            break;
+        }
+      } else if (Lizzie.board != null && Lizzie.board.isKataBoard) {
+        ruStr = "Chinese";
+      }
+    } catch (Exception ignored) {
+    }
     StringBuilder generalProps = new StringBuilder("");
     if (handicap != 0) generalProps.append(String.format(Locale.ENGLISH, "HA[%s]", handicap));
     if (LizzieFrame.isSavingRaw) {
       generalProps.append(
           String.format(
-              "KM[%s]PW[%s]PB[%s]DT[%s]RE[%s]SZ[%s]CA[UTF-8]",
-              komi,
+              "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]RE[%s]SZ[%s]CA[UTF-8]",
+              komiStr,
+              ruStr,
               playerW,
               playerB,
               date,
@@ -1155,8 +1192,9 @@ public class SGFParser {
             || Lizzie.board.isPkBoardKataW)
           generalProps.append(
               String.format(
-                  "KM[%s]PW[%s]PB[%s]DT[%s]DZ[KW]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
-                  komi,
+                  "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]DZ[KW]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
+                  komiStr,
+                  ruStr,
                   playerW,
                   playerB,
                   date,
@@ -1171,8 +1209,9 @@ public class SGFParser {
             || Lizzie.board.isPkBoardKataB)
           generalProps.append(
               String.format(
-                  "KM[%s]PW[%s]PB[%s]DT[%s]DZ[KB]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
-                  komi,
+                  "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]DZ[KB]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
+                  komiStr,
+                  ruStr,
                   playerW,
                   playerB,
                   date,
@@ -1183,8 +1222,9 @@ public class SGFParser {
         else
           generalProps.append(
               String.format(
-                  "KM[%s]PW[%s]PB[%s]DT[%s]DZ[Y]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
-                  komi,
+                  "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]DZ[Y]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
+                  komiStr,
+                  ruStr,
                   playerW,
                   playerB,
                   date,
@@ -1196,8 +1236,9 @@ public class SGFParser {
         if (Lizzie.leelaz.isKatago || Lizzie.board.isKataBoard)
           generalProps.append(
               String.format(
-                  "KM[%s]PW[%s]PB[%s]DT[%s]DZ[G]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
-                  komi,
+                  "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]DZ[G]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
+                  komiStr,
+                  ruStr,
                   playerW,
                   playerB,
                   date,
@@ -1208,8 +1249,9 @@ public class SGFParser {
         else
           generalProps.append(
               String.format(
-                  "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
-                  komi,
+                  "KM[%s]RU[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]RE[%s]SZ[%s]CA[UTF-8]",
+                  komiStr,
+                  ruStr,
                   playerW,
                   playerB,
                   date,
