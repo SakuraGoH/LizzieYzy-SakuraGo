@@ -9966,8 +9966,9 @@ public class LizzieFrame extends JFrame {
 
   public void undoForRightClick() {
     if (Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz) {
-      Lizzie.board.previousMove(false);
-      Lizzie.board.previousMove(true);
+      // 人机对弈专用悔棋：退到被点击棋子的上一步之前，并同步引擎局面
+      BoardHistoryNode clicked = Lizzie.board.getBoardHistoryNodeByCoords(RightClickMenu2.coords);
+      Lizzie.board.undoForHumanVsAi(clicked);
     } else Input.undo();
   }
 
