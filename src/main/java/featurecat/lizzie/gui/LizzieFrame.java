@@ -8063,7 +8063,25 @@ public class LizzieFrame extends JFrame {
         Lizzie.config.playSound = false;
         Stone stone = Lizzie.board.getstonestat(coords);
         if (stone != Stone.EMPTY) {
+          // 拖到已有棋子上：取消本次拖动，并清理拖动/悬停状态，避免鼠标虚影和变化图失效
           draggedstone = Stone.EMPTY;
+          Input.Draggedmode = false;
+          if (independentMainBoard != null) independentMainBoard.Draggedmode = false;
+          // 清理虚影和选点悬停状态
+          boardRenderer.removedrawmovestone();
+          if (Lizzie.config.isDoubleEngineMode() && boardRenderer2 != null)
+            boardRenderer2.removedrawmovestone();
+          mouseOverCoordinate = outOfBoundCoordinate;
+          suggestionclick = outOfBoundCoordinate;
+          clickOrder = -1;
+          selectedorder = -1;
+          currentRow = -1;
+          if (isMouseOver) {
+            isMouseOver = false;
+            clearMoved();
+          }
+          Lizzie.board.clearPressStoneInfo(null);
+          Lizzie.config.playSound = oriPlaySound;
           refresh();
           return;
         }
