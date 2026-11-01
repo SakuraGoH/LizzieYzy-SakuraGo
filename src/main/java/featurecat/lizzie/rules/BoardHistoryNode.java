@@ -53,6 +53,13 @@ public class BoardHistoryNode {
 
   public synchronized void undoExtraStones() {
     if (extraStones == null || Lizzie.board.isLoadingFile) return;
+    // 对局中回看/悔棋由 undoForHumanVsAi 统一 clear_board+重放，这里不再给引擎发 undo
+    boolean inGame =
+        EngineManager.isEngineGame
+            || Lizzie.frame.isPlayingAgainstLeelaz
+            || Lizzie.frame.isAnaPlayingAgainstLeelaz
+            || (Lizzie.frame != null && Lizzie.frame.foxGameInputLocked);
+    if (inGame) return;
     for (ExtraStones stone : extraStones) {
       Lizzie.leelaz.undo(true, Lizzie.board.getHistory().getPrevious().get().blackToPlay);
     }

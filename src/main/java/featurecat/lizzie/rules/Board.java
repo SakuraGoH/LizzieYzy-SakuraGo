@@ -57,6 +57,9 @@ public class Board {
   public boolean hasStartStone = false;
   public ArrayList<Movelist> startStonelist = new ArrayList<Movelist>();
 
+  /** 人机悔棋后，下一次落子强制成为新主分支（旧分支保留） */
+  public boolean forceNewMainBranchOnNextPlace = false;
+
   private boolean forceRefresh;
   private boolean forceRefresh2;
   public boolean hasBestHeatMove = false;
@@ -1630,6 +1633,11 @@ public class Board {
       Lizzie.frame.isCounting = false;
     }
     synchronized (this) {
+      // 人机悔棋后首次落子：强制新建分支，后续会置顶为 variations[0]
+      if (forceNewMainBranchOnNextPlace && !newBranch && !forSync) {
+        forceNewMainBranchOnNextPlace = false;
+        newBranch = true;
+      }
       if (!isValid(x, y) || (history.getStones()[getIndex(x, y)] != Stone.EMPTY && !newBranch))
         return;
       updateWinrate();
@@ -1830,7 +1838,9 @@ public class Board {
           && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
         if (Lizzie.engineManager.playingAgainstHumanEngineCountDown != null)
           Lizzie.engineManager.playingAgainstHumanEngineCountDown.sendTimeLeft(false);
-        Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y), true, color.isWhite());
+        // 落子后轮到谁：白落子后轮到黑(true)，黑落子后轮到白(false)
+        boolean blackToPlayAfterPlace = color.equals(Stone.BLACK);
+        Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y), true, blackToPlayAfterPlace);
         needGenmove = true;
       } else if (!Lizzie.frame.isPlayingAgainstLeelaz
           && !Lizzie.leelaz.isInputCommand
@@ -1844,7 +1854,23 @@ public class Board {
           && Lizzie.frame.readBoard.process.isAlive()) {
         Lizzie.frame.readBoard.sendCommand("place " + x + " " + y);
       }
+      // 记录落子前的当前节点（parent）
+      BoardHistoryNode placeParent = history.getCurrentHistoryNode();
       history.addOrGoto(newState, newBranch);
+      // 悔棋后首次落子：把新节点置为 variations[0]，旧分支保留在后面
+      if (newBranch) {
+        BoardHistoryNode newNode = history.getCurrentHistoryNode();
+        if (newNode != null
+            && newNode != placeParent
+            && newNode.previous().isPresent()
+            && newNode.previous().get() == placeParent) {
+          int idx = placeParent.variations.indexOf(newNode);
+          if (idx > 0) {
+            placeParent.variations.remove(idx);
+            placeParent.variations.add(0, newNode);
+          }
+        }
+      }
       updateIsBest();
       if (needGenmove) Lizzie.leelaz.genmove((color.isWhite() ? "B" : "W"));
       //   modifyEnd(false);
@@ -2359,14 +2385,16 @@ public class Board {
 
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove(boolean needRefresh) {
-    // canGetBestMoves = false;
     synchronized (this) {
+      // 复盘前进时引擎局面跟随视图；对局/野狐同步时固定在主分支末尾
+      boolean followsView = !(EngineManager.isEngineGame || Lizzie.frame.foxGameInputLocked);
+      Lizzie.leelaz.setEngineFollowsView(followsView);
+
       modifyStart();
       updateWinrate();
       Optional<BoardData> data = history.getNext();
       if (data.isPresent()) {
         if (Lizzie.config.playSound) Utils.playVoiceFile();
-        // update leelaz board position, before updating to next node
         Optional<int[]> lastMoveOpt = data.get().lastMove;
         if (lastMoveOpt.isPresent()) {
           int[] lastMove = lastMoveOpt.get();
@@ -2386,8 +2414,7 @@ public class Board {
           Lizzie.frame.refresh();
         }
         return true;
-      } // else modifyEnd();
-      // canGetBestMoves = true;
+      }
       modifyEnd();
       return false;
     }
@@ -2634,6 +2661,7 @@ public class Board {
    */
   public void moveToAnyPosition(BoardHistoryNode targetNode) {
     if (EngineManager.isEngineGame) return;
+    Lizzie.leelaz.setEngineFollowsView(true); // 非对局复盘，引擎跟随视图
     List<Integer> targetParents = new ArrayList<Integer>();
     List<Integer> sourceParents = new ArrayList<Integer>();
 
@@ -2684,6 +2712,7 @@ public class Board {
 
   public void moveToAnyPositionForReview(BoardHistoryNode targetNode) {
     // 与 moveToAnyPosition 逻辑相同，但去掉 EngineManager.isEngineGame 的 return
+    Lizzie.leelaz.setEngineFollowsView(true); // 复盘回看，引擎跟随视图
     List<Integer> targetParents = new ArrayList<Integer>();
     List<Integer> sourceParents = new ArrayList<Integer>();
     BiConsumer<BoardHistoryNode, List<Integer>> populateParent =
@@ -2992,10 +3021,20 @@ public class Board {
   /** Goes to the previous coordinate, thread safe */
   public boolean previousMove(boolean needRefresh) {
     synchronized (this) {
+      boolean inGame =
+          EngineManager.isEngineGame
+              || Lizzie.frame.foxGameInputLocked
+              || Lizzie.frame.isPlayingAgainstLeelaz
+              || Lizzie.frame.isAnaPlayingAgainstLeelaz;
+
+      // 复盘回看：引擎跟随视图；对局/野狐：引擎固定在主分支末尾
+      Lizzie.leelaz.setEngineFollowsView(!inGame);
+
       modifyStart();
       boolean isPass = false;
       boolean needSync = history.getCurrentHistoryNode().hasRemovedStone();
-      if (history.getCurrentHistoryNode().next().isPresent())
+      // 对局中回看不改写历史节点的 isBest/NodeInfo；复盘才更新
+      if (!inGame && history.getCurrentHistoryNode().next().isPresent())
         updateIsBest(history.getCurrentHistoryNode().next().get());
       if (!history.getLastMove().isPresent()) isPass = true;
       if (history.getPrevious().isPresent()) {
@@ -3006,11 +3045,17 @@ public class Board {
                 && !history.getLastMove().isPresent()
                 && history.getCurrentHistoryNode().previous().isPresent()) nopass = true;
           }
-          // 引擎对战/野狐对局：回看只动视图，不给引擎发 undo
-          if (EngineManager.isEngineGame || Lizzie.frame.foxGameInputLocked) {
+          if (inGame) {
+            // 对局中回看：只动视图，绝不碰引擎（不发 undo/play/ponder/genmove）。
+            // 引擎继续在 mainEnd 上 genmove/ponder，info 由 infoTargetData()
+            // 写到 mainEnd，历史节点显示已缓存分析，避免引擎局面错位。
             modifyEnd();
-          } else if (!nopass) Lizzie.leelaz.undo(true, history.getPrevious().get().blackToPlay);
-          else modifyEnd();
+          } else if (!nopass) {
+            boolean blackToPlayAfterUndo = history.getPrevious().get().blackToPlay;
+            Lizzie.leelaz.undo(true, blackToPlayAfterUndo);
+          } else {
+            modifyEnd();
+          }
         }
         history.getCurrentHistoryNode().undoExtraStones();
         history.previous();
@@ -3021,6 +3066,14 @@ public class Board {
         }
         updateMovelistNext(Lizzie.board.getHistory().getCurrentHistoryNode());
         clearPressStoneInfo(null);
+
+        // 复盘回看：若引擎未分析，对新视图节点启动分析
+        if (!inGame
+            && !Lizzie.board.isLoadingFile
+            && Lizzie.leelaz.isLoaded()
+            && !Lizzie.leelaz.isPondering()) {
+          Lizzie.leelaz.ponder();
+        }
         return true;
       }
       modifyEnd();
@@ -3378,7 +3431,17 @@ public class Board {
               previousNode.nodeInfo.scoreMeanDiff = lastScoreMeanDiff(node);
               previousNode.nodeInfo.scoreLead = node.getData().scoreMean;
             }
-            previousNode.nodeInfo.winrate = 100 - node.getData().winrate;
+            // 对局中回看时，node.winrate 可能来自 genmove 的实时 info，
+            // 与父节点 blackToPlay 不一致，100 - winrate 会翻色；
+            // 此时不写父节点 NodeInfo.winrate，保留父节点原有分析值。
+            boolean inGame =
+                EngineManager.isEngineGame
+                    || Lizzie.frame.isPlayingAgainstLeelaz
+                    || Lizzie.frame.isAnaPlayingAgainstLeelaz
+                    || (Lizzie.frame != null && Lizzie.frame.foxGameInputLocked);
+            if (!inGame) {
+              previousNode.nodeInfo.winrate = 100 - node.getData().winrate;
+            }
           }
           previousNode.nodeInfo.coords = coords;
           previousNode.nodeInfo.isBlack = isblack;
@@ -3833,11 +3896,26 @@ public class Board {
   }
 
   public BoardHistoryNode getBoardHistoryNodeByCoords(int[] coords) {
-    // TODO Auto-generated method stub
+    // 1) 当前节点就是点击的棋子
     BoardHistoryNode node = history.getCurrentHistoryNode();
     if (node.getData().lastMove.isPresent()
         && node.getData().lastMove.get()[0] == coords[0]
         && node.getData().lastMove.get()[1] == coords[1]) return node;
+
+    // 2) 沿主分支从末尾往前找（AI 悔棋时点击的通常是主分支末尾附近）
+    BoardHistoryNode mainEnd = history.getMainEnd();
+    node = mainEnd;
+    while (node != null) {
+      if (node.getData().lastMove.isPresent()
+          && node.getData().lastMove.get()[0] == coords[0]
+          && node.getData().lastMove.get()[1] == coords[1]) {
+        return node;
+      }
+      node = node.previous().orElse(null);
+    }
+
+    // 3) 当前视图往前找
+    node = history.getCurrentHistoryNode();
     while (node.previous().isPresent()) {
       node = node.previous().get();
       if (node.getData().lastMove.isPresent()
@@ -3846,6 +3924,8 @@ public class Board {
         return node;
       }
     }
+
+    // 4) 当前视图往后找（分支）
     node = history.getCurrentHistoryNode();
     while (node.next().isPresent()) {
       node = node.next().get();
@@ -3855,12 +3935,8 @@ public class Board {
         return node;
       }
     }
-    if (node.getData().lastMove.isPresent()
-        && node.getData().lastMove.get()[0] == coords[0]
-        && node.getData().lastMove.get()[1] == coords[1]) {
-      return node;
-    }
-    return node;
+
+    return history.getCurrentHistoryNode();
   }
 
   private MoveLinkedList addMoveToLinedList(
@@ -4199,6 +4275,86 @@ public class Board {
       reCalculateGroupInfo(boardGroupInfo);
     }
     showGroupResult();
+  }
+
+  /**
+   * 人机对弈专用悔棋：退到 targetNode 的“上一步”之前，并让引擎局面与视图一致。 targetNode 是用户右键点击的那颗棋子所在的节点。 语义：退到
+   * targetNode.previous() 之前（即 targetNode 的上一步之前）， 也就是“把被点击的那手及其后一手都撤掉，轮到被点击那手的上一步的轮次”。 若退完后轮到引擎，立即
+   * genmove；若轮到人类，等待人类落子。
+   */
+  public void undoForHumanVsAi(BoardHistoryNode targetNode) {
+    if (targetNode == null) return;
+    if (!(Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz)) {
+      // 非人机，退回普通悔棋
+      LizzieFrame.undo(1);
+      return;
+    }
+    // 目标：退到 targetNode.previous() 之前
+    BoardHistoryNode goal = targetNode.previous().orElse(null);
+    if (goal == null) return; // 已是第一手之前，无法悔
+
+    // 1) 视图跳到 goal（跨分支，不能用 previousMove，否则在旧分支里退不到 goal）
+    if (history.getCurrentHistoryNode() != goal) {
+      moveToAnyPositionForReview(goal);
+    }
+    clearAfterMove();
+
+    // 2) 引擎局面与视图一致：clear_board + 按主分支顺序重放 goal 之前的落子
+    Lizzie.leelaz.sendCommand("clear_board");
+    Lizzie.leelaz.komi(history.getGameInfo().getKomi());
+
+    // 用 goal 所在主分支从 root 到 goal 的正序落子重放，避免 getmovelist 的逆序/起始子/pass 颜色问题
+    ArrayList<BoardHistoryNode> path = new ArrayList<>();
+    BoardHistoryNode n = goal;
+    while (n != null) {
+      path.add(0, n);
+      n = n.previous().orElse(null);
+    }
+    for (BoardHistoryNode node : path) {
+      if (node == Lizzie.board.getHistory().getStart()) continue;
+      Optional<int[]> lm = node.getData().lastMove;
+      if (lm.isPresent()) {
+        Lizzie.leelaz.sendCommand(
+            "play "
+                + (node.getData().lastMoveColor.isBlack() ? "B" : "W")
+                + " "
+                + convertCoordinatesToName(lm.get()[0], lm.get()[1]));
+      } else if (!node.getData().dummy) {
+        // 真正的 pass 节点
+        Lizzie.leelaz.sendCommand(
+            "play " + (node.getData().lastMoveColor.isBlack() ? "B" : "W") + " pass");
+      }
+      // dummy 且无 lastMove 的节点跳过，不发给引擎
+    }
+    // 重放后把引擎内部轮次对齐到 goal 的 blackToPlay：
+    // 若引擎收到的最后一手颜色与 goal.blackToPlay 不匹配，补一个 pass 或等引擎应答
+    Lizzie.leelaz.setResponseUpToDate();
+
+    // 3) 轮次判断：以 goal 的 blackToPlay 为准（引擎重放后内部轮次应与之一致）
+    boolean blackToPlayNow = goal.getData().blackToPlay;
+    boolean engineToPlay;
+    if (Lizzie.frame.isPlayingAgainstLeelaz) {
+      // 人机对弈：人类执 playerIsBlack，引擎执 !playerIsBlack
+      boolean humanToPlay = (blackToPlayNow == Lizzie.frame.playerIsBlack);
+      engineToPlay = !humanToPlay;
+    } else {
+      // 分析对弈：playerIsBlack 表示引擎执黑
+      boolean engineIsBlack = Lizzie.frame.playerIsBlack;
+      engineToPlay = (blackToPlayNow == engineIsBlack);
+    }
+
+    // 悔棋后，下一次落子强制成为新主分支，旧分支保留在 variations[1..]
+    forceNewMainBranchOnNextPlace = true;
+
+    Lizzie.frame.refresh();
+
+    // 5) 若轮到引擎，立刻 genmove（颜色用 goal 的 blackToPlay）
+    if (engineToPlay && Lizzie.leelaz.isLoaded() && !EngineManager.isEmpty) {
+      Lizzie.leelaz.genmove(blackToPlayNow ? "B" : "W");
+    } else {
+      // 轮到人类：确保引擎在 ponder 但不 genmove
+      if (Lizzie.leelaz.isLoaded()) Lizzie.leelaz.ponder();
+    }
   }
 
   private void toggleDeadStone(
