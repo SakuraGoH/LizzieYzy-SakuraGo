@@ -1,0 +1,9 @@
+target/
+*.log
+config.txt
+persist
+save/
+EngineGames/
+commandHistory.json
+clockHelper/
+/foxSgfsDownload/

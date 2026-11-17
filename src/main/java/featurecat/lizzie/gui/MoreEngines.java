@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.CommandHistory;
 import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -40,7 +41,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import org.json.JSONException;
 
 public class MoreEngines extends JPanel {
   public static Config config;
@@ -66,6 +66,7 @@ public class MoreEngines extends JPanel {
   JFontTextField txtKomi;
   JFontButton exit;
   JFontButton scan;
+  JFontButton history;
   JFontButton delete;
   JFontButton add;
   JFontButton save;
@@ -186,6 +187,7 @@ public class MoreEngines extends JPanel {
     this.exit = new JFontButton(this.resourceBundle.getString("MoreEngines.exit"));
     this.delete = new JFontButton(this.resourceBundle.getString("MoreEngines.delete"));
     this.scan = new JFontButton(this.resourceBundle.getString("MoreEngines.scan"));
+    this.history = new JFontButton(this.resourceBundle.getString("CommandHistory.button"));
     this.moveUp = new JFontButton(this.resourceBundle.getString("MoreEngines.moveUp"));
     this.moveDown = new JFontButton(this.resourceBundle.getString("MoreEngines.moveDown"));
     this.moveUp5 = new JFontButton(this.resourceBundle.getString("MoreEngines.moveUp5"));
@@ -347,6 +349,11 @@ public class MoreEngines extends JPanel {
         5,
         83,
         Lizzie.config.isFrameFontSmall() ? 60 : (Lizzie.config.isFrameFontMiddle() ? 75 : 90),
+        24);
+    this.history.setBounds(
+        Lizzie.config.isFrameFontSmall() ? 445 : (Lizzie.config.isFrameFontMiddle() ? 500 : 560),
+        270,
+        Lizzie.config.isFrameFontSmall() ? 75 : (Lizzie.config.isFrameFontMiddle() ? 85 : 95),
         24);
     this.txtName.setBounds(
         Lizzie.config.isFrameFontSmall() ? 68 : (Lizzie.config.isFrameFontMiddle() ? 85 : 100),
@@ -570,29 +577,6 @@ public class MoreEngines extends JPanel {
           Lizzie.config.isFrameFontSmall() ? 90 : (Lizzie.config.isFrameFontMiddle() ? 110 : 135),
           24);
     }
-    //    this.rdoDefault.setBounds(
-    //        Lizzie.config.isFrameFontSmall() ? 70 : (Lizzie.config.isFrameFontMiddle() ? 90 :
-    // 110),
-    //        360,
-    //        (Lizzie.config.isFrameFontSmall() ? 130 : (Lizzie.config.isFrameFontMiddle() ? 160 :
-    // 190))
-    //            + (Lizzie.config.isChinese ? 0 : 15),
-    //        24);
-    //    this.rdoLast.setBounds(
-    //        (Lizzie.config.isFrameFontSmall() ? 210 : (Lizzie.config.isFrameFontMiddle() ? 250 :
-    // 310))
-    //            + (Lizzie.config.isChinese ? 0 : 15),
-    //        360,
-    //        Lizzie.config.isFrameFontSmall() ? 160 : (Lizzie.config.isFrameFontMiddle() ? 215 :
-    // 250),
-    //        24);
-    //    this.rdoMannul.setBounds(
-    //        (Lizzie.config.isFrameFontSmall() ? 368 : (Lizzie.config.isFrameFontMiddle() ? 465 :
-    // 570))
-    //            + (Lizzie.config.isChinese ? 0 : 15),
-    //        360,
-    //        145,
-    //        24);
     JFontButton btnEncrypt =
         new JFontButton(this.resourceBundle.getString("MoreEngines.btnEncrypt"));
     btnEncrypt.setMargin(new Insets(0, 0, 0, 0));
@@ -631,6 +615,7 @@ public class MoreEngines extends JPanel {
     this.selectpanel.add(lblKomi);
     this.selectpanel.add(this.txtKomi);
     this.selectpanel.add(this.scan);
+    this.selectpanel.add(this.history);
     this.selectpanel.add(this.add);
     this.selectpanel.add(this.save);
     this.selectpanel.add(this.cancel);
@@ -655,6 +640,21 @@ public class MoreEngines extends JPanel {
             String el = getEngineLine.getEngineLine(MoreEngines.engjf, false, false, false, false);
             if (!el.isEmpty()) command.setText(el);
             setVisible(true);
+          }
+        });
+    this.history.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (curIndex < 0) return;
+            String channel = "engine:" + curIndex;
+            String title =
+                resourceBundle.getString("CommandHistory.title")
+                    + " - "
+                    + (txtName.getText().isEmpty() ? ("#" + (curIndex + 1)) : txtName.getText());
+            CommandHistoryDialog dialog =
+                new CommandHistoryDialog(
+                    MoreEngines.engjf, channel, title, text -> command.setText(text));
+            dialog.setVisible(true);
           }
         });
     this.add.addActionListener(
@@ -715,16 +715,7 @@ public class MoreEngines extends JPanel {
           public void actionPerformed(ActionEvent e) {
             checkSave();
             MoreEngines.engjf.setVisible(false);
-            if (needUpdateEngine)
-              try {
-                Lizzie.engineManager.updateEngines();
-              } catch (JSONException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-              } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-              }
+            applyEngineChanges();
           }
         });
     this.cancel.addActionListener(
@@ -1176,6 +1167,7 @@ public class MoreEngines extends JPanel {
       engineData.add(this.curIndex, engineDt);
     }
     Utils.saveEngineSettings(engineData);
+    CommandHistory.add("engine:" + this.curIndex, engineDt.commands);
   }
 
   public AbstractTableModel getTableModel() {
@@ -1236,6 +1228,16 @@ public class MoreEngines extends JPanel {
     };
   }
 
+  private static void applyEngineChanges() {
+    if (!needUpdateEngine) return;
+    needUpdateEngine = false;
+    if (Lizzie.engineManager == null) return;
+    if (!Lizzie.engineManager.updateEnginesIfIdle()) {
+      Utils.showMsgNoModal(
+          Lizzie.resourceBundle.getString("MoreEngines.engineGameRunningNoRestart"));
+    }
+  }
+
   public static JDialog createDialog() {
     engjf = new JDialog();
     needUpdateEngine = false;
@@ -1245,16 +1247,7 @@ public class MoreEngines extends JPanel {
         new WindowAdapter() {
           public void windowClosing(WindowEvent e) {
             MoreEngines.engjf.setVisible(false);
-            if (needUpdateEngine)
-              try {
-                Lizzie.engineManager.updateEngines();
-              } catch (JSONException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-              } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-              }
+            applyEngineChanges();
           }
         });
     MoreEngines newContentPane = new MoreEngines();

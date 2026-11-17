@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.CommandHistory;
 import featurecat.lizzie.gui.LizzieFrame.HtmlKit;
 import featurecat.lizzie.util.Utils;
 import java.awt.Desktop;
@@ -232,6 +233,29 @@ public class AnalysisSettings extends JDialog {
     btnGenerate.setFocusable(false);
     contentPane.add(btnGenerate);
 
+    JFontButton btnHistory =
+        new JFontButton(Lizzie.resourceBundle.getString("CommandHistory.button"));
+    btnHistory.setMargin(new Insets(0, 0, 0, 0));
+    btnHistory.setBounds(
+        Lizzie.config.isFrameFontSmall() ? 360 : (Lizzie.config.isFrameFontMiddle() ? 370 : 375),
+        321,
+        Lizzie.config.isFrameFontSmall() ? 100 : (Lizzie.config.isFrameFontMiddle() ? 105 : 100),
+        31);
+    btnHistory.setFocusable(false);
+    btnHistory.addActionListener(
+        e -> {
+          CommandHistoryDialog history =
+              new CommandHistoryDialog(
+                  dialog,
+                  "analysis",
+                  Lizzie.resourceBundle.getString("CommandHistory.title")
+                      + " - "
+                      + Lizzie.resourceBundle.getString("CommandHistory.analysis"),
+                  text -> engineCmd.setText(text));
+          history.setVisible(true);
+        });
+    contentPane.add(btnHistory);
+
     chkUseJavaSSH =
         new JFontCheckBox(Lizzie.resourceBundle.getString("MoreEngines.chkRemoteEngine"));
     JFontButton setRemoteEngine =
@@ -353,5 +377,6 @@ public class AnalysisSettings extends JDialog {
     Lizzie.config.uiConfig.put("analysis-always-override", Lizzie.config.analysisAlwaysOverride);
     Lizzie.config.uiConfig.put("analysis-use-current-rules", Lizzie.config.analysisUseCurrentRules);
     Lizzie.config.uiConfig.put("analysis-engine-command", Lizzie.config.analysisEngineCommand);
+    CommandHistory.add("analysis", Lizzie.config.analysisEngineCommand);
   }
 }

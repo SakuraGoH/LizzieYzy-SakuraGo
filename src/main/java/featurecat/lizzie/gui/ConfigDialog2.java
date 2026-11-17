@@ -359,6 +359,10 @@ public class ConfigDialog2 extends JDialog {
                 + resourceBundle.getString("LizzieConfig.about.lblOriginLizzieInfo2"));
 
     lblOriginLizzieInfo.setFont(new Font(Config.sysDefaultFontName, Font.PLAIN, 14));
+
+    LinkLabel lblKataInfo =
+        new LinkLabel(resourceBundle.getString("LizzieConfig.about.lblKataInfo"));
+    lblKataInfo.setFont(new Font(Config.sysDefaultFontName, Font.PLAIN, 14));
     // 注释这里
     GroupLayout gl = new GroupLayout(aboutTab);
     gl.setHorizontalGroup(
@@ -388,6 +392,14 @@ public class ConfigDialog2 extends JDialog {
                                         620,
                                         GroupLayout.PREFERRED_SIZE))
                             .addGroup(
+                                gl.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(
+                                        lblKataInfo,
+                                        GroupLayout.PREFERRED_SIZE,
+                                        620,
+                                        GroupLayout.PREFERRED_SIZE))
+                            .addGroup(
                                 gl.createSequentialGroup().addComponent(lblLizzieName).addGap(225)))
                     .addContainerGap()));
     gl.setVerticalGroup(
@@ -408,7 +420,10 @@ public class ConfigDialog2 extends JDialog {
                         GroupLayout.PREFERRED_SIZE,
                         282,
                         GroupLayout.PREFERRED_SIZE)
-                    .addGap(126)));
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(
+                        lblKataInfo, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+                    .addGap(56)));
     aboutTab.setLayout(gl);
     ButtonGroup group = new ButtonGroup();
     nf.setGroupingUsed(false);
@@ -3175,28 +3190,6 @@ public class ConfigDialog2 extends JDialog {
   public boolean isWindows() {
     return osName != null && !osName.contains("darwin") && osName.contains("win");
   }
-
-  //  private void setShowLcbWinrate() {
-  //
-  //    if (Lizzie.config.showLcbWinrate) {
-  //      rdoLcb.setSelected(true);
-  //    } else {
-  //      rdoWinrate.setSelected(true);
-  //    }
-  //  }
-  //
-  //  private boolean getShowLcbWinrate() {
-  //
-  //    if (rdoLcb.isSelected()) {
-  //      Lizzie.config.showLcbWinrate = true;
-  //      return true;
-  //    }
-  //    if (rdoWinrate.isSelected()) {
-  //      Lizzie.config.showLcbWinrate = false;
-  //      return false;
-  //    }
-  //    return true;
-  //  }
 
   private void setBoardSize() {
     int size = Board.boardWidth;

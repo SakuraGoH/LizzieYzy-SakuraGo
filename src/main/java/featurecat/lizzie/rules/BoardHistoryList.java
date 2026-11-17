@@ -9,6 +9,7 @@ import java.util.Optional;
 public class BoardHistoryList {
   private GameInfo gameInfo;
   private BoardHistoryNode head;
+  private boolean headless;
 
   /**
    * Initialize a new board history list, whose first node is data
@@ -16,8 +17,18 @@ public class BoardHistoryList {
    * @param data the data to be stored for the first entry
    */
   public BoardHistoryList(BoardData data) {
+    this(data, false);
+  }
+
+  public BoardHistoryList(BoardData data, boolean headless) {
     head = new BoardHistoryNode(data);
+    head.headless = headless;
+    this.headless = headless;
     gameInfo = new GameInfo();
+  }
+
+  public boolean isHeadless() {
+    return headless;
   }
 
   public GameInfo getGameInfo() {
@@ -74,6 +85,7 @@ public class BoardHistoryList {
     BoardHistoryList copy = new BoardHistoryList(null);
     copy.head = head;
     copy.gameInfo = gameInfo;
+    copy.headless = headless;
     return copy;
   }
 
@@ -88,7 +100,9 @@ public class BoardHistoryList {
    * @param data the data to add
    */
   public void add(BoardData data) {
-    head = head.add(new BoardHistoryNode(data));
+    BoardHistoryNode node = new BoardHistoryNode(data);
+    node.headless = headless;
+    head = head.add(node);
   }
 
   public void addOrGoto(BoardData data) {
@@ -553,7 +567,7 @@ public class BoardHistoryList {
         //    Lizzie.board.modifyEnd();
         return;
       }
-      if (Lizzie.leelaz.canSuicidal) {
+      if (Lizzie.leelaz != null && Lizzie.leelaz.canSuicidal) {
         if (isSuicidal == 1) {
           //  Lizzie.board.modifyEnd();
           return;

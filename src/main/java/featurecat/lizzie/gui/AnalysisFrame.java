@@ -969,13 +969,13 @@ public class AnalysisFrame extends JFrame {
               if (data.order != 0) {
                 double diff = data.winrate - data.bestWinrate;
                 return (diff > 0 ? "↑" : "↓")
-                    + String.format(Locale.ENGLISH, "%.1f", diff)
+                    + Utils.formatScoreValue(diff)
                     + "("
-                    + String.format(Locale.ENGLISH, "%.1f", data.winrate)
+                    + Utils.formatWinrate(data.winrate)
                     + ")";
               }
             }
-            return String.format(Locale.ENGLISH, "%.1f", data.winrate);
+            return Utils.formatWinrate(data.winrate);
           case 4:
             if (data.order == -100) return resourceBundle.getString("AnalysisFrame.exclude");
             else return Utils.getPlayoutsString(data.playouts);
@@ -1011,13 +1011,13 @@ public class AnalysisFrame extends JFrame {
             if (data.isNextMove && data.order != 0) {
               double diff = data.scoreMean - data.bestScoreMean;
               return (diff > 0 ? "↑" : "↓")
-                  + String.format(Locale.ENGLISH, "%.1f", diff)
+                  + Utils.formatScoreValue(diff)
                   + "("
-                  + String.format(Locale.ENGLISH, "%.1f", score)
+                  + Utils.formatScoreValue(score)
                   + ")";
-            } else return String.format(Locale.ENGLISH, "%.1f", score);
+            } else return Utils.formatScoreValue(score);
           case 8:
-            return String.format(Locale.ENGLISH, "%.1f", data.scoreStdev);
+            return Utils.formatScoreValue(data.scoreStdev);
           default:
             return "";
         }

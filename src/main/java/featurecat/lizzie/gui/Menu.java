@@ -5,6 +5,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.EngineManager;
 import featurecat.lizzie.analysis.FastLink;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import featurecat.lizzie.util.Utils;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,7 +52,6 @@ public class Menu extends JMenuBar {
   public static JFontMenu shutdownEngine;
   public static JFontMenu quickLinks;
   private JFontMenu contributeMenu;
-  // 野狐协议直连的勾选菜单项
   public static JFontCheckBoxMenuItem foxDirectItem;
   JFontMenuItem shutdownAllEngine;
   JFontMenuItem shutdownCurrentEngine;
@@ -958,6 +958,30 @@ public class Menu extends JMenuBar {
           }
         });
     Suggestions.add(showScoreAsDiff);
+
+    final JFontMenu precisionMenu =
+        new JFontMenu(resourceBundle.getString("Menu.suggestionPrecision"));
+    Suggestions.add(precisionMenu);
+    final JFontCheckBoxMenuItem[] precisionItems = new JFontCheckBoxMenuItem[4];
+    for (int i = 0; i <= 3; i++) {
+      final int digits = i;
+      JFontCheckBoxMenuItem item =
+          new JFontCheckBoxMenuItem(resourceBundle.getString("Menu.suggestionPrecision" + digits));
+      precisionItems[i] = item;
+      item.addActionListener(
+          new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+              Lizzie.config.suggestionInfoPrecision = digits;
+              Lizzie.config.uiConfig.put("suggestion-info-precision", digits);
+              for (int j = 0; j < precisionItems.length; j++) {
+                precisionItems[j].setState(j == digits);
+              }
+              Lizzie.frame.refresh();
+            }
+          });
+      precisionMenu.add(item);
+    }
+    precisionItems[Lizzie.config.suggestionInfoPrecision].setState(true);
 
     final JFontMenuItem customInfoOrdr =
         new JFontMenuItem(resourceBundle.getString("Menu.customInfoOrdr"));
@@ -1974,73 +1998,6 @@ public class Menu extends JMenuBar {
           }
         });
 
-    //    final JFontMenu kataScoreLeadPerspective =
-    //        new JFontMenu(
-    //            resourceBundle.getString(
-    //                "Menu.kataScoreLeadPerspective")); // 目差视角 Score lead perspective
-    //    kataSettings.add(kataScoreLeadPerspective);
-    //
-    //    final JFontCheckBoxMenuItem scoreLeadPerspectiveBlack =
-    //        new JFontCheckBoxMenuItem(
-    //            resourceBundle.getString("Menu.scoreLeadPerspectiveBlack")); // 永远为黑视角
-    //    kataScoreLeadPerspective.add(scoreLeadPerspectiveBlack);
-    //    scoreLeadPerspectiveBlack.addActionListener(
-    //        new ActionListener() {
-    //          @Override
-    //          public void actionPerformed(ActionEvent e) {
-    //            Lizzie.config.kataGoScoreMeanAlwaysBlack = true;
-    //            Lizzie.config.uiConfig.put(
-    //                "katago-scoremean-alwaysblack", Lizzie.config.kataGoScoreMeanAlwaysBlack);
-    //          }
-    //        });
-    //
-    //    final JFontCheckBoxMenuItem scoreLeadPerspectiveAlternately =
-    //        new JFontCheckBoxMenuItem(
-    //            resourceBundle.getString("Menu.scoreLeadPerspectiveAlternately")); // 黑白交替视角
-    //    kataScoreLeadPerspective.add(scoreLeadPerspectiveAlternately);
-    //    scoreLeadPerspectiveAlternately.addActionListener(
-    //        new ActionListener() {
-    //          @Override
-    //          public void actionPerformed(ActionEvent e) {
-    //            Lizzie.config.kataGoScoreMeanAlwaysBlack = false;
-    //            Lizzie.config.uiConfig.put(
-    //                "katago-scoremean-alwaysblack", Lizzie.config.kataGoScoreMeanAlwaysBlack);
-    //          }
-    //        });
-
-    //    final JFontMenu showScoreLeadOnWinrateGraph =
-    //        new JFontMenu(resourceBundle.getString("Menu.showScoreLeadOnWinrateGraph")); //
-    // 目差在胜率图上显示
-    //    kataSettings.add(showScoreLeadOnWinrateGraph);
-    //
-    //    final JFontCheckBoxMenuItem scoreLeadOnGraphWithKomi =
-    //        new JFontCheckBoxMenuItem(resourceBundle.getString("Menu.leadWithKomi")); // 目差
-    //    showScoreLeadOnWinrateGraph.add(scoreLeadOnGraphWithKomi);
-    //    scoreLeadOnGraphWithKomi.addActionListener(
-    //        new ActionListener() {
-    //
-    //          @Override
-    //          public void actionPerformed(ActionEvent e) {
-    //            Lizzie.config.scoreMeanWinrateGraphBoard = false;
-    //            Lizzie.config.uiConfig.put(
-    //                "scoremean-winrategraph-board", Lizzie.config.scoreMeanWinrateGraphBoard);
-    //          }
-    //        });
-    //
-    //    final JFontCheckBoxMenuItem scoreLeadOnGraphWithoutKomi =
-    //        new JFontCheckBoxMenuItem(resourceBundle.getString("Menu.leadJustScore")); // 盘面
-    //    showScoreLeadOnWinrateGraph.add(scoreLeadOnGraphWithoutKomi);
-    //    scoreLeadOnGraphWithoutKomi.addActionListener(
-    //        new ActionListener() {
-    //
-    //          @Override
-    //          public void actionPerformed(ActionEvent e) {
-    //            Lizzie.config.scoreMeanWinrateGraphBoard = true;
-    //            Lizzie.config.uiConfig.put(
-    //                "scoremean-winrategraph-board", Lizzie.config.scoreMeanWinrateGraphBoard);
-    //          }
-    //        });
-
     final JFontMenu kataEstimate =
         new JFontMenu(resourceBundle.getString("Menu.kataEstimate")); // ("Kata评估显示");
     kataSettings.add(kataEstimate);
@@ -2189,6 +2146,21 @@ public class Menu extends JMenuBar {
           }
         });
     kataEstimate.addSeparator();
+
+    final JFontCheckBoxMenuItem kataEstimateHoverOwnership =
+        new JFontCheckBoxMenuItem(resourceBundle.getString("Menu.kataEstimateHoverOwnership"));
+    kataEstimate.add(kataEstimateHoverOwnership);
+    kataEstimateHoverOwnership.setSelected(Lizzie.config.showKataGoOwnershipOnHover);
+    kataEstimateHoverOwnership.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showKataGoOwnershipOnHover = !Lizzie.config.showKataGoOwnershipOnHover;
+            Lizzie.config.uiConfig.put(
+                "show-katago-ownership-on-hover", Lizzie.config.showKataGoOwnershipOnHover);
+            Lizzie.frame.refresh();
+          }
+        });
 
     final JFontCheckBoxMenuItem kataEstimateByTransparentSmall =
         new JFontCheckBoxMenuItem(resourceBundle.getString("Menu.kataEstimateByTransparentSmall"));
@@ -2461,6 +2433,8 @@ public class Menu extends JMenuBar {
             else suggestion3.setState(false);
             if (Lizzie.config.showScoreAsDiff) showScoreAsDiff.setState(true);
             else showScoreAsDiff.setState(false);
+            for (int i = 0; i < precisionItems.length; i++)
+              precisionItems[i].setState(Lizzie.config.suggestionInfoPrecision == i);
             if (Lizzie.config.showKataGoScoreLeadWithKomi) {
               leadWithKomi.setState(false);
               leadWithoutKomi.setState(true);
@@ -2512,6 +2486,7 @@ public class Menu extends JMenuBar {
 
             if (Lizzie.config.showKataGoEstimateBySize) kataEstimateBySize.setState(true);
             else kataEstimateBySize.setState(false);
+            kataEstimateHoverOwnership.setState(Lizzie.config.showKataGoOwnershipOnHover);
             if (Lizzie.config.showKataGoEstimateBigBelow) kataEstimateByBigSquare.setState(true);
             else kataEstimateByBigSquare.setState(false);
             if (Lizzie.config.showKataGoEstimateSmall) {
@@ -3167,7 +3142,7 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openCaptureTsumego();
+            Lizzie.frame.openCaptureTsumegoOrStart();
           }
         });
     analyzeMenu.add(captureTsumeGo);
@@ -3630,7 +3605,8 @@ public class Menu extends JMenuBar {
     clearBoard.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+            if (FoxDirectController.getInstance().isRunning()
+                && FoxDirectController.getInstance().isInputLocked()) {
               Utils.showMsgNoModal(
                   Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
               return;
@@ -3711,7 +3687,8 @@ public class Menu extends JMenuBar {
     delete.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+            if (FoxDirectController.getInstance().isRunning()
+                && FoxDirectController.getInstance().isInputLocked()) {
               Utils.showMsgNoModal(
                   Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
               return;
@@ -3989,7 +3966,7 @@ public class Menu extends JMenuBar {
         });
 
     final JFontMenuItem foxKifu =
-        new JFontMenuItem(resourceBundle.getString("Menu.foxKifu")); // ("野狐(腾讯)棋谱");
+        new JFontMenuItem(resourceBundle.getString("Menu.foxKifu")); // ("野狐棋谱");
     live.add(foxKifu);
 
     foxKifu.addActionListener(
@@ -4021,13 +3998,13 @@ public class Menu extends JMenuBar {
         });
 
     // ---- 野狐（协议直连）----
-    foxDirectItem = new JFontCheckBoxMenuItem("野狐（协议直连）"); // 试点中文写死，后续可走 resourceBundle
-    foxDirectItem.setState(Lizzie.foxBridge != null);
+    foxDirectItem = new JFontCheckBoxMenuItem(Lizzie.resourceBundle.getString("FoxDirect.menu"));
+    foxDirectItem.setState(FoxDirectController.getInstance().isRunning());
     live.add(foxDirectItem);
     foxDirectItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.toggleFoxDirect();
+            Lizzie.frame.openFoxDirectWindow();
             refreshFoxDirectItemState();
           }
         });
@@ -4099,10 +4076,7 @@ public class Menu extends JMenuBar {
             else alwaysKeepBoardStatSync.setState(false);
             if (Lizzie.config.readBoardGetFocus) readBoardGetFocus.setState(true);
             else readBoardGetFocus.setState(false);
-            // 野狐协议直连勾选状态：以 foxBridge 是否在运行 为准
-            if (foxDirectItem != null) {
-              foxDirectItem.setState(Lizzie.foxBridge != null);
-            }
+            refreshFoxDirectItemState();
           }
 
           @Override
@@ -4970,7 +4944,6 @@ public class Menu extends JMenuBar {
 
     final JFontMenuItem introductionJpn =
         new JFontMenuItem(resourceBundle.getString("Menu.introductionJpn"));
-    helpMenu.add(introduction);
 
     introductionJpn.addActionListener(
         new ActionListener() {
@@ -4994,6 +4967,15 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             Lizzie.frame.openConfigDialog2(2);
+          }
+        });
+
+    final JFontMenuItem deviceInfo = new JFontMenuItem(resourceBundle.getString("Menu.deviceInfo"));
+    helpMenu.add(deviceInfo);
+    deviceInfo.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.openDeviceInfo();
           }
         });
 
@@ -9821,14 +9803,11 @@ public class Menu extends JMenuBar {
     if (selectAllow != null) selectAllow.setIcon(iconAllow);
   }
 
-  /** 顶部“同步”与底部“同步”里的野狐直连菜单项状态统一刷新。 */
+  /** 刷新顶部/底部野狐直连菜单项的勾选状态。 */
   public static void refreshFoxDirectItemState() {
-    boolean running = Lizzie.foxBridge != null;
+    boolean running = FoxDirectController.getInstance().isRunning();
     if (foxDirectItem != null) foxDirectItem.setState(running);
-    // 底部菜单项（BottomToolbar 里创建）通过回调统一刷新
-    if (LizzieFrame.toolbar != null) {
-      LizzieFrame.toolbar.refreshFoxDirectItemState(running);
-    }
+    if (LizzieFrame.toolbar != null) LizzieFrame.toolbar.refreshFoxDirectItemState(running);
   }
 
   public void updateEngineMenu() {

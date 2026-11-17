@@ -18,6 +18,7 @@ import featurecat.lizzie.analysis.KataEstimate;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.analysis.ReadBoard;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
@@ -30,6 +31,7 @@ import featurecat.lizzie.rules.NodeInfo;
 import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.util.Utils;
+import featurecat.lizzie.util.WindowFocusHelper;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -191,13 +193,14 @@ public class LizzieFrame extends JFrame {
   public int[] suggestionclick = outOfBoundCoordinate;
   public int[] clickbadmove = outOfBoundCoordinate;
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
+  /** 原始鼠标悬停坐标，不随“是否悬停在候选点”而被清除，供领地比例提示使用。 */
+  public int[] rawMouseOverCoordinate = outOfBoundCoordinate;
+
   private int curSuggestionMoveOrderByNumber = -1;
   public boolean showControls = false;
   private long showControlTime;
   public boolean isPlayingAgainstLeelaz = false;
   public boolean isAnaPlayingAgainstLeelaz = false;
-  // 野狐直连对局中，禁止手动落子
-  public volatile boolean foxGameInputLocked = false;
   public boolean playerIsBlack = true;
   public static boolean canGoAfterload = true;
   public int winRateGridLines = 3;
@@ -259,7 +262,7 @@ public class LizzieFrame extends JFrame {
   public KataEstimate zen;
   public SetEstimateParam setEstimateParam;
   public ReadBoard readBoard;
-  private featurecat.lizzie.analysis.fox.FoxClientServer foxServer;
+  private FoxDirectWindow foxDirectWindow;
   public ConfigDialog2 configDialog2;
   public boolean isShowingPolicy = false;
   public boolean isShowingHeatmap = false;
@@ -483,6 +486,8 @@ public class LizzieFrame extends JFrame {
   public static boolean isTempForcing = false;
   public FoxKifuDownload foxKifuDownload;
   public int noneMaxX, noneMaxY, noneMaxWidth, noneMaxHeight;
+  private boolean restoreMaximized;
+  private int lastNonIconifiedState = Frame.NORMAL;
 
   private boolean tempShowBlack;
   private boolean tempShowWhite;
@@ -503,6 +508,7 @@ public class LizzieFrame extends JFrame {
   /** Creates a window */
   public LizzieFrame() {
     setTitle(DEFAULT_TITLE);
+    setAutoRequestFocus(true);
     boardRenderer = new BoardRenderer(false);
     subBoardRenderer = new SubBoardRenderer(false);
     variationTree = new VariationTree();
@@ -513,7 +519,6 @@ public class LizzieFrame extends JFrame {
     menu = new Menu();
     RightClickMenu = new RightClickMenu();
     RightClickMenu2 = new RightClickMenu2();
-    openInVisibleFrame();
     // MenuTest menu = new MenuTest();
     // add(menu);
     // this.setJMenuBar(menu);
@@ -762,6 +767,10 @@ public class LizzieFrame extends JFrame {
           && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4) {
         JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
         this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
+        noneMaxX = pos.getInt(0);
+        noneMaxY = pos.getInt(1);
+        noneMaxWidth = pos.getInt(2);
+        noneMaxHeight = pos.getInt(3);
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) screensize.getWidth();
         int height = (int) screensize.getHeight();
@@ -770,6 +779,7 @@ public class LizzieFrame extends JFrame {
       }
       if (Lizzie.config.persistedUi.getBoolean("window-maximized"))
         setExtendedState(Frame.MAXIMIZED_BOTH);
+      restoreMaximized = Lizzie.config.persistedUi.getBoolean("window-maximized");
       if (Lizzie.config.persistedUi.optJSONArray("winrate-graph") != null
           && Lizzie.config.persistedUi.optJSONArray("winrate-graph").length() == 1) {
         JSONArray winrateG = Lizzie.config.persistedUi.getJSONArray("winrate-graph");
@@ -811,6 +821,13 @@ public class LizzieFrame extends JFrame {
     if (!hasSetBounds) {
       setSize(1065, 700);
       setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
+    }
+    // 记住普通状态下的窗口位置，避免关闭时处于最大化导致下次启动回到默认位置。
+    if (getExtendedState() != Frame.MAXIMIZED_BOTH) {
+      noneMaxX = getX();
+      noneMaxY = getY();
+      noneMaxWidth = getWidth();
+      noneMaxHeight = getHeight();
     }
 
     listTable.addMouseWheelListener(
@@ -1492,7 +1509,7 @@ public class LizzieFrame extends JFrame {
         new WindowAdapter() {
           public void windowClosing(WindowEvent e) {
             // 野狐对局进行中关闭时弹出确认提示
-            if (Lizzie.foxBridge != null && foxGameInputLocked) {
+            if (FoxDirectController.getInstance().isInputLocked()) {
               int ret =
                   JOptionPane.showConfirmDialog(
                       Lizzie.frame,
@@ -1505,6 +1522,7 @@ public class LizzieFrame extends JFrame {
               }
             }
             // 用户确认（或没有对局），执行关闭
+            rememberNormalBounds();
             Lizzie.shutdown();
           }
         });
@@ -1593,7 +1611,6 @@ public class LizzieFrame extends JFrame {
     mainPanel.setVisible(false);
     commentScrollPane.setVisible(false);
     blunderContentPane.setVisible(false);
-    setVisible(true);
   }
 
   private void setBlunderSort() {
@@ -2116,14 +2133,42 @@ public class LizzieFrame extends JFrame {
   }
 
   public void addResizeLis() {
+    if ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0)
+      lastNonIconifiedState = Frame.MAXIMIZED_BOTH;
     addComponentListener(
         new ComponentAdapter() {
           @Override
           public void componentResized(ComponentEvent e) {
+            rememberNormalBounds();
             refreshWinratePane = true;
             reSetLoc();
           }
+
+          @Override
+          public void componentMoved(ComponentEvent e) {
+            rememberNormalBounds();
+          }
         });
+    addWindowStateListener(
+        e -> {
+          if ((e.getNewState() & Frame.ICONIFIED) == 0) lastNonIconifiedState = e.getNewState();
+          if ((e.getNewState() & Frame.MAXIMIZED_BOTH) == 0) rememberNormalBounds();
+        });
+  }
+
+  private void rememberNormalBounds() {
+    if (getExtendedState() == Frame.MAXIMIZED_BOTH || !isShowing()) return;
+    noneMaxX = getX();
+    noneMaxY = getY();
+    noneMaxWidth = getWidth();
+    noneMaxHeight = getHeight();
+  }
+
+  /** 关闭时即使是“最小化”状态，也按最后一次非最小化状态判断是否最大化。 */
+  public boolean isMaximizedForPersist() {
+    int state = getExtendedState();
+    if ((state & Frame.ICONIFIED) != 0) state = lastNonIconifiedState;
+    return (state & Frame.MAXIMIZED_BOTH) != 0;
   }
 
   public int getLastVisitsCount(int curCount) {
@@ -2185,38 +2230,6 @@ public class LizzieFrame extends JFrame {
           lastPlayouts = visitsTemp[3].Playouts;
           return 1;
         } else return -1;
-        //	  case 4:
-        //		  if(curNode==visitsTemp[0].node)
-        //		  {
-        //			  lastPlayouts=visitsTemp[0].Playouts;
-        //			  return 5;
-        //		  }
-        //			  else
-        //				  if(curNode==visitsTemp[1].node)
-        //				  {
-        //					  lastPlayouts=visitsTemp[1].Playouts;
-        //					  return 4;
-        //				  }
-        //				  else
-        //					  if(curNode==visitsTemp[2].node)
-        //					  {
-        //						  lastPlayouts=visitsTemp[2].Playouts;
-        //						  return 3;
-        //					  }
-        //					  else
-        //						  if(curNode==visitsTemp[3].node)
-        //						  {
-        //							  lastPlayouts=visitsTemp[3].Playouts;
-        //							  return 2;
-        //						  }
-        //						  else
-        //							  if(curNode==visitsTemp[4].node)
-        //							  {
-        //								  lastPlayouts=visitsTemp[4].Playouts;
-        //								  return 1;
-        //							  }
-        //						  else
-        //							  return -1;
     }
     return -1;
   }
@@ -2312,7 +2325,7 @@ public class LizzieFrame extends JFrame {
   }
 
   public void openReadBoardJava() {
-    if (Lizzie.foxBridge != null) {
+    if (FoxDirectController.getInstance().isRunning()) {
       Utils.showMsg("请先停止野狐协议直连");
       return;
     }
@@ -2333,7 +2346,7 @@ public class LizzieFrame extends JFrame {
   }
 
   public void openBoardSync() {
-    if (Lizzie.foxBridge != null) {
+    if (FoxDirectController.getInstance().isRunning()) {
       Utils.showMsg("请先停止野狐协议直连");
       return;
     }
@@ -2374,40 +2387,28 @@ public class LizzieFrame extends JFrame {
   }
 
   public void stopFoxDirect() {
-    if (foxServer != null) {
-      try {
-        foxServer.stop();
-      } catch (Exception ignored) {
-      }
-      foxServer = null;
-    }
-    Lizzie.foxBridge = null;
-    Lizzie.foxEngine = null; // 改进3：清理对弈引擎引用
+    FoxDirectController.getInstance().stop();
     syncBoard = false;
     bothSync = false;
-    foxGameInputLocked = false;
-    // 同步顶部/底部菜单勾选状态
-    try {
-      Menu.refreshFoxDirectItemState();
-    } catch (Exception ignored) {
-    }
+    FoxDirectController.getInstance().setInputLocked(false);
+    refreshFoxDirectWindow();
   }
 
-  public void toggleFoxDirect() {
-    if (Lizzie.foxBridge != null) {
-      stopFoxDirect();
-      if (Lizzie.gtpConsole != null) Lizzie.gtpConsole.addLine("[Fox] 协议直连已停止\n");
-      return;
-    }
+  /** 打开独立的野狐协议直连窗口。 */
+  public void openFoxDirectWindow() {
+    if (foxDirectWindow == null) foxDirectWindow = new FoxDirectWindow(this);
+    foxDirectWindow.refreshState();
+    foxDirectWindow.setVisible(true);
+    foxDirectWindow.toFront();
+  }
 
-    // 启动前检查
-    if (readBoard != null && readBoard.process != null && readBoard.process.isAlive()) {
-      Utils.showMsg("请先停止截图同步");
-      return;
-    }
+  private void refreshFoxDirectWindow() {
+    if (foxDirectWindow != null) foxDirectWindow.refreshState();
+    Menu.refreshFoxDirectItemState();
+  }
 
-    // 改进3：双引擎模式下必须指定一个引擎作为对弈引擎
-    Leelaz selectedEngine = null;
+  /** 选择用于野狐对弈的引擎；返回 null 表示用户取消或引擎未就绪。 */
+  private Leelaz selectFoxDirectEngine() {
     if (Lizzie.config.isDoubleEngineMode()
         && Lizzie.leelaz2 != null
         && Lizzie.leelaz != null
@@ -2419,82 +2420,51 @@ public class LizzieFrame extends JFrame {
       int choice =
           JOptionPane.showOptionDialog(
               this,
-              "双引擎模式下，请选择用于野狐对弈的引擎：",
-              "选择对弈引擎",
+              Lizzie.resourceBundle.getString("FoxDirect.chooseEngine"),
+              Lizzie.resourceBundle.getString("FoxDirect.chooseEngineTitle"),
               JOptionPane.DEFAULT_OPTION,
               JOptionPane.QUESTION_MESSAGE,
               null,
               options,
               options[0]);
-      if (choice == -1) {
-        return; // 用户取消
-      }
-      selectedEngine = (choice == 0) ? Lizzie.leelaz : Lizzie.leelaz2;
-    } else {
-      // 非双引擎模式，使用主引擎
-      if (Lizzie.leelaz == null || !Lizzie.leelaz.isLoaded()) {
-        Utils.showMsg("请先启动 KataGo 引擎");
-        return;
-      }
-      selectedEngine = Lizzie.leelaz;
+      if (choice == -1) return null;
+      return choice == 0 ? Lizzie.leelaz : Lizzie.leelaz2;
     }
-
-    // 检查是否有另一个引擎已经在野狐对弈中（防止双引擎同时接入）
-    if (Lizzie.foxEngine != null && Lizzie.foxEngine != selectedEngine) {
-      Utils.showMsg("另一个引擎正在野狐对弈中，请先停止当前对局");
-      return;
+    if (Lizzie.leelaz == null || !Lizzie.leelaz.isLoaded()) {
+      Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.engineNotReady"));
+      return null;
     }
+    return Lizzie.leelaz;
+  }
 
-    Lizzie.foxEngine = selectedEngine;
+  /** 启动野狐协议直连（端口取自配置/窗口）。 */
+  public boolean startFoxDirect() {
+    if (FoxDirectController.getInstance().isRunning()) return true;
+    if (readBoard != null && readBoard.process != null && readBoard.process.isAlive()) {
+      Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.stopReadBoardFirst"));
+      return false;
+    }
+    Leelaz selectedEngine = selectFoxDirectEngine();
+    if (selectedEngine == null) return false;
+    if (FoxDirectController.getInstance().getEngine() != null
+        && FoxDirectController.getInstance().getEngine() != selectedEngine) {
+      Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.engineBusy"));
+      return false;
+    }
 
     // 避免 place(...) 走进截图同步分支
     syncBoard = false;
     bothSync = false;
+    FoxDirectController.getInstance().setInputLocked(false);
 
-    final int port = 6000; // 试点写死，后续可换成输入框
-    foxServer =
-        new featurecat.lizzie.analysis.fox.FoxClientServer(
-            new featurecat.lizzie.analysis.fox.FoxClientServer.Listener() {
-              @Override
-              public void onCommand(String command, String[] items) {
-                if (Lizzie.foxBridge != null) Lizzie.foxBridge.handleFoxCommand(command, items);
-              }
-
-              @Override
-              public void onLog(String msg) {
-                if (Lizzie.gtpConsole != null) Lizzie.gtpConsole.addLine("[Fox] " + msg + "\n");
-              }
-
-              @Override
-              public void onReconnect() {
-                Lizzie.board.clear(false);
-                refresh();
-              }
-            });
-
-    featurecat.lizzie.analysis.fox.FoxBridge bridge =
-        new featurecat.lizzie.analysis.fox.FoxBridge(null, foxServer);
-    featurecat.lizzie.analysis.fox.LizzieFoxHost host =
-        new featurecat.lizzie.analysis.fox.LizzieFoxHost(bridge);
-    bridge.setHost(host);
-    Lizzie.foxBridge = bridge;
-
-    boolean ok = foxServer.start(port);
-    if (!ok) {
+    int port = Lizzie.config.foxDirectPort;
+    if (!FoxDirectController.getInstance().start(selectedEngine, port)) {
+      Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.startFailed") + " " + port);
       stopFoxDirect();
-      Utils.showMsg("野狐监听端口 " + port + " 启动失败");
-      return;
+      return false;
     }
-    if (Lizzie.gtpConsole != null)
-      Lizzie.gtpConsole.addLine(
-          "[Fox] 协议直连已启动，端口 "
-              + port
-              + "，对弈引擎: "
-              + selectedEngine.oriEnginename
-              + "，请在野狐 AI 设置中填 127.0.0.1:"
-              + port
-              + "\n");
-    Menu.refreshFoxDirectItemState();
+    refreshFoxDirectWindow();
+    return true;
   }
 
   public void openConfigDialog2(int index) {
@@ -3751,6 +3721,7 @@ public class LizzieFrame extends JFrame {
       isSmallCap = false;
       int width = mainPanel.getWidth();
       int height = mainPanel.getHeight();
+      if (width <= 0 || height <= 0) return;
 
       Optional<Graphics2D> backgroundG = Optional.empty();
       if (cachedBackgroundWidth != width
@@ -3759,8 +3730,16 @@ public class LizzieFrame extends JFrame {
         backgroundG = Optional.of(createBackground(width, height));
       }
       if (!showControls) {
-        BufferedImage cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
+        if (cachedImage == null
+            || cachedImage.getWidth() != width
+            || cachedImage.getHeight() != height) {
+          cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
+        }
         Graphics2D g = (Graphics2D) cachedImage.getGraphics();
+        // 复用离屏缓冲，避免每帧分配整窗大小的 ARGB 图像；先清空避免残影。
+        g.setComposite(AlphaComposite.Clear);
+        g.fillRect(0, 0, width, height);
+        g.setComposite(AlphaComposite.SrcOver);
         // g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         if (Lizzie.config.isFourSubMode()) {
           int topInset = mainPanel.getInsets().top;
@@ -5150,6 +5129,13 @@ public class LizzieFrame extends JFrame {
     if (Lizzie.config.isFloatBoardMode()) this.paintMianPanel(mainPanel.getGraphics());
   }
 
+  /** 切换对局棋盘时强制重算胜率曲线，避免沿用上一局的缓存/坐标。 */
+  public void refreshWinrateForBoardSwitch() {
+    refreshWinratePane = true;
+    refreshFromInfo = false;
+    winrateGraph.resetMaxScoreLead();
+  }
+
   public void refresh() {
     // 分开各部分刷新,1代表来自info move的刷新
     redrawWinratePaneOnly = false;
@@ -5930,30 +5916,6 @@ public class LizzieFrame extends JFrame {
         posY + height * 7 / 26 + (diam - statusDiam) / 2,
         statusDiam,
         statusDiam);
-    // }
-    //    else {
-    //    	bdiam=bdiam*4/3;
-    //    	wdiam=wdiam*4/3;
-    //      g.fillOval(
-    //          posX + width / 4 - bdiam / 2, posY  + (diam - bdiam), bdiam, bdiam);
-    //
-    //      g.setColor(Color.WHITE);
-    //      g.fillOval(
-    //          posX + width * 3 / 4 - wdiam / 2,
-    //          posY + (diam - wdiam) ,
-    //          wdiam,
-    //          wdiam);
-    //      // Status Indicator
-    //      int statusDiam = height / 8;
-    //      g.setColor((Lizzie.leelaz != null && Lizzie.leelaz.isPondering()) ? Color.GREEN :
-    // Color.RED);
-    //      g.fillOval(
-    //          posX - strokeRadius + width / 2 - statusDiam / 2,
-    //          posY + height * 3 / 8 + (diam - statusDiam) / 2,
-    //          statusDiam,
-    //          statusDiam);
-    //    }
-    // Draw captures
     String bval = "", wval = "";
     if (isSmallCap)
       setPanelFont(
@@ -6200,7 +6162,7 @@ public class LizzieFrame extends JFrame {
    * @param y y coordinate
    */
   public void onClickedForManul(int x, int y) {
-    if (foxGameInputLocked) return;
+    if (FoxDirectController.getInstance().isInputLocked()) return;
     Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
     if (boardCoordinates.isPresent()) {
       int[] coords = boardCoordinates.get();
@@ -6223,7 +6185,7 @@ public class LizzieFrame extends JFrame {
 
   public boolean onClickedRight(int x, int y) {
     if (blackorwhite == 0) return false;
-    if (foxGameInputLocked) return false;
+    if (FoxDirectController.getInstance().isInputLocked()) return false;
     Optional<int[]> boardCoordinates;
     if (Lizzie.config.isThinkingMode()) {
       boardCoordinates = boardRenderer2.convertScreenToCoordinates(x, y);
@@ -6262,7 +6224,7 @@ public class LizzieFrame extends JFrame {
   public void onClicked(int x, int y) {
     // 野狐直连对局中：禁止手动落子，但允许点击已有落子回看历史（不改变棋局）
     boolean foxLockedBoardClick = false;
-    if (foxGameInputLocked) {
+    if (FoxDirectController.getInstance().isInputLocked()) {
       Optional<int[]> boardCoordinatesLocked;
       if (Lizzie.config.isThinkingMode()) {
         boardCoordinatesLocked = boardRenderer2.convertScreenToCoordinates(x, y);
@@ -6297,7 +6259,7 @@ public class LizzieFrame extends JFrame {
 
     if (boardCoordinates.isPresent() && !foxLockedBoardClick) {
       if (Lizzie.frame.isContributing) return;
-      if (foxGameInputLocked) return;
+      if (FoxDirectController.getInstance().isInputLocked()) return;
       int[] coords = boardCoordinates.get();
       if (Lizzie.board.hasStoneAt(coords)) {
         Lizzie.board.setPressStoneInfo(coords, false);
@@ -6333,7 +6295,8 @@ public class LizzieFrame extends JFrame {
     }
     if (Lizzie.config.showWinrateGraph && moveNumber >= 0) {
       // 野狐对局中允许通过胜率图回看，但不改变主分支
-      if (!foxGameInputLocked && (isPlayingAgainstLeelaz || isAnaPlayingAgainstLeelaz)) return;
+      if (!FoxDirectController.getInstance().isInputLocked()
+          && (isPlayingAgainstLeelaz || isAnaPlayingAgainstLeelaz)) return;
       if (canGoAfterload) Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
     }
     // if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
@@ -6681,6 +6644,7 @@ public class LizzieFrame extends JFrame {
     boolean inBoard = coords.isPresent();
     if (inBoard) {
       int[] curCoords = coords.get();
+      rawMouseOverCoordinate = curCoords;
       Lizzie.board.clearPressStoneInfo(curCoords);
       boolean isCoordsChanged = false;
       if (mouseOverCoordinate[0] != curCoords[0] || mouseOverCoordinate[1] != curCoords[1]) {
@@ -6800,6 +6764,7 @@ public class LizzieFrame extends JFrame {
 
     } else {
       mouseOverCoordinate = outOfBoundCoordinate;
+      rawMouseOverCoordinate = outOfBoundCoordinate;
       if (isMouseOver) {
         isMouseOver = false;
         needRepaint = true;
@@ -8953,6 +8918,10 @@ public class LizzieFrame extends JFrame {
     bowser(url, Lizzie.resourceBundle.getString("LizzieFrame.introduction"), false);
   }
 
+  public void openDeviceInfo() {
+    new DeviceInfoDialog(this).setVisible(true);
+  }
+
   public void bowser(String url, String title, boolean isYike) {
     if (browserFrame == null) {
       if (!Lizzie.config.browserInitiazed && browserInitializing != null) {
@@ -9817,8 +9786,68 @@ public class LizzieFrame extends JFrame {
   }
 
   public void showMainPanel() {
-    setCommentPaneContent();
     mainPanel.setVisible(true);
+    // 先把窗口和棋盘显示出来，再填充评论等次要内容，避免窗口先出现、界面后渲染的割裂感。
+    SwingUtilities.invokeLater(
+        () -> {
+          setVisible(true);
+          // setExtendedState 在窗口尚未显示时可能被 Windows 忽略，显示后按上次状态恢复一次。
+          if (restoreMaximized) setExtendedState(Frame.MAXIMIZED_BOTH);
+          scheduleStartupToFront();
+          reSetLoc();
+          setCommentPaneContent();
+          repaint();
+          Thread clockHelperThread = new Thread(this::openInVisibleFrame, "clock-helper");
+          clockHelperThread.setDaemon(true);
+          clockHelperThread.start();
+        });
+  }
+
+  private javax.swing.Timer bringToFrontTimer;
+
+  /** 启动阶段多次尝试前台化，避开 Windows 前台窗口限制和后续 GTP 控制台抢焦点。 */
+  private void scheduleStartupToFront() {
+    bringToFront();
+    scheduleToFrontLater(400);
+    scheduleToFrontLater(1200);
+    scheduleToFrontLater(2500);
+  }
+
+  private void scheduleToFrontLater(int delayMillis) {
+    javax.swing.Timer timer = new javax.swing.Timer(delayMillis, e -> bringToFront());
+    timer.setRepeats(false);
+    timer.start();
+  }
+
+  /** 把主棋盘窗口带到最前面。Windows 的前台窗口限制下，临时置顶再恢复更可靠。 */
+  public void bringToFront() {
+    if (!isVisible()) setVisible(true);
+    int state = getExtendedState();
+    if ((state & Frame.ICONIFIED) != 0) setExtendedState(state & ~Frame.ICONIFIED);
+    boolean maximized = (getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
+    boolean wasTop = isAlwaysOnTop();
+    // 最大化窗口不要切换置顶，某些 Windows 主题下取消置顶会把最大化还原成普通窗口。
+    if (!wasTop && !maximized) setAlwaysOnTop(true);
+    WindowFocusHelper.forceForeground(this);
+    if (maximized && (getExtendedState() & Frame.MAXIMIZED_BOTH) == 0) {
+      setExtendedState(Frame.MAXIMIZED_BOTH);
+    }
+    if (!wasTop && !maximized) {
+      if (bringToFrontTimer != null) bringToFrontTimer.stop();
+      bringToFrontTimer =
+          new javax.swing.Timer(
+              3000,
+              e -> {
+                int current = getExtendedState();
+                if (!Lizzie.config.mainsalwaysontop) setAlwaysOnTop(false);
+                if ((current & Frame.MAXIMIZED_BOTH) != 0) {
+                  setExtendedState(Frame.MAXIMIZED_BOTH);
+                }
+                toFront();
+              });
+      bringToFrontTimer.setRepeats(false);
+      bringToFrontTimer.start();
+    }
   }
 
   public void reSetLoc() {
@@ -12332,9 +12361,7 @@ public class LizzieFrame extends JFrame {
   }
 
   public void openFoxReq() {
-    // TODO Auto-generated method stub
-    foxKifuDownload = new FoxKifuDownload();
-    foxKifuDownload.setVisible(true);
+    FoxSgfsLauncher.launch(this);
   }
 
   public void tryToRefreshVariation() {
@@ -12576,6 +12603,12 @@ public class LizzieFrame extends JFrame {
     }
     captureTsumeGoFrame = new CaptureTsumeGoFrame();
     captureTsumeGoFrame.setVisible(true);
+  }
+
+  /** 根据用户设置决定先显示步骤说明，还是直接开始抓取死活题。 */
+  public void openCaptureTsumegoOrStart() {
+    if (Lizzie.config.captureTsumeGoSkipHint) startCaptureTsumeGo();
+    else openCaptureTsumego();
   }
 
   public void newEmptyBoard() {

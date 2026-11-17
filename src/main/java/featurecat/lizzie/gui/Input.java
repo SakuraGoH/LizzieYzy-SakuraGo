@@ -4,6 +4,7 @@ import static java.awt.event.KeyEvent.*;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.EngineManager;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.util.Utils;
@@ -179,6 +180,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.config.isDoubleEngineMode()) {
           LizzieFrame.boardRenderer2.removeblock();
         }
+        if (Lizzie.config.showKataGoOwnershipOnHover) Lizzie.frame.refresh();
         return;
       }
 
@@ -552,7 +554,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_HOME:
         if (controlIsPressed(e)) {
-          if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+          if (FoxDirectController.getInstance().isRunning()
+              && FoxDirectController.getInstance().isInputLocked()) {
             Utils.showMsgNoModal(
                 Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
             break;
@@ -667,7 +670,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
       case VK_DELETE:
       case VK_BACK_SPACE:
-        if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+        if (FoxDirectController.getInstance().isRunning()
+            && FoxDirectController.getInstance().isInputLocked()) {
           Utils.showMsgNoModal(Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
           break;
         }

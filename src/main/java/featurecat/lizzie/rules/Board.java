@@ -8,6 +8,7 @@ import featurecat.lizzie.analysis.EngineManager;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.gui.ScoreResult;
 import featurecat.lizzie.util.Utils;
@@ -79,6 +80,26 @@ public class Board {
 
   public Board() {
     initialize(false);
+  }
+
+  /** 创建一个不连接界面的棋盘，用于多场引擎对战等后台对局。 后台棋盘只维护历史与规则，不会刷新渲染器或向主引擎发送命令。 */
+  public Board(boolean headless) {
+    isHeadless = headless;
+    if (headless) initializeHeadless();
+    else initialize(false);
+  }
+
+  public boolean isHeadless = false;
+
+  private void initializeHeadless() {
+    isGameBoard = false;
+    neverPassedInGame = true;
+    analysisMode = false;
+    forceRefresh = false;
+    forceRefresh2 = false;
+    hasBigBranch = false;
+    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight), true);
+    isExtremlySmallBoard = boardWidth < 4;
   }
 
   /** Initialize the board completely */
@@ -2387,7 +2408,8 @@ public class Board {
   public boolean nextMove(boolean needRefresh) {
     synchronized (this) {
       // 复盘前进时引擎局面跟随视图；对局/野狐同步时固定在主分支末尾
-      boolean followsView = !(EngineManager.isEngineGame || Lizzie.frame.foxGameInputLocked);
+      boolean followsView =
+          !(EngineManager.isEngineGame || FoxDirectController.getInstance().isInputLocked());
       Lizzie.leelaz.setEngineFollowsView(followsView);
 
       modifyStart();
@@ -2758,7 +2780,9 @@ public class Board {
 
   public void deleteMove() {
     // 野狐对局中禁止删除手数，避免破坏主分支
-    if (Lizzie.foxBridge != null && Lizzie.frame != null && Lizzie.frame.foxGameInputLocked) {
+    if (FoxDirectController.getInstance().isRunning()
+        && Lizzie.frame != null
+        && FoxDirectController.getInstance().isInputLocked()) {
       return;
     }
     synchronized (this) {
@@ -3023,7 +3047,7 @@ public class Board {
     synchronized (this) {
       boolean inGame =
           EngineManager.isEngineGame
-              || Lizzie.frame.foxGameInputLocked
+              || FoxDirectController.getInstance().isInputLocked()
               || Lizzie.frame.isPlayingAgainstLeelaz
               || Lizzie.frame.isAnaPlayingAgainstLeelaz;
 
@@ -3155,66 +3179,6 @@ public class Board {
     }
     return false;
   }
-
-  //  public double lastWinrateDiff2(BoardHistoryNode node) {
-  //    if (Lizzie.board.isPkBoard) {
-  //      if (node.previous().isPresent()
-  //          && node.previous().get().previous().isPresent()
-  //          && !node.previous().get().previous().get().getData().bestMoves.isEmpty()) {
-  //        return (node.previous().get().previous().get().getData().bestMoves.get(0).winrate
-  //            - Lizzie.board.getData().bestMoves.get(0).winrate);
-  //      }
-  //    } else {
-  //      // Last winrate
-  //      Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-  //      boolean validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
-  //      while (!validLastWinrate && node.previous().isPresent()) {
-  //        node = node.previous().get();
-  //        lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-  //        validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
-  //      }
-  //      if (!node.previous().isPresent()) {
-  //        return 0;
-  //      }
-  //      double lastWR = lastNode.get().bestMoves.get(0).winrate;
-  //      if (lastNode.get().blackToPlay == node.getData().blackToPlay) {
-  //        return lastWR - Lizzie.board.getData().bestMoves.get(0).winrate;
-  //      } else {
-  //        return (100 - lastWR) - Lizzie.board.getData().bestMoves.get(0).winrate;
-  //      }
-  //    }
-  //    return 0;
-  //  }
-
-  //  public double lastScoreMeanDiff2(BoardHistoryNode node) {
-  //    if (Lizzie.board.isPkBoard) {
-  //      if (node.previous().isPresent()
-  //          && node.previous().get().previous().isPresent()
-  //          && !node.previous().get().previous().get().getData().bestMoves.isEmpty()) {
-  //        return (node.previous().get().previous().get().getData().bestMoves.get(0).scoreMean
-  //            - Lizzie.board.getData().bestMoves.get(0).scoreMean);
-  //      }
-  //    } else {
-  //      // Last winrate
-  //      Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-  //      boolean validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
-  //      while (!validLastWinrate && node.previous().isPresent()) {
-  //        node = node.previous().get();
-  //        lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-  //        validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
-  //      }
-  //      if (!node.previous().isPresent()) {
-  //        return 0;
-  //      }
-  //      double lastWR = lastNode.get().bestMoves.get(0).scoreMean;
-  //      if (lastNode.get().blackToPlay == node.getData().blackToPlay) {
-  //        return lastWR - Lizzie.board.getData().bestMoves.get(0).scoreMean;
-  //      } else {
-  //        return (-lastWR) - Lizzie.board.getData().bestMoves.get(0).scoreMean;
-  //      }
-  //    }
-  //    return 0;
-  //  }
 
   public double lastWinrateDiff(BoardHistoryNode node) {
     if (Lizzie.board.isPkBoard) {
@@ -3438,7 +3402,7 @@ public class Board {
                 EngineManager.isEngineGame
                     || Lizzie.frame.isPlayingAgainstLeelaz
                     || Lizzie.frame.isAnaPlayingAgainstLeelaz
-                    || (Lizzie.frame != null && Lizzie.frame.foxGameInputLocked);
+                    || (Lizzie.frame != null && FoxDirectController.getInstance().isInputLocked());
             if (!inGame) {
               previousNode.nodeInfo.winrate = 100 - node.getData().winrate;
             }

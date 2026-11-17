@@ -28,7 +28,7 @@ public class FoxClientServer {
   private Thread recvThread;
   private final Object sendLock = new Object();
 
-  private int port = 6000;
+  private int port = -1;
   private volatile boolean autoReconnect = true;
   private volatile int reconnectInterval = 5;
 

@@ -49,9 +49,9 @@ public class Leelaz {
   // private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
 
   // private long maxAnalyzeTimeMillis; // , maxThinkingTimeMillis;
-  int cmdNumber;
+  volatile int cmdNumber;
   int modifyNumber;
-  private int currentCmdNum;
+  private volatile int currentCmdNum;
   // public int modifyCmdNum;
   // private boolean isResponse=false;
   private ArrayDeque<String> cmdQueue;
@@ -148,6 +148,25 @@ public class Leelaz {
   public boolean doublePass = false;
   public boolean outOfMoveNum = false;
   public boolean played = false;
+
+  /** 后台对局引擎：不操作主界面、不向主棋盘发命令。 */
+  public boolean headless = false;
+
+  /** 后台对局的标识(例如“第1局”)，仅用于GTP日志区分不同对局通道。 */
+  public String gameTag = "";
+
+  /** 每场对局独立的GTP日志消费者；为 null 时不记录。 */
+  public java.util.function.Consumer<String> headlessLog;
+
+  /** 最近一次真正写出的 genmove 命令所属的对局代号，用于丢弃上一局的迟到着法。 */
+  public volatile long lastSentGenmoveGeneration;
+
+  /** 已排队但尚未写出的 genmove 所属的对局代号。 */
+  private volatile long pendingGenmoveGeneration;
+
+  /** 若不为空，该引擎属于某场多场对战，读线程把 genmove 结果交给它处理。 */
+  public EngineGameSession gameSession;
+
   private boolean canSetNotPlayed = false;
 
   public boolean isKatago = false;
@@ -350,20 +369,21 @@ public class Leelaz {
         process = processBuilder.start();
       } catch (IOException e) {
         String err = e.getLocalizedMessage();
-        try {
-          tryToDignostic(
-              Lizzie.resourceBundle.getString("Leelaz.engineFailed")
-                  + ": "
-                  + ((err == null)
-                      ? Lizzie.resourceBundle.getString("Leelaz.engineStartNoExceptionMessage")
-                      : err),
-              true);
-          LizzieFrame.openMoreEngineDialog();
-        } catch (JSONException e1) {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
-          isDownWithError = true;
-        }
+        isDownWithError = true;
+        if (!headless)
+          try {
+            tryToDignostic(
+                Lizzie.resourceBundle.getString("Leelaz.engineFailed")
+                    + ": "
+                    + ((err == null)
+                        ? Lizzie.resourceBundle.getString("Leelaz.engineStartNoExceptionMessage")
+                        : err),
+                true);
+            LizzieFrame.openMoreEngineDialog();
+          } catch (JSONException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
         return;
       }
       initializeStreams();
@@ -391,8 +411,9 @@ public class Leelaz {
               sendCommand("name");
               sendCommand("version");
               sendCommand("list_commands");
-              if (!(Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz))
-                sendCommand("komi " + komi);
+              if (headless
+                  || !(Lizzie.frame.isPlayingAgainstLeelaz
+                      || Lizzie.frame.isAnaPlayingAgainstLeelaz)) sendCommand("komi " + komi);
               boardSize(width, height);
               if (initialCommand != null && !initialCommand.equals("")) {
                 String[] initialCommands = initialCommand.trim().split(";");
@@ -422,8 +443,9 @@ public class Leelaz {
               sendCommand("version");
               sendCommand("list_commands");
               boardSize(width, height);
-              if (!(Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz))
-                sendCommand("komi " + komi);
+              if (headless
+                  || !(Lizzie.frame.isPlayingAgainstLeelaz
+                      || Lizzie.frame.isAnaPlayingAgainstLeelaz)) sendCommand("komi " + komi);
               if (initialCommand != null && !initialCommand.equals("")) {
                 String[] initialCommands = initialCommand.trim().split(";");
                 for (String command : initialCommands) {
@@ -443,37 +465,23 @@ public class Leelaz {
     // can stop engine for switching weights
     executor = Executors.newSingleThreadScheduledExecutor();
     isNormalEnd = false;
-    executor.execute(this::read);
+    executor.execute(headless ? this::readHeadless : this::read);
     executorErr = Executors.newSingleThreadScheduledExecutor();
-    executorErr.execute(this::readError);
+    executorErr.execute(headless ? this::readErrorHeadless : this::readError);
     started = true;
 
-    if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
-      if (index > 19) LizzieFrame.menu.changeEngineIcon2(20, 1);
-      else LizzieFrame.menu.changeEngineIcon2(index, 1);
-    } else {
-      if (index > 19) LizzieFrame.menu.changeEngineIcon(20, 1);
-      else LizzieFrame.menu.changeEngineIcon(index, 1);
+    if (!headless) {
+      if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
+        if (index > 19) LizzieFrame.menu.changeEngineIcon2(20, 1);
+        else LizzieFrame.menu.changeEngineIcon2(index, 1);
+      } else {
+        if (index > 19) LizzieFrame.menu.changeEngineIcon(20, 1);
+        else LizzieFrame.menu.changeEngineIcon(index, 1);
+      }
+      if (Lizzie.frame.isShowingHeatmap) Lizzie.frame.isShowingHeatmap = false;
+      if (Lizzie.frame.isShowingPolicy) Lizzie.frame.isShowingPolicy = false;
     }
-    if (Lizzie.frame.isShowingHeatmap) Lizzie.frame.isShowingHeatmap = false;
-    if (Lizzie.frame.isShowingPolicy) Lizzie.frame.isShowingPolicy = false;
   }
-
-  //	public void restartEngine(int index) throws IOException {
-  //		if (engineCommand.trim().isEmpty()) {
-  //			return;
-  //		}
-  //		//switching = true;
-  //		this.engineCommand = engineCommand;
-  //		// stop the ponder
-  //		if (Lizzie.leelaz.isPondering()) {
-  //			Lizzie.leelaz.togglePonder();
-  //		}
-  //		normalQuit();
-  //		startEngine(index);
-  //		// currentEngineN = index;
-  //		togglePonder();
-  //	}
 
   public void restartClosedEngine(int index) throws IOException {
     boolean isPondering = this.isPondering;
@@ -509,12 +517,14 @@ public class Leelaz {
     isNormalEnd = true;
     canCheckAlive = false; // 新增：主动关闭时，关闭健康检查
     leela0110StopPonder();
-    if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
-      if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 0);
-      else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 0);
-    } else {
-      if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 0);
-      else LizzieFrame.menu.changeEngineIcon(currentEngineN, 0);
+    if (!headless) {
+      if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
+        if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 0);
+        else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 0);
+      } else {
+        if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 0);
+        else LizzieFrame.menu.changeEngineIcon(currentEngineN, 0);
+      }
     }
 
     //		if(isScreen)
@@ -524,6 +534,7 @@ public class Leelaz {
       javaSSH.close();
     } else {
       executor.shutdown();
+      if (executorErr != null) executorErr.shutdownNow();
       try {
         while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
           executor.shutdownNow();
@@ -553,12 +564,14 @@ public class Leelaz {
     }
     //		if(isScreen)
     //			sendCommand("name");
-    if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
-      if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 0);
-      else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 0);
-    } else {
-      if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 0);
-      else LizzieFrame.menu.changeEngineIcon(currentEngineN, 0);
+    if (!headless) {
+      if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
+        if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 0);
+        else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 0);
+      } else {
+        if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 0);
+        else LizzieFrame.menu.changeEngineIcon(currentEngineN, 0);
+      }
     }
     if (this.useJavaSSH) {
       javaSSH.close();
@@ -568,6 +581,8 @@ public class Leelaz {
       } catch (Exception e) {
         e.printStackTrace();
       }
+      if (executor != null) executor.shutdownNow();
+      if (executorErr != null) executorErr.shutdownNow();
     }
     outputStream = null;
   }
@@ -588,6 +603,7 @@ public class Leelaz {
       }
     }
     currentTotalPlayouts = MoveData.getPlayouts(bestMoves);
+    if (headless) return bestMoves;
     if (Lizzie.config.isDoubleEngineMode() && Lizzie.leelaz2 != null && this == Lizzie.leelaz2)
       infoTargetData()
           .tryToSetBestMoves2(bestMoves, bestMovesEnginename, true, currentTotalPlayouts);
@@ -625,6 +641,7 @@ public class Leelaz {
       }
     }
     currentTotalPlayouts = MoveData.getPlayouts(bestMoves);
+    if (headless) return bestMoves;
     if (Lizzie.config.isDoubleEngineMode() && Lizzie.leelaz2 != null && this == Lizzie.leelaz2)
       infoTargetData()
           .tryToSetBestMoves2(bestMoves, bestMovesEnginename, true, currentTotalPlayouts);
@@ -650,12 +667,12 @@ public class Leelaz {
   }
 
   public List<MoveData> parseInfoKatago(String line) {
-    boolean hasOwnership = false;
-    String[] lineInfo = null;
-    if (line.contains("ownership")) {
-      hasOwnership = true;
-      lineInfo = line.split("ownership");
-      line = lineInfo[0];
+    String ownershipPart = null;
+    // 只取顶层 ownership，不能按 "ownership" 直接 split：movesOwnership 里也包含该单词。
+    int ownershipPos = line.lastIndexOf(" ownership ");
+    if (ownershipPos >= 0) {
+      ownershipPart = line.substring(ownershipPos + " ownership ".length()).trim();
+      line = line.substring(0, ownershipPos);
     }
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
@@ -666,15 +683,20 @@ public class Leelaz {
     }
     currentTotalPlayouts = MoveData.getPlayouts(bestMoves);
 
-    // ===== estimateArray 声明（被删掉了，补回来）=====
     ArrayList<Double> estimateArray = new ArrayList<Double>();
-    if (Lizzie.config.showKataGoEstimate) {
-      if (hasOwnership && lineInfo != null && lineInfo.length > 1) {
-        String[] params2 = lineInfo[1].trim().split(" ");
-        for (int i = 0; i < params2.length; i++) estimateArray.add(Double.parseDouble(params2[i]));
+    if (Lizzie.config.showKataGoEstimate && ownershipPart != null) {
+      int boardPoints = Board.boardWidth * Board.boardHeight;
+      String[] params2 = ownershipPart.split("\\s+");
+      for (int i = 0; i < params2.length && estimateArray.size() < boardPoints; i++) {
+        try {
+          estimateArray.add(Double.parseDouble(params2[i]));
+        } catch (NumberFormatException e) {
+          break; // 后面的 ownershipStdev 等字段不是领地值
+        }
       }
-    } else estimateArray = null;
+    } else if (!Lizzie.config.showKataGoEstimate) estimateArray = null;
 
+    if (headless) return bestMoves;
     if (Lizzie.config.isDoubleEngineMode() && Lizzie.leelaz2 != null && this == Lizzie.leelaz2)
       infoTargetData()
           .tryToSetBestMoves2(
@@ -707,8 +729,61 @@ public class Leelaz {
    * @param line output line
    * @throws IOException
    */
+  /** 后台对局引擎的输出处理：不触碰主棋盘和主界面，只把结果交给所属对局。 */
+  private void parseLineForHeadlessGame(String line) throws IOException {
+    if (line == null) return;
+    line = line.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "").trim();
+    if (line.isEmpty()) return;
+    synchronized (this) {
+      if (line.startsWith("info")) {
+        if (isResponseUpToDate()) {
+          if (isKatago) this.bestMoves = parseInfoKatago(line.substring(5));
+          else if (isSai) this.bestMoves = parseInfoSai(line.substring(5));
+          else this.bestMoves = parseInfo(line.substring(5));
+          if (gameSession != null) gameSession.onEngineInfo(this, lastSentGenmoveGeneration);
+        }
+        return;
+      }
+      if (headlessLog != null)
+        headlessLog.accept("[" + gameTag + "] < " + oriEnginename + ": " + line);
+      if (line.startsWith("=") || line.startsWith("play")) {
+        isCommandLine = true;
+        String[] params = line.trim().split(" ");
+        if (params.length <= 1) return;
+        String body = params[1];
+        long responseGeneration = lastSentGenmoveGeneration;
+        if (gameSession != null && gameSession.isGameRunning()) {
+          if (body.toLowerCase().contains("resign")) {
+            gameSession.onResign(this, responseGeneration);
+            return;
+          }
+          if (body.startsWith("Passing")) {
+            String passing = inputStream.readLine();
+            Optional<int[]> coords = Board.asCoordinates(passing);
+            if (coords.isPresent()) gameSession.onMove(this, coords.get(), responseGeneration);
+            else gameSession.onPass(this, responseGeneration);
+            return;
+          }
+          if (body.startsWith("pass")) {
+            gameSession.onPass(this, responseGeneration);
+            return;
+          }
+          if (body.startsWith("resign")) {
+            gameSession.onResign(this, responseGeneration);
+            return;
+          }
+          Optional<int[]> coords = Board.asCoordinates(body);
+          if (coords.isPresent()) gameSession.onMove(this, coords.get(), responseGeneration);
+          return;
+        }
+        checkNameAndVersion(params);
+      } else if (line.startsWith("?")) {
+        isCommandLine = true;
+      }
+    }
+  }
+
   private void parseLineForGenmovePk(String line) throws IOException {
-    // Lizzie.gtpConsole.addLineforce(line);
 
     if (line.startsWith("info")) {
       if (this != Lizzie.leelaz && isResponseUpToDate()) {
@@ -1005,7 +1080,7 @@ public class Leelaz {
       //							sendCommandToLeelazWithOutLog("lizzie_use");
       if (params[1].toLowerCase().startsWith("kata")) {
         canAddPlayer = true;
-        if (Lizzie.config.firstLoadKataGo) {
+        if (Lizzie.config.firstLoadKataGo && !headless) {
           Lizzie.config.firstLoadKataGo = false;
           SwingUtilities.invokeLater(
               new Runnable() {
@@ -1052,12 +1127,14 @@ public class Leelaz {
         }
         isLoaded = true;
         isTuning = false;
-        if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
-          if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 2);
-          else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 2);
-        } else {
-          if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 2);
-          else LizzieFrame.menu.changeEngineIcon(currentEngineN, 2);
+        if (!headless) {
+          if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
+            if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 2);
+            else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 2);
+          } else {
+            if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 2);
+            else LizzieFrame.menu.changeEngineIcon(currentEngineN, 2);
+          }
         }
       } else {
         isLoaded = true;
@@ -1108,13 +1185,15 @@ public class Leelaz {
         isLoaded = true;
         isTuning = false;
         // Lizzie.initializeAfterVersionCheck();
-        if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
-          if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 2);
-          else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 2);
+        if (!headless) {
+          if (Lizzie.leelaz2 != null && this == Lizzie.leelaz2) {
+            if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon2(20, 2);
+            else LizzieFrame.menu.changeEngineIcon2(currentEngineN, 2);
 
-        } else {
-          if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 2);
-          else LizzieFrame.menu.changeEngineIcon(currentEngineN, 2);
+          } else {
+            if (currentEngineN > 20) LizzieFrame.menu.changeEngineIcon(20, 2);
+            else LizzieFrame.menu.changeEngineIcon(currentEngineN, 2);
+          }
         }
       }
     }
@@ -2084,6 +2163,7 @@ public class Leelaz {
     else sendCommand("boardsize " + width);
     this.width = width;
     this.height = height;
+    if (headless) return;
     Lizzie.board.reopen(width, height);
     if (firstLoad) {
       Lizzie.board.getHistory().getGameInfo().setKomi(komi);
@@ -2096,6 +2176,7 @@ public class Leelaz {
   public void komi(double komi) {
     synchronized (this) {
       sendCommand("komi " + (komi == 0.0 ? "0" : komi));
+      if (headless) return;
       Lizzie.board.getHistory().getGameInfo().setKomi(komi);
       //  Lizzie.board.getHistory().getGameInfo().changeKomi();
       Lizzie.board.clearBestMovesAfter(Lizzie.board.getHistory().getStart());
@@ -2116,6 +2197,24 @@ public class Leelaz {
   public void nameCmdfornoponder() {
     if (isKatago) sendCommand("stop");
     else sendCommand("name");
+  }
+
+  /** 后台对局只需要排空 stderr，绝不能把 stderr 当成主界面对局的错误/状态来处理。 */
+  private void readErrorHeadless() {
+    if (errorStream == null) return;
+    try {
+      String line;
+      while ((line = errorStream.readLine()) != null) {
+        String lower = line.toLowerCase();
+        if (headlessLog != null
+            && (lower.contains("error")
+                || lower.contains("fail")
+                || lower.contains("exception")
+                || lower.contains("warning")))
+          headlessLog.accept("[" + gameTag + "] stderr: " + line);
+      }
+    } catch (IOException ignored) {
+    }
   }
 
   private void readError() {
@@ -2479,14 +2578,44 @@ public class Leelaz {
   }
 
   /** Continually reads and processes output from leelaz */
+  /** 后台对局独立读通道：只处理本引擎的进程输出和本对局的回调，完全不经过主界面/全局对局状态。 */
+  private void readHeadless() {
+    try {
+      String line;
+      while ((line = inputStream.readLine()) != null) {
+        if (line.trim().isEmpty()) continue;
+        try {
+          parseLineForHeadlessGame(line);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        if (isCommandLine) {
+          currentCmdNum++;
+          if (currentCmdNum > cmdNumber - 1) currentCmdNum = cmdNumber - 1;
+          try {
+            trySendCommandFromQueue();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+          isCommandLine = false;
+        }
+      }
+      shutdown();
+      if (useJavaSSH) javaSSHClosed = true;
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    if (!isNormalEnd && gameSession != null) gameSession.onEngineDead(this);
+  }
+
   private void read() {
     try {
       String line = "";
       // 因为 SSHController 里已经滤掉了 ANSI，这里可以直接安全地读取
       while ((line = inputStream.readLine()) != null) {
-        if (featurecat.lizzie.Lizzie.foxBridge != null) {
-          featurecat.lizzie.Lizzie.foxBridge.onEngineOutput(line);
-        }
+        featurecat.lizzie.analysis.fox.FoxBridge foxBridge =
+            featurecat.lizzie.analysis.fox.FoxDirectController.getInstance().getBridge();
+        if (foxBridge != null) foxBridge.onEngineOutput(line);
 
         // 如果这一行是完全空的，跳过
         if (line.trim().isEmpty()) continue;
@@ -2514,7 +2643,15 @@ public class Leelaz {
             }
           }
         }
-        if (EngineManager.isEngineGame && EngineManager.engineGameInfo.isGenmove && isLoaded) {
+        if (gameSession != null) {
+          try {
+            parseLineForHeadlessGame(line);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        } else if (EngineManager.isEngineGame
+            && EngineManager.engineGameInfo.isGenmove
+            && isLoaded) {
           try {
             parseLineForGenmovePk(line);
           } catch (Exception e) {
@@ -2608,10 +2745,14 @@ public class Leelaz {
       started = false;
       isDownWithError = true;
       // isLoaded=false;
-      tryToDignostic(Lizzie.resourceBundle.getString("Leelaz.engineEndUnormalHint"), false);
-      if (!Lizzie.gtpConsole.isVisible()) Lizzie.gtpConsole.setVisible(true);
-      // ("打开Gtp窗口(快捷键E)查看报错信息");
-      // LizzieFrame.openMoreEngineDialog();
+      if (headless) {
+        if (gameSession != null) gameSession.onEngineDead(this);
+      } else {
+        tryToDignostic(Lizzie.resourceBundle.getString("Leelaz.engineEndUnormalHint"), false);
+        if (!Lizzie.gtpConsole.isVisible()) Lizzie.gtpConsole.setVisible(true);
+        // ("打开Gtp窗口(快捷键E)查看报错信息");
+        // LizzieFrame.openMoreEngineDialog();
+      }
     }
   }
 
@@ -2653,6 +2794,10 @@ public class Leelaz {
    * @param command a GTP command containing no newline characters
    */
   public void sendCommand(String command) {
+    if (headless) {
+      sendCommandHeadless(command);
+      return;
+    }
     if (Lizzie.config.isDoubleEngineMode()) {
       if ((command.startsWith("heat") || command.startsWith("kata-raw"))
           && !this.isKatago
@@ -2710,10 +2855,10 @@ public class Leelaz {
       cmdQueue.addLast(command);
       trySendCommandFromQueue();
     }
-    if (Lizzie.frame.isAutocounting) {
+    if (!headless && Lizzie.frame.isAutocounting) {
       Lizzie.frame.zen.sendAndEstimate(command, true);
     }
-    if (Lizzie.config.isDoubleEngineMode()) {
+    if (!headless && Lizzie.config.isDoubleEngineMode()) {
       if (Lizzie.leelaz2 != null && this != Lizzie.leelaz2) {
         Lizzie.leelaz2.sendCommand(command);
         Lizzie.leelaz2.startPonderTime = this.startPonderTime;
@@ -2721,7 +2866,24 @@ public class Leelaz {
     }
   }
 
+  /** 后台对局专用发送通道：只使用本引擎自己的命令队列和进程流，不经过任何全局/主界面逻辑。 */
+  private void sendCommandHeadless(String command) {
+    synchronized (cmdQueue) {
+      cmdNumber++;
+      cmdQueue.addLast(command);
+      trySendCommandFromQueue();
+    }
+    if (canSetNotPlayed) {
+      canSetNotPlayed = false;
+      played = false;
+    }
+  }
+
   public void sendCommandNoLeelaz2(String command) {
+    if (headless) {
+      sendCommandHeadless(command);
+      return;
+    }
     if (Lizzie.config.isDoubleEngineMode()) {
       if ((command.startsWith("heat") || command.startsWith("kata-raw"))
           && !this.isKatago
@@ -2770,7 +2932,7 @@ public class Leelaz {
       cmdQueue.addLast(command);
       trySendCommandFromQueue();
     }
-    if (Lizzie.frame.isAutocounting) {
+    if (!headless && Lizzie.frame.isAutocounting) {
       Lizzie.frame.zen.sendAndEstimate(command, true);
     }
     if (canSetNotPlayed) {
@@ -2828,7 +2990,17 @@ public class Leelaz {
       } catch (Exception e) {
         //  e.printStackTrace();
       }
-      if (EngineManager.isEngineGame()) {
+      if (headless && isGenmoveCommand(command)) {
+        // 只有命令真正写出时才登记对局代号，避免旧对局的迟到着法被误认成新对局。
+        lastSentGenmoveGeneration = pendingGenmoveGeneration;
+      }
+      if (headless) {
+        if (headlessLog != null)
+          headlessLog.accept("[" + gameTag + "] > " + oriEnginename + ": " + command);
+        if (Lizzie.gtpConsole != null && (Lizzie.config.alwaysGtp || Lizzie.gtpConsole.isVisible()))
+          Lizzie.gtpConsole.addCommand(
+              (gameTag.isEmpty() ? "" : "[" + gameTag + "] ") + command, cmdNumber, oriEnginename);
+      } else if (EngineManager.isEngineGame()) {
         Lizzie.gtpConsole.addCommandForEngineGame(
             command,
             cmdNumber,
@@ -2844,10 +3016,24 @@ public class Leelaz {
     }
   }
 
+  private boolean isGenmoveCommand(String command) {
+    return command.startsWith("kata-genmove_analyze ")
+        || command.startsWith("genmove_analyze ")
+        || command.startsWith("lz-genmove_analyze ")
+        || command.startsWith("genmove ");
+  }
+
   /** Check whether leelaz is responding to the last command */
   public boolean isResponseUpToDate() {
     // Use >= instead of == for avoiding hang-up, though it cannot happen
     return currentCmdNum >= cmdNumber - 1; // &&currentCmdNum >=ignoreCmdNumber;
+  }
+
+  /** 命令队列已清空且应答已追平，说明本引擎当前没有未处理的旧命令。 */
+  public boolean isGtpIdle() {
+    synchronized (cmdQueue) {
+      return cmdQueue.isEmpty() && isResponseUpToDate();
+    }
   }
 
   private boolean isResponseUpToPreDate() {
@@ -3013,7 +3199,26 @@ public class Leelaz {
     LizzieFrame.menu.toggleEngineMenuStatus(false, true);
   }
 
+  private String genmoveForPkCommand(String color) {
+    return (this.isKatago
+        ? ("kata-genmove_analyze " + color + " " + getIntervalForGenmovePk() + addKataTag())
+        : (this.isSayuri
+            ? ("genmove_analyze " + color + " " + getInterval())
+            : (this.isSai || this.isLeela
+                ? ("lz-genmove_analyze " + color + " " + getInterval())
+                : ("genmove " + color))));
+  }
+
   public void genmoveForPk(String color) {
+    genmoveForPk(color, 0);
+  }
+
+  public void genmoveForPk(String color, long generation) {
+    if (headless) {
+      pendingGenmoveGeneration = generation;
+      sendCommand(genmoveForPkCommand(color));
+      return;
+    }
     if (LizzieFrame.toolbar.isPkStop) {
       LizzieFrame.toolbar.isPkGenmoveStop = true;
       if (color.equals("B")) {
@@ -3031,14 +3236,7 @@ public class Leelaz {
           .nameCmdfornoponder();
       return;
     }
-    String command =
-        (this.isKatago
-            ? ("kata-genmove_analyze " + color + " " + getIntervalForGenmovePk() + addKataTag())
-            : (this.isSayuri
-                ? ("genmove_analyze " + color + " " + getInterval())
-                : (this.isSai || this.isLeela
-                    ? ("lz-genmove_analyze " + color + " " + getInterval())
-                    : ("genmove " + color))));
+    String command = genmoveForPkCommand(color);
     /*
      * We don't support displaying this while playing, so no reason to request it
      * (for now) if (isPondering) { command = "lz-genmove_analyze " + color + " 10";
@@ -3316,6 +3514,8 @@ public class Leelaz {
     } else {
       if (process != null) process.destroy();
     }
+    if (executor != null) executor.shutdownNow();
+    if (executorErr != null) executorErr.shutdownNow();
   }
 
   public List<MoveData> getBestMoves() {
@@ -3411,37 +3611,6 @@ public class Leelaz {
   /*
    * initializes the normalizing factor for winrate_to_handicap_stones conversion.
    */
-  //	public void estimatePassWinrate() {
-  //		// we use A1 instead of pass, because valuenetwork is more accurate for A1 on
-  //		// empty board than a
-  //		// pass.
-  //		// probably the reason for higher accuracy is that networks have randomness
-  //		// which produces
-  //		// occasionally A1 as first move, but never pass.
-  //		// for all practical purposes, A1 should equal pass for the value it provides,
-  //		// hence good
-  //		// replacement.
-  //		// this way we avoid having to run lots of playouts for accurate winrate for
-  //		// pass.
-  //		playMove(Stone.BLACK, "A1");
-  //		togglePonder();
-  //		WinrateStats stats = getWinrateStats();
-  //
-  //		// we could use a timelimit or higher minimum playouts to get a more accurate
-  //		// measurement.
-  //		while (stats.totalPlayouts < 1) {
-  //			try {
-  //				Thread.sleep(100);
-  //			} catch (InterruptedException e) {
-  //				throw new Error(e);
-  //			}
-  //			stats = getWinrateStats();
-  //		}
-  //		mHandicapWinrate = stats.maxWinrate;
-  //		togglePonder();
-  //		undo();
-  //		Lizzie.board.clear(false);
-  //	}
 
   // public static double mHandicapWinrate = 25;
 
@@ -3449,26 +3618,6 @@ public class Leelaz {
    * Convert winrate to handicap stones, by normalizing winrate by first move pass winrate (one
    * stone handicap).
    */
-  //	public static double winrateToHandicap(double pWinrate) {
-  //		// we assume each additional handicap lowers winrate by fixed percentage.
-  //		// this is pretty accurate for human handicap games at least.
-  //		// also this kind of property is a requirement for handicaps to determined based
-  //		// on rank
-  //		// difference.
-  //
-  //		// lets convert the 0%-50% range and 100%-50% from both the move and and pass
-  //		// into range of 0-1
-  //		double moveWinrateSymmetric = 1 - Math.abs(1 - (pWinrate / 100) * 2);
-  //		double passWinrateSymmetric = 1 - Math.abs(1 - (mHandicapWinrate / 100) * 2);
-  //
-  //		// convert the symmetric move winrate into correctly scaled log scale, so that
-  //		// winrate of
-  //		// passWinrate equals 1 handicap.
-  //		double handicapSymmetric = Math.log(moveWinrateSymmetric) / Math.log(passWinrateSymmetric);
-  //
-  //		// make it negative if we had low winrate below 50.
-  //		return Math.signum(pWinrate - 50) * handicapSymmetric;
-  //	}
 
   // public synchronized void addListener(LeelazListener listener) {
   // listeners.add(listener);
@@ -3535,8 +3684,10 @@ public class Leelaz {
   }
 
   public void tryToDignostic(String message, boolean isModal) {
-    if (!Lizzie.config.autoCheckEngineAlive && EngineManager.isEngineGame())
-      Lizzie.engineManager.clearEngineGame();
+    if (!Lizzie.config.autoCheckEngineAlive
+        && (EngineManager.isEngineGame || EngineManager.isPreEngineGame)) {
+      Lizzie.engineManager.abortEngineGame(null);
+    }
     if (engineFailedMessage != null && engineFailedMessage.isVisible()) return;
     engineFailedMessage =
         new EngineFailedMessage(
@@ -3593,8 +3744,7 @@ public class Leelaz {
       setPda(Lizzie.config.autoLoadTxtKataEnginePDA);
     }
     if (Lizzie.config.autoLoadKataEngineThreads)
-      Lizzie.leelaz.sendCommand(
-          "kata-set-param numSearchThreads " + Lizzie.config.txtKataEngineThreads);
+      sendCommand("kata-set-param numSearchThreads " + Lizzie.config.txtKataEngineThreads);
     if (Lizzie.config.autoLoadKataEngineWRN) {
       try {
         this.wrn = Double.parseDouble(Lizzie.config.autoLoadTxtKataEngineWRN);

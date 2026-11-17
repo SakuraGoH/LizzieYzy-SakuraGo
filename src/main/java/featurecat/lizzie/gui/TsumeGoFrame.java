@@ -32,12 +32,24 @@ public class TsumeGoFrame extends JDialog {
     getContentPane().add(contentPane, BorderLayout.CENTER);
     getContentPane().add(buttonPane, BorderLayout.SOUTH);
     buttonPane.setLayout(new BorderLayout(0, 0));
+
+    JFontCheckBox chkSkipHint =
+        new JFontCheckBox(Lizzie.resourceBundle.getString("TsumeGoFrame.chkSkip"));
+    chkSkipHint.setSelected(Lizzie.config.captureTsumeGoSkipHint);
+    chkSkipHint.addActionListener(
+        e -> {
+          Lizzie.config.captureTsumeGoSkipHint = chkSkipHint.isSelected();
+          Lizzie.config.uiConfig.put(
+              "capture-tsume-go-skip-hint", Lizzie.config.captureTsumeGoSkipHint);
+        });
+    buttonPane.add(chkSkipHint, BorderLayout.NORTH);
+
     JFontButton btnCapture =
         new JFontButton(Lizzie.resourceBundle.getString("TsumeGoFrame.btnCapture"));
     btnCapture.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openCaptureTsumego();
+            Lizzie.frame.openCaptureTsumegoOrStart();
             dispose();
           }
         });

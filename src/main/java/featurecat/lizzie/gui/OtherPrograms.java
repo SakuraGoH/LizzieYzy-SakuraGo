@@ -430,50 +430,6 @@ public class OtherPrograms extends JPanel {
       // 2).toString())[1]
       // == Lizzie.frame.clickbadmove[1]) {
 
-      // Color hsbColor =
-      // Color.getHSBColor(
-      // Color.RGBtoHSB(238, 221, 130, null)[0],
-      // Color.RGBtoHSB(238, 221, 130, null)[1],
-      // Color.RGBtoHSB(238, 221, 130, null)[2]);
-      // setBackground(hsbColor);
-      // if (Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) >= 5
-      // && Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) <= 10) {
-      // Color hsbColor2 =
-      // Color.getHSBColor(
-      // Color.RGBtoHSB(255, 153, 18, null)[0],
-      // Color.RGBtoHSB(255, 153, 18, null)[1],
-      // Color.RGBtoHSB(255, 153, 18, null)[2]);
-      // setForeground(hsbColor2);
-      // } else if (Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) >
-      // 10) {
-      // setForeground(Color.RED);
-      // } else {
-      // setForeground(Color.BLACK);
-      // }
-      // return super.getTableCellRendererComponent(table, value, isSelected, false,
-      // row,
-      // column);
-      // }
-      // if (Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) >= 5
-      // && Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) <= 10) {
-      // Color hsbColor =
-      // Color.getHSBColor(
-      // Color.RGBtoHSB(255, 153, 18, null)[0],
-      // Color.RGBtoHSB(255, 153, 18, null)[1],
-      // Color.RGBtoHSB(255, 153, 18, null)[2]);
-      // setBackground(Color.WHITE);
-      // setForeground(hsbColor);
-      // return super.getTableCellRendererComponent(table, value, isSelected, false,
-      // row,
-      // column);
-      // }
-      // if (Math.abs(Float.parseFloat(table.getValueAt(row, 3).toString())) > 10) {
-      // setBackground(Color.WHITE);
-      // setForeground(Color.RED);
-      // return super.getTableCellRendererComponent(table, value, isSelected, false,
-      // row,
-      // column);
-      // } else
       if (row == curIndex) {
         return renderer.getTableCellRendererComponent(table, value, true, false, row, column);
       } else {

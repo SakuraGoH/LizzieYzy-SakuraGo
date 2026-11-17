@@ -217,28 +217,6 @@ public class SubBoardRenderer {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     g.setColor(Color.BLACK);
-    //      if (stopRefresh==1) {
-    //        g.fillRect(
-    //            x + boardWidth - stoneRadius * 7/2,
-    //            y + boardHeight - scaledMarginHeight * 9 / 10,
-    //            scaledMarginHeight * 8 / 10,
-    //            scaledMarginHeight * 8 / 10);
-    //      }
-    //
-    //      else if (stopRefresh==2) {
-    //    	  int[] xPoints = {
-    //    	          x + boardWidth - stoneRadius * 7/2,
-    //    	          x + boardWidth - stoneRadius * 7/2,
-    //    	          x + boardWidth - stoneRadius * 5/2
-    //    	        };
-    //    	        int[] yPoints = {
-    //    	          y + boardHeight - 1,
-    //    	          y + boardHeight - scaledMarginHeight + 1,
-    //    	          y + boardHeight - scaledMarginHeight / 2
-    //    	        };
-    //    	        g.fillPolygon(xPoints, yPoints, 3);
-    //        }
-    //      else
     if (isMouseOver) {
       g.fillRect(
           x + boardWidth - stoneRadius * 7 / 2,
@@ -645,27 +623,6 @@ public class SubBoardRenderer {
     g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
   }
 
-  //  public void drawbadstone(int x, int y, Stone stone) {
-  //    cachedStonesImagedraged = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-  //    cachedStonesShadowImagedraged = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-  //    Graphics2D g = cachedStonesImagedraged.createGraphics();
-  //    Graphics2D gShadow = cachedStonesShadowImagedraged.createGraphics();
-  //    gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-  //    // gShadow.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
-  //    // g.setRenderingHint(RenderingHints.KEY_RENDERING,
-  //    // RenderingHints.VALUE_RENDER_QUALITY);
-  //    g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
-  //
-  //    // gShadow.setRenderingHint(RenderingHints.KEY_RENDERING,
-  //    // RenderingHints.VALUE_RENDER_QUALITY);
-  //    // gShadow.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
-  //    int stoneX = scaledMarginWidth + squareWidth * x;
-  //    int stoneY = scaledMarginHeight + squareHeight * y;
-  //    g.setColor(Color.magenta);
-  //    drawCircle3(g, stoneX, stoneY, stoneRadius * 7 / 6);
-  //    g.dispose();
-  //  }
-
   /** Draw the stones. We cache the image for a performance boost. */
   public void drawStones() {
     if (Lizzie.board == null) return;
@@ -710,35 +667,6 @@ public class SubBoardRenderer {
    * Draw a white/black dot on territory and captured stones. Dame is drawn as red
    * dot.
    */
-  //  private void drawScore(Graphics2D go) {
-  //    Graphics2D g = cachedStonesImage.createGraphics();
-  //    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-  //    Stone scorestones[] = Lizzie.board.scoreStones();
-  //    int scoreRadius = stoneRadius / 4;
-  //    for (int i = 0; i < Board.boardWidth; i++) {
-  //      for (int j = 0; j < Board.boardHeight; j++) {
-  //        int stoneX = scaledMarginWidth + squareWidth * i;
-  //        int stoneY = scaledMarginHeight + squareHeight * j;
-  //        switch (scorestones[Board.getIndex(i, j)]) {
-  //          case WHITE_POINT:
-  //          case BLACK_CAPTURED:
-  //            g.setColor(Color.white);
-  //            fillCircle(g, stoneX, stoneY, scoreRadius);
-  //            break;
-  //          case BLACK_POINT:
-  //          case WHITE_CAPTURED:
-  //            g.setColor(Color.black);
-  //            fillCircle(g, stoneX, stoneY, scoreRadius);
-  //            break;
-  //          case DAME:
-  //            g.setColor(Color.red);
-  //            fillCircle(g, stoneX, stoneY, scoreRadius);
-  //            break;
-  //        }
-  //      }
-  //    }
-  //    g.dispose();
-  //  }
 
   //  private Optional<MoveData> getBestMove2() {
   //    if (!bestMoves.isEmpty()) {
@@ -996,33 +924,6 @@ public class SubBoardRenderer {
           stoneRadius * 4,
           stoneRadius * 6);
     }
-    //    if (Lizzie.config.allowMoveNumber == 0 && !branchOpt.isPresent()) {
-    //      if (lastMoveOpt.isPresent()) {
-    //        int[] lastMove = lastMoveOpt.get();
-    //
-    //        // Mark the last coordinate
-    //        int lastMoveMarkerRadius = stoneRadius / 2;
-    //        int stoneX = x + scaledMarginWidth + squareWidth * lastMove[0];
-    //        int stoneY = y + scaledMarginHeight + squareHeight * lastMove[1];
-    //
-    //        // Set color to the opposite color of whatever is on the board
-    //        boolean isWhite = board.getStones()[Board.getIndex(lastMove[0],
-    // lastMove[1])].isWhite();
-    //        // g.setColor(Lizzie.board.getData().blackToPlay ? Color.BLACK : Color.WHITE);
-    //        g.setColor(Color.red);
-    //
-    //        if (Lizzie.config.solidStoneIndicator) {
-    //          // Use a solid circle instead of
-    //          fillCircle(g, stoneX, stoneY, (int) (lastMoveMarkerRadius * 0.65));
-    //        } else {
-    //          // fillCircle(g, stoneX, stoneY, (int) (lastMoveMarkerRadius * 0.70));
-    //          drawCircle2(g, stoneX, stoneY, lastMoveMarkerRadius);
-    //          // 需要恢复的
-    //        }
-    //      }
-    //
-    //      return;
-    //    }
     if (!branchOpt.isPresent()) return;
     int[] moveNumberList =
         branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());

@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.CommandHistory;
 import featurecat.lizzie.analysis.EngineManager;
 import java.awt.Font;
 import java.awt.Insets;
@@ -42,6 +43,8 @@ public class EnginePkConfig extends JDialog {
   JFontTextField txtRandomMove;
   JFontTextField txtRandomDiffWinrate;
   JFontTextField txtRandomMoveVists;
+  JFontTextField txtParallelGames;
+  JFontTextField txtRefereeCommand;
   private JFontCheckBox chkPkPonder;
   private JFontTextField txtStartNum;
 
@@ -54,9 +57,7 @@ public class EnginePkConfig extends JDialog {
     Lizzie.setFrameSize(
         this,
         Lizzie.config.isFrameFontSmall() ? 515 : (Lizzie.config.isFrameFontMiddle() ? 620 : 750),
-        Lizzie.config.isFrameFontSmall()
-            ? (formToolbar ? 335 : 305)
-            : (Lizzie.config.isFrameFontMiddle() ? 325 : 350));
+        Lizzie.config.isFrameFontSmall() ? 430 : (Lizzie.config.isFrameFontMiddle() ? 425 : 450));
     setResizable(false);
     setAlwaysOnTop(Lizzie.frame.isAlwaysOnTop());
     PanelWithToolTips contentPane = new PanelWithToolTips();
@@ -416,6 +417,71 @@ public class EnginePkConfig extends JDialog {
     textAreaHint.setEditable(false);
     contentPane.add(textAreaHint);
 
+    int hintY = formToolbar ? 158 : 133;
+    int hintHeight =
+        Lizzie.config.isFrameFontSmall() ? 107 : (Lizzie.config.isFrameFontMiddle() ? 125 : 145);
+    int optionY = hintY + hintHeight + 4;
+    JFontLabel lblParallelGames =
+        new JFontLabel(resourceBundle.getString("EnginePkConfig.lblParallelGames"));
+    lblParallelGames.setBounds(7, optionY, 160, 24);
+    contentPane.add(lblParallelGames);
+    txtParallelGames = new JFontTextField();
+    txtParallelGames.setDocument(new IntDocument());
+    txtParallelGames.setBounds(170, optionY + 2, 40, 20);
+    contentPane.add(txtParallelGames);
+    JFontLabel lblParallelHint =
+        new JFontLabel(resourceBundle.getString("EnginePkConfig.lblParallelHint"));
+    lblParallelHint.setBounds(
+        216,
+        optionY,
+        Lizzie.config.isFrameFontSmall() ? 280 : (Lizzie.config.isFrameFontMiddle() ? 380 : 510),
+        24);
+    contentPane.add(lblParallelHint);
+
+    JFontLabel lblReferee = new JFontLabel(resourceBundle.getString("EnginePkConfig.lblReferee"));
+    lblReferee.setBounds(7, optionY + 27, 120, 24);
+    contentPane.add(lblReferee);
+    int contentWidth =
+        Lizzie.config.isFrameFontSmall() ? 500 : (Lizzie.config.isFrameFontMiddle() ? 605 : 735);
+    txtRefereeCommand = new JFontTextField();
+    txtRefereeCommand.setBounds(130, optionY + 29, contentWidth - 310, 22);
+    contentPane.add(txtRefereeCommand);
+    JFontButton btnRefereeSelect = new JFontButton(resourceBundle.getString("MoreEngines.scan"));
+    btnRefereeSelect.setMargin(new Insets(0, 0, 0, 0));
+    btnRefereeSelect.setBounds(contentWidth - 172, optionY + 29, 80, 22);
+    btnRefereeSelect.setFocusable(false);
+    btnRefereeSelect.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String line =
+                new GetEngineLine().getEngineLine(EnginePkConfig.this, false, false, false, false);
+            if (!line.isEmpty()) txtRefereeCommand.setText(line);
+          }
+        });
+    contentPane.add(btnRefereeSelect);
+    JFontButton btnRefereeHistory =
+        new JFontButton(resourceBundle.getString("CommandHistory.button"));
+    btnRefereeHistory.setMargin(new Insets(0, 0, 0, 0));
+    btnRefereeHistory.setBounds(contentWidth - 85, optionY + 29, 80, 22);
+    btnRefereeHistory.setFocusable(false);
+    btnRefereeHistory.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            CommandHistoryDialog history =
+                new CommandHistoryDialog(
+                    EnginePkConfig.this,
+                    "referee",
+                    resourceBundle.getString("CommandHistory.title")
+                        + " - "
+                        + resourceBundle.getString("CommandHistory.referee"),
+                    text -> txtRefereeCommand.setText(text));
+            history.setVisible(true);
+          }
+        });
+    contentPane.add(btnRefereeHistory);
+    txtParallelGames.setText(String.valueOf(Lizzie.config.enginePkParallelGames));
+    txtRefereeCommand.setText(Lizzie.config.refereeEngineCommand);
+
     JFontButton okButton = new JFontButton(resourceBundle.getString("EnginePkConfig.okButton"));
     JFontButton cancelButton =
         new JFontButton(resourceBundle.getString("EnginePkConfig.cancelButton"));
@@ -423,20 +489,8 @@ public class EnginePkConfig extends JDialog {
     contentPane.add(cancelButton);
     okButton.setMargin(new Insets(0, 0, 0, 0));
     cancelButton.setMargin(new Insets(0, 0, 0, 0));
-    okButton.setBounds(
-        175,
-        Lizzie.config.isFrameFontSmall()
-            ? (formToolbar ? 271 : 241)
-            : (Lizzie.config.isFrameFontMiddle() ? 260 : 280),
-        85,
-        25);
-    cancelButton.setBounds(
-        266,
-        Lizzie.config.isFrameFontSmall()
-            ? (formToolbar ? 271 : 241)
-            : (Lizzie.config.isFrameFontMiddle() ? 260 : 280),
-        85,
-        25);
+    okButton.setBounds(175, optionY + 62, 85, 25);
+    cancelButton.setBounds(266, optionY + 62, 85, 25);
 
     okButton.addActionListener(
         new ActionListener() {
@@ -619,6 +673,17 @@ public class EnginePkConfig extends JDialog {
     //      Lizzie.frame.toolbar.minGanmeMove = Integer.parseInt(txtGameMIN.getText().trim());
     //    } catch (NumberFormatException err) {
     //    }
+    try {
+      Lizzie.config.enginePkParallelGames =
+          Math.min(
+              Config.ENGINE_PK_PARALLEL_MAX,
+              Math.max(1, Integer.parseInt(txtParallelGames.getText().trim())));
+    } catch (NumberFormatException err) {
+    }
+    Lizzie.config.uiConfig.put("engine-pk-parallel-games", Lizzie.config.enginePkParallelGames);
+    Lizzie.config.refereeEngineCommand = txtRefereeCommand.getText().trim();
+    Lizzie.config.uiConfig.put("referee-engine-command", Lizzie.config.refereeEngineCommand);
+    CommandHistory.add("referee", Lizzie.config.refereeEngineCommand);
     setVisible(false);
   }
 }

@@ -29,7 +29,6 @@ import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -620,7 +619,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
       }
     }
 
-    double roundedWinrate = round(move.winrate * 10) / 10.0;
+    double roundedWinrate = move.winrate;
 
     if (Lizzie.config.showSuggestionOrder && move.order < 9 && move.order > 0) {
       boolean blackToPlay = true;
@@ -665,7 +664,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
         boolean shouldShowMaxColorWinrate = canShowMaxColor && hasMaxWinrate;
         boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
         boolean shouldShowMaxColorScoreLead = canShowMaxColor && move.scoreMean == maxScoreMean;
-        String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+        String winrateText = Utils.formatWinrate(roundedWinrate);
         String playoutsText = Utils.getPlayoutsString(move.playouts);
         String scoreLeadText = Utils.convertScoreToString(move.scoreMean, 5.0);
         if (currerentUseDefaultInfoRowOrder) {
@@ -782,7 +781,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
           if (shouldShowMaxColorRow3) g.setColor(oriColor);
         }
       } else if (showWinrate && showPlayouts) {
-        String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+        String winrateText = Utils.formatWinrate(roundedWinrate);
         String playoutsText = Utils.getPlayoutsString(move.playouts);
         boolean shouldShowMaxColorWinrate = canShowMaxColor && hasMaxWinrate;
         boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
@@ -865,7 +864,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
             score = -score;
           }
         }
-        String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+        String winrateText = Utils.formatWinrate(roundedWinrate);
         String scoreLeadText = Utils.convertScoreToString(score, 5.0);
         if (currerentUseDefaultInfoRowOrder
             || currentSuggestionInfoWinrate < currentSuggestionInfoScoreLead) {
@@ -1007,7 +1006,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
               suggestionX,
               suggestionY,
               LizzieFrame.winrateFont,
-              String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+              Utils.formatWinrate(roundedWinrate),
               squareWidth * 0.46f,
               stoneRadius * 1.9);
         } else {
@@ -1016,7 +1015,7 @@ public class SuggestionInfoOrderSettings extends JDialog {
               suggestionX,
               suggestionY,
               LizzieFrame.winrateFont,
-              String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+              Utils.formatWinrate(roundedWinrate),
               squareWidth * 0.46f,
               stoneRadius * 1.9);
         }

@@ -43,31 +43,6 @@ public class InputIndependentMainBoard implements KeyListener {
     LizzieFrame.redo(1);
   }
 
-  //  private void startTemporaryBoard() {
-  //    if (Lizzie.config.showBestMoves) {
-  //      startRawBoard();
-  //    } else {
-  //      Lizzie.config.showBestMovesTemporarily = true;
-  //    }
-  //  }
-  //
-  //  private void startRawBoard() {
-  //    if (!Lizzie.config.showRawBoard) {
-  //      Lizzie.frame.startRawBoard();
-  //    }
-  //    Lizzie.config.showRawBoard = true;
-  //  }
-  //
-  //  private void stopRawBoard() {
-  //    Lizzie.frame.stopRawBoard();
-  //    Lizzie.config.showRawBoard = false;
-  //  }
-  //
-  //  private void stopTemporaryBoard() {
-  //    stopRawBoard();
-  //    Lizzie.config.showBestMovesTemporarily = false;
-  //  }
-
   //  private void toggleHints() {
   //    Lizzie.config.toggleShowBranch();
   //    Lizzie.config.showSubBoard =

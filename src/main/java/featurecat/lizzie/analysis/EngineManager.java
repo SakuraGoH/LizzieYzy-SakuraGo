@@ -211,6 +211,22 @@ public class EngineManager {
       Utils.showMsg(resourceBundle.getString("EngineManager.engineGameSameEngine"));
       return false;
     }
+    int parallelGames =
+        Math.min(Config.ENGINE_PK_PARALLEL_MAX, Math.max(1, Lizzie.config.enginePkParallelGames));
+    if (parallelGames > 1) {
+      if (!isBatchGame) {
+        Utils.showMsg(resourceBundle.getString("EnginePkConfig.parallelNeedBatch"));
+        return false;
+      }
+      if (parallelGames > batchGameNumber) {
+        Utils.showMsg(resourceBundle.getString("EnginePkConfig.parallelTooMany"));
+        return false;
+      }
+      if (!isGenmove) {
+        Utils.showMsg(resourceBundle.getString("EnginePkConfig.parallelGenmoveOnly"));
+        return false;
+      }
+    }
     if (!isGenmove) {
       if (timeBlack <= 0 && playoutsBlack <= 0 && firstPlayoutsBlack <= 0) {
         Utils.showMsg(resourceBundle.getString("EngineManager.engineGameBlackSettingWrong"));
@@ -404,6 +420,18 @@ public class EngineManager {
     LizzieFrame.menu.toggleEngineMenuStatus(true, false);
     // 禁用某些按钮
     LizzieFrame.toolbar.enableDisabelForEngineGame(false);
+    if (parallelGames > 1) {
+      // 开始多场同时对战
+      EngineGameArena.getInstance()
+          .start(
+              engineBlack,
+              engineWhite,
+              parallelGames,
+              batchGameNumber,
+              engineGameInfo,
+              Lizzie.board);
+      return true;
+    }
     // 开始新的一局
     startNewEngineGame(true);
     return true;
@@ -470,7 +498,26 @@ public class EngineManager {
             + ")";
     // 添加结果
     if (engineList.get(resignIndex).doublePass) {
-      df += resourceBundle.getString("EngineManager.doublePassFileName"); // "_双pass对局";
+      int refereeWinner = engineGameInfo.refereeWinner;
+      if (refereeWinner == 1 || refereeWinner == 2) {
+        int winnerIndex =
+            refereeWinner == 1 ? engineGameInfo.blackEngineIndex : engineGameInfo.whiteEngineIndex;
+        GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
+        gameInfo.setResult(engineGameInfo.refereeScore);
+        df =
+            df
+                + "_"
+                + resourceBundle.getString(refereeWinner == 1 ? "Leelaz.black" : "Leelaz.white")
+                + "("
+                + engineList.get(winnerIndex).currentEnginename
+                + ")"
+                + resourceBundle.getString("Leelaz.win");
+      } else if (refereeWinner == 3) {
+        Lizzie.board.getHistory().getGameInfo().setResult("0");
+        df += resourceBundle.getString("EnginePkConfig.refereeDrawFileName");
+      } else {
+        df += resourceBundle.getString("EngineManager.doublePassFileName"); // "_双pass对局";
+      }
     } else if (Lizzie.board.getHistory().getMoveNumber() > engineGameInfo.getMaxGameMoves()) {
       df += resourceBundle.getString("EngineManager.outOfMoveFileName"); // "_超手数对局";
     } else {
@@ -845,6 +892,11 @@ public class EngineManager {
   }
 
   public void stopEngineGame(int resgnEngineIndex, boolean mannul) {
+    if (EngineGameArena.isRunning()) {
+      EngineGameArena.getInstance().stop(true);
+      isSaveingEngineSGF = false;
+      return;
+    }
     SGFParser.appendComment();
     isPreEngineGame = false;
     if (!isEngineGame) return;
@@ -855,6 +907,15 @@ public class EngineManager {
     LizzieFrame.toolbar.isPkStop = false;
     Lizzie.frame.hasEnginePkTitile = true;
     Lizzie.frame.enginePkTitile = "";
+
+    // 双pass时请裁判引擎用 final_score 判定胜负
+    boolean doublePass =
+        resgnEngineIndex >= 0
+            && resgnEngineIndex < engineList.size()
+            && engineList.get(resgnEngineIndex).doublePass;
+    if (doublePass && engineGameInfo.refereeWinner == 0) judgeDoublePassGame();
+    int refereeWinner = doublePass ? engineGameInfo.refereeWinner : 0;
+
     // 保存SGF文件
     if (mannul) {
       engineList.get(engineGameInfo.blackEngineIndex).notPondering();
@@ -912,50 +973,19 @@ public class EngineManager {
     if (engineGameInfo.isBatchGame) {
       if (engineList.get(resgnEngineIndex).doublePass) {
         engineGameInfo.doublePassGame++;
+        if (refereeWinner == 1 || refereeWinner == 2) {
+          recordEngineWin(
+              refereeWinner == 1
+                  ? engineGameInfo.blackEngineIndex
+                  : engineGameInfo.whiteEngineIndex);
+        }
       } else if (engineList.get(resgnEngineIndex).outOfMoveNum) {
         engineGameInfo.maxMoveGame++;
       } else {
-        if (resgnEngineIndex == engineGameInfo.firstEngineIndex) {
-          if (resgnEngineIndex == engineGameInfo.blackEngineIndex) {
-            engineGameInfo.secondEngineWinAsWhite++;
-            for (SgfWinLossList wl : engineGameInfo.engineGameSgfWinLoss) {
-              if (wl.SgfNumber == LizzieFrame.toolbar.currentEnginePkSgfNum) {
-                wl.engineTwoWins++;
-                wl.engineTwoWinsAsWhite++;
-                break;
-              }
-            }
-          } else {
-            engineGameInfo.secondEngineWinAsBlack++;
-            for (SgfWinLossList wl : engineGameInfo.engineGameSgfWinLoss) {
-              if (wl.SgfNumber == LizzieFrame.toolbar.currentEnginePkSgfNum) {
-                wl.engineTwoWins++;
-                wl.engineTwoWinsAsBlack++;
-                break;
-              }
-            }
-          }
-        } else {
-          if (resgnEngineIndex == engineGameInfo.blackEngineIndex) {
-            engineGameInfo.firstEngineWinAsWhite++;
-            for (SgfWinLossList wl : engineGameInfo.engineGameSgfWinLoss) {
-              if (wl.SgfNumber == LizzieFrame.toolbar.currentEnginePkSgfNum) {
-                wl.engineOneWins++;
-                wl.engineOneWinsAsWhite++;
-                break;
-              }
-            }
-          } else {
-            engineGameInfo.firstEngineWinAsBlack++;
-            for (SgfWinLossList wl : engineGameInfo.engineGameSgfWinLoss) {
-              if (wl.SgfNumber == LizzieFrame.toolbar.currentEnginePkSgfNum) {
-                wl.engineOneWins++;
-                wl.engineOneWinsAsBlack++;
-                break;
-              }
-            }
-          }
-        }
+        recordEngineWin(
+            resgnEngineIndex == engineGameInfo.blackEngineIndex
+                ? engineGameInfo.whiteEngineIndex
+                : engineGameInfo.blackEngineIndex);
       }
       // 保存对局结果txt
 
@@ -1016,6 +1046,13 @@ public class EngineManager {
           " "
               + resourceBundle.getString("EngineGameInfo.outOfMoveGame")
               + engineGameInfo.maxMoveGame;
+      if (engineGameInfo.refereeWinner != 0) {
+        engineGameInfo.resultOther +=
+            " "
+                + resourceBundle.getString("EnginePkConfig.refereeScore")
+                + ": "
+                + engineGameInfo.refereeScore;
+      }
       if (engineGameInfo.isGenmove) {
         engineGameInfo.settingAll =
             resourceBundle.getString("EngineGameInfo.otherSettings")
@@ -1165,7 +1202,34 @@ public class EngineManager {
         jg = jg + resourceBundle.getString("EngineGameInfo.finishedByMoves"); // "超过手数限制";
       else {
         if (engineList.get(resgnEngineIndex).doublePass) {
-          jg = jg + resourceBundle.getString("EngineGameInfo.finishedByDoublePass"); // "双Pass对局";
+          if (refereeWinner == 1 || refereeWinner == 2) {
+            jg =
+                jg
+                    + resourceBundle.getString(
+                        refereeWinner == 1 ? "GameInfoDialog.black" : "GameInfoDialog.white")
+                    + "("
+                    + engineList.get(
+                            refereeWinner == 1
+                                ? engineGameInfo.blackEngineIndex
+                                : engineGameInfo.whiteEngineIndex)
+                        .oriEnginename
+                    + ")"
+                    + resourceBundle.getString("EngineGameInfo.finishedWin")
+                    + " ("
+                    + resourceBundle.getString("EnginePkConfig.refereeScore")
+                    + ": "
+                    + engineGameInfo.refereeScore
+                    + ")";
+          } else if (refereeWinner == 3) {
+            jg =
+                jg
+                    + resourceBundle.getString("EngineGameInfo.finishedByDoublePass")
+                    + " ("
+                    + resourceBundle.getString("EnginePkConfig.refereeDraw")
+                    + ")";
+          } else {
+            jg = jg + resourceBundle.getString("EngineGameInfo.finishedByDoublePass"); // "双Pass对局";
+          }
         } else if (resgnEngineIndex == engineGameInfo.blackEngineIndex) {
           // df=df+"_白胜";
           jg =
@@ -1207,8 +1271,80 @@ public class EngineManager {
     changeEngIcoForEndPk();
   }
 
+  /** 记录一盘胜局(含按开局SGF分组的胜负统计)。 */
+  private void recordEngineWin(int winnerEngineIndex) {
+    boolean asBlack = winnerEngineIndex == engineGameInfo.blackEngineIndex;
+    boolean first = winnerEngineIndex == engineGameInfo.firstEngineIndex;
+    if (first) {
+      if (asBlack) engineGameInfo.firstEngineWinAsBlack++;
+      else engineGameInfo.firstEngineWinAsWhite++;
+    } else {
+      if (asBlack) engineGameInfo.secondEngineWinAsBlack++;
+      else engineGameInfo.secondEngineWinAsWhite++;
+    }
+    if (engineGameInfo.engineGameSgfWinLoss == null) return;
+    for (SgfWinLossList wl : engineGameInfo.engineGameSgfWinLoss) {
+      if (wl.SgfNumber == LizzieFrame.toolbar.currentEnginePkSgfNum) {
+        if (first) {
+          wl.engineOneWins++;
+          if (asBlack) wl.engineOneWinsAsBlack++;
+          else wl.engineOneWinsAsWhite++;
+        } else {
+          wl.engineTwoWins++;
+          if (asBlack) wl.engineTwoWinsAsBlack++;
+          else wl.engineTwoWinsAsWhite++;
+        }
+        break;
+      }
+    }
+  }
+
+  /** 双pass时使用裁判引擎的 final_score 判定胜负。 */
+  private void judgeDoublePassGame() {
+    String command = Lizzie.config.refereeEngineCommand;
+    if (command == null || command.trim().isEmpty()) return;
+    String score =
+        RefereeEngine.finalScore(Lizzie.board, Lizzie.board.getHistory().getGameInfo().getKomi());
+    engineGameInfo.refereeScore = score;
+    if (score == null) return;
+    int winner = RefereeEngine.parseWinner(score);
+    engineGameInfo.refereeWinner = winner == 0 ? 3 : winner;
+  }
+
+  /** 等待对局双方引擎就绪；任一引擎启动失败或超时则返回 false，由调用方退出对战状态。 */
+  private boolean waitForPkEnginesReady() {
+    long deadline = System.currentTimeMillis() + 60_000;
+    while (true) {
+      Leelaz black = engineList.get(engineGameInfo.blackEngineIndex);
+      Leelaz white = engineList.get(engineGameInfo.whiteEngineIndex);
+      if (black == null || white == null) return false;
+      if (black.isLoaded() && white.isLoaded()) return true;
+      if (black.isProcessDead()
+          || white.isProcessDead()
+          || black.isDownWithError
+          || white.isDownWithError) return false;
+      if (System.currentTimeMillis() >= deadline) return false;
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      }
+    }
+  }
+
   public void startNewEngineGame(boolean firstTime) {
     // engineGameInfo
+    engineGameInfo.refereeWinner = 0;
+    engineGameInfo.refereeScore = null;
+    Leelaz blackEng = engineList.get(engineGameInfo.blackEngineIndex);
+    Leelaz whiteEng = engineList.get(engineGameInfo.whiteEngineIndex);
+    blackEng.doublePass = false;
+    blackEng.outOfMoveNum = false;
+    blackEng.resigned = false;
+    whiteEng.doublePass = false;
+    whiteEng.outOfMoveNum = false;
+    whiteEng.resigned = false;
     Lizzie.frame.setResult("");
     isPreEngineGame = true;
     if (firstTime) {
@@ -1250,14 +1386,9 @@ public class EngineManager {
       Runnable runnable =
           new Runnable() {
             public void run() {
-              while (!engineList.get(engineGameInfo.blackEngineIndex).isLoaded()
-                  || !engineList.get(engineGameInfo.whiteEngineIndex).isLoaded()) {
-                try {
-                  Thread.sleep(500);
-                } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-                }
+              if (!waitForPkEnginesReady()) {
+                abortEngineGame(resourceBundle.getString("EngineManager.engineGameAutoAborted"));
+                return;
               }
               if (startList != null) {
                 try {
@@ -1411,14 +1542,9 @@ public class EngineManager {
       Runnable runnable =
           new Runnable() {
             public void run() {
-              while (!engineList.get(engineGameInfo.blackEngineIndex).isLoaded()
-                  || !engineList.get(engineGameInfo.whiteEngineIndex).isLoaded()) {
-                try {
-                  Thread.sleep(500);
-                } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-                }
+              if (!waitForPkEnginesReady()) {
+                abortEngineGame(resourceBundle.getString("EngineManager.engineGameAutoAborted"));
+                return;
               }
               Lizzie.frame.reSetLoc();
               Lizzie.frame.clearWRNforGame(true);
@@ -1592,23 +1718,6 @@ public class EngineManager {
     }
   }
 
-  //  private void checkEngineNotHang() {
-  //    if (isEngineGame
-  //        && !Lizzie.frame.toolbar.isGenmoveToolbar
-  //        && !Lizzie.frame.toolbar.isPkStop
-  //        && System.currentTimeMillis() - startInfoTime > 1000 * 240) {
-  //      Lizzie.leelaz.process.destroy();
-  //      Lizzie.gtpConsole.addLine("EnginePkHangs");
-  //      startInfoTime = System.currentTimeMillis();
-  //    }
-  //    //    try {
-  //    //      timer3.stop();
-  //    //      // timer3 = null;
-  //    //    } catch (Exception ex) {
-  //    //
-  //    //    }
-  //  }
-
   private void checkEngineAlive() {
     if (isEmpty) return;
     if (!isEngineGame && Lizzie.leelaz != null) {
@@ -1633,41 +1742,13 @@ public class EngineManager {
     //    {
     // checkEngineNotHang();
     checkEnginePK();
-    // if (Lizzie.leelaz.resigned) Lizzie.leelaz.pkResign();
-    //        if (Lizzie.leelaz.isPondering() && (timer3 == null || !timer3.isRunning())) {
-    //          timer3 =
-    //              new Timer(
-    //                  5000,
-    //                  new ActionListener() {
-    //                    public void actionPerformed(ActionEvent evt) {
-    //
-    //
-    //                      try {
-    //                      } catch (Exception e) {
-    //                      }
-    //                    }
-    //                  });
-    //          timer3.start();
-    //        }
-    //      }
-    //      if ((timer2 == null || !timer2.isRunning())) {
-    //        timer2 =
-    //            new Timer(
-    //                20000,
-    //                new ActionListener() {
-    //                  public void actionPerformed(ActionEvent evt) {
-    //                    checkEnginePK();
-    //                    try {
-    //                    } catch (Exception e) {
-    //                    }
-    //                  }
-    //                });
-    //        timer2.start();
-    //    }
-    //   }
   }
 
   private void checkEnginePK() {
+    if (EngineGameArena.isRunning()) {
+      EngineGameArena.getInstance().checkAlive();
+      return;
+    }
     if (!isEngineGame) {
       return;
     }
@@ -1699,6 +1780,30 @@ public class EngineManager {
     //    } catch (Exception ex) {
     //
     //    }
+  }
+
+  /** 是否有任意对弈/野狐直连正在使用引擎。 */
+  public boolean isAnyGameRunning() {
+    return isEngineGame
+        || isPreEngineGame
+        || EngineGameArena.isRunning()
+        || featurecat.lizzie.analysis.fox.FoxDirectController.getInstance().isRunning();
+  }
+
+  /**
+   * 引擎设置保存后的自动重载。对局进行中不做任何重启，避免打断正在进行的对局； 用户可稍后手动重启引擎使设置生效。
+   *
+   * @return true 表示已重载；false 表示因对局进行中而跳过。
+   */
+  public boolean updateEnginesIfIdle() {
+    if (isAnyGameRunning()) return false;
+    try {
+      updateEngines();
+      return true;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 
   public void updateEngines() throws JSONException, IOException {
@@ -2014,15 +2119,62 @@ public class EngineManager {
     // Lizzie.leelaz.Pondering();
   }
 
-  public void clearEngineGame() {
-    if (isEngineGame || isPreEngineGame) {
-      Lizzie.frame.addInput(true);
-      isPreEngineGame = false;
-      if (!isEngineGame) return;
-      isEngineGame = false;
-      LizzieFrame.menu.toggleDoubleMenuGameStatus();
-      LizzieFrame.toolbar.isPkStop = false;
+  /** 引擎对战启动/运行失败时彻底退出对战状态。多场对战会结束全部赛道；单局会恢复主界面， 避免工具栏、输入和菜单停留在“对战中”。 */
+  public void abortEngineGame(String message) {
+    if (EngineGameArena.isRunning()) {
+      EngineGameArena.getInstance().abortAll(message);
+      return;
     }
+    if (!isEngineGame && !isPreEngineGame) return;
+    isPreEngineGame = false;
+    isEngineGame = false;
+    isSaveingEngineSGF = false;
+    SwingUtilities.invokeLater(
+        () -> {
+          stopCountDown();
+          if (engineGameInfo != null) {
+            quitEngineForAbort(engineGameInfo.blackEngineIndex);
+            quitEngineForAbort(engineGameInfo.whiteEngineIndex);
+          }
+          if (Lizzie.board != null) Lizzie.board.isPkBoard = false;
+          if (LizzieFrame.toolbar != null) {
+            LizzieFrame.toolbar.enableDisabelForEngineGame(true);
+            LizzieFrame.toolbar.setEngineGamePagingVisible(false);
+            LizzieFrame.toolbar.isPkStop = false;
+          }
+          if (LizzieFrame.menu != null) {
+            LizzieFrame.menu.toggleDoubleMenuGameStatus();
+            LizzieFrame.menu.toggleEngineMenuStatus(false, false);
+          }
+          if (Lizzie.frame != null) {
+            Lizzie.frame.addInput(true);
+            Lizzie.frame.hasEnginePkTitile = false;
+            Lizzie.frame.enginePkTitile = "";
+            Lizzie.frame.resetMovelistFrameandAnalysisFrame();
+            Lizzie.frame.refresh();
+          }
+          if (Lizzie.leelaz != null && Menu.engineMenu != null) {
+            Menu.engineMenu.setText(
+                resourceBundle.getString("EngineManager.engine")
+                    + (Lizzie.leelaz.currentEngineN() + 1)
+                    + ": "
+                    + Lizzie.leelaz.oriEnginename);
+            Menu.engineMenu.setEnabled(true);
+          }
+          if (message != null) Utils.showMsgNoModal(message);
+        });
+  }
+
+  private void quitEngineForAbort(int index) {
+    try {
+      if (index >= 0 && index < engineList.size()) engineList.get(index).forceQuit();
+    } catch (Exception ignored) {
+    }
+  }
+
+  /** 兼容旧调用：等价于无提示地退出对战状态。 */
+  public void clearEngineGame() {
+    abortEngineGame(null);
   }
 
   public void restartEngineForPk(int index) {

@@ -52,6 +52,12 @@ public class EngineGameInfo {
   public String settingAll, settingFirst, settingSecond;
   public String resultOther, resultFirst, resultSecond;
 
+  /** 双pass时裁判引擎给出的原始结果(如 "B+3.5")，null 表示未判定。 */
+  public String refereeScore;
+
+  /** 裁判判定: 1=黑胜 2=白胜 3=和棋 0=未判定。 */
+  public int refereeWinner;
+
   public int blackMinMove;
   public int blackResignMoveCounts;
   public Double blackResignWinrate;
@@ -142,5 +148,51 @@ public class EngineGameInfo {
 
   public void setMaxGameMoves(int maxMoves) {
     maxGameMoves = maxMoves;
+  }
+
+  /**
+   * 为多场对战中的单个对局复制一份设置。统计字段全部清零，由每局单独维护。
+   *
+   * @param black 当前对局黑方引擎序号
+   * @param white 当前对局白方引擎序号
+   * @param first 第一引擎序号(统计口径)
+   * @param second 第二引擎序号(统计口径)
+   */
+  public EngineGameInfo copyForSession(int black, int white, int first, int second) {
+    EngineGameInfo info = new EngineGameInfo();
+    info.isGenmove = isGenmove;
+    info.isContinueGame = isContinueGame;
+    info.isBatchGame = true;
+    info.batchNumber = batchNumber;
+    info.isExchange = isExchange;
+    info.timeBlack = timeBlack;
+    info.timeWhite = timeWhite;
+    info.playoutsBlack = playoutsBlack;
+    info.playoutsWhite = playoutsWhite;
+    info.firstPlayoutsBlack = firstPlayoutsBlack;
+    info.firstPlayoutsWhite = firstPlayoutsWhite;
+    info.timeFirstEngine = timeFirstEngine;
+    info.timeSecondEngine = timeSecondEngine;
+    info.playoutsFirstEngine = playoutsFirstEngine;
+    info.playoutsSecondEngine = playoutsSecondEngine;
+    info.firstPlayoutsFirstEngine = firstPlayoutsFirstEngine;
+    info.firstPlayoutsSecondEngine = firstPlayoutsSecondEngine;
+    info.blackEngineIndex = black;
+    info.whiteEngineIndex = white;
+    info.firstEngineIndex = first;
+    info.secondEngineIndex = second;
+    info.blackMinMove = blackMinMove;
+    info.blackResignMoveCounts = blackResignMoveCounts;
+    info.blackResignWinrate = blackResignWinrate;
+    info.whiteMinMove = whiteMinMove;
+    info.whiteResignMoveCounts = whiteResignMoveCounts;
+    info.whiteResignWinrate = whiteResignWinrate;
+    info.batchGameName = batchGameName;
+    info.SF = SF;
+    info.settingFirst = settingFirst;
+    info.settingSecond = settingSecond;
+    info.settingAll = settingAll;
+    info.setMaxGameMoves(maxGameMoves);
+    return info;
   }
 }

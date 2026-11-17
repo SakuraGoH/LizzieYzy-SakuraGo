@@ -274,144 +274,6 @@ public class FloatBoardRenderer {
         boardWidth);
   }
 
-  //  private void drawName(Graphics2D g0) {
-  //    g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-  //    Font font =
-  //        new Font(
-  //            "Microsoft YaHei",
-  //            Font.PLAIN,
-  //            (int) (Math.min(28, this.scaledMarginHeight * 53 / 100)));
-  //    g0.setFont(font);
-  //    String black = Lizzie.board.getHistory().getGameInfo().getPlayerBlack();
-  //    String white = Lizzie.board.getHistory().getGameInfo().getPlayerWhite();
-  //
-  //    int lengthB = g0.getFontMetrics().stringWidth(black);
-  //    int height = g0.getFontMetrics().getHeight();
-  //    int lengthW = g0.getFontMetrics().stringWidth(white);
-  //    while (lengthB > squareWidth * (Board.boardWidth * 0.43)
-  //        || lengthW > squareWidth * (Board.boardWidth * 0.43)) {
-  //      if (lengthB > squareWidth * (Board.boardWidth * 0.43))
-  //        black =
-  //            black.substring(
-  //                0,
-  //                black.length()
-  //                    - (Math.max(
-  //                        1,
-  //                        (lengthB - squareWidth * (Board.boardWidth / 2))
-  //                            / (lengthB / black.length()))));
-  //      if (lengthW > squareWidth * (Board.boardWidth * 0.43))
-  //        white =
-  //            white.substring(
-  //                0,
-  //                white.length()
-  //                    - (Math.max(
-  //                        1,
-  //                        (lengthW - squareWidth * (Board.boardWidth / 2))
-  //                            / (lengthW / white.length()))));
-  //      lengthB = g0.getFontMetrics().stringWidth(black);
-  //      lengthW = g0.getFontMetrics().stringWidth(white);
-  //    }
-  //    if (EngineManager.isEngineGame && EngineManager.engineGameInfo.isBatchGame) {
-  //      if (EngineManager.engineGameInfo.firstEngineIndex
-  //          == EngineManager.engineGameInfo.blackEngineIndex) {
-  //        black = black + " " + EngineManager.engineGameInfo.getFirstEngineWins();
-  //        white = EngineManager.engineGameInfo.getSecondEngineWins() + " " + white;
-  //      } else {
-  //        black = black + " " + EngineManager.engineGameInfo.getSecondEngineWins();
-  //        white = EngineManager.engineGameInfo.getFirstEngineWins() + " " + white;
-  //      }
-  //    }
-  //    lengthB = g0.getFontMetrics().stringWidth(black);
-  //    lengthW = g0.getFontMetrics().stringWidth(white);
-  //    if (black.equals("") && white.contentEquals("")) {
-  ////      if (!emptyName) {
-  ////        emptyName = true;
-  ////        changedName = true;
-  ////      }
-  //      return;
-  //    }
-  ////    if (emptyName) {
-  ////      emptyName = false;
-  ////      changedName = true;
-  ////      Lizzie.frame.refresh();
-  ////    }
-  ////    emptyName = false;
-  //    if (Lizzie.board.getHistory().isBlacksTurn()) {
-  //      g0.setColor(Color.WHITE);
-  //      g0.fillOval(
-  //          x + boardWidth / 2 - stoneRadius * 3 / 10,
-  //          y - scaledMarginHeight + stoneRadius + boardHeight,
-  //          stoneRadius * 5 / 4,
-  //          stoneRadius * 5 / 4);
-  //
-  //      g0.setColor(Color.BLACK);
-  //      g0.fillOval(
-  //          x + boardWidth / 2 - stoneRadius * 9 / 10,
-  //          y - scaledMarginHeight + stoneRadius + boardHeight,
-  //          stoneRadius * 5 / 4,
-  //          stoneRadius * 5 / 4);
-  //    } else {
-  //      g0.setColor(Color.BLACK);
-  //      g0.fillOval(
-  //          x + boardWidth / 2 - stoneRadius * 9 / 10,
-  //          y - scaledMarginHeight + stoneRadius + boardHeight,
-  //          stoneRadius * 5 / 4,
-  //          stoneRadius * 5 / 4);
-  //      g0.setColor(Color.WHITE);
-  //      g0.fillOval(
-  //          x + boardWidth / 2 - stoneRadius * 3 / 10,
-  //          y - scaledMarginHeight + stoneRadius + boardHeight,
-  //          stoneRadius * 5 / 4,
-  //          stoneRadius * 5 / 4);
-  //    }
-  //    //  g0.setColor(Color.BLACK);
-  //
-  //    // set maximum size of font
-  //
-  //    //  String regex = "[\u4e00-\u9fa5]";
-  //    //    Font f =
-  //    //        drawStringBoldGetFont(
-  //    //            g0,
-  //    //            x + boardWidth / 2 - lengthB / 2 - stoneRadius * 4 / 3,
-  //    //            y - scaledMarginHeight + boardHeight + stoneRadius * 8 / 5,
-  //    //            new Font(Lizzie.config.uiFontName, Font.PLAIN, 16),
-  //    //            black,
-  //    //            stoneRadius * 5 / 4,
-  //    //            lengthB);
-  //
-  //    FontRenderContext frcb = g0.getFontRenderContext();
-  //    if (black.length() > 0) {
-  //      TextLayout tlb = new TextLayout(black, font, frcb);
-  //      Shape shab =
-  //          tlb.getOutline(
-  //              AffineTransform.getTranslateInstance(
-  //                  x + boardWidth / 2 - lengthB - scaledMarginWidth * 3 / 5,
-  //                  y - scaledMarginHeight + boardHeight + stoneRadius * 13 / 8 + (height + 2) /
-  // 4));
-  //      g0.setColor(Color.BLACK);
-  //      g0.fill(shab);
-  //    }
-  //
-  //    g0.setColor(Color.WHITE);
-  //
-  //    FontRenderContext frc = g0.getFontRenderContext();
-  //    if (white.length() > 0) {
-  //      TextLayout tl = new TextLayout(white, font, frc);
-  //      Shape sha =
-  //          tl.getOutline(
-  //              AffineTransform.getTranslateInstance(
-  //                  x + boardWidth / 2 + scaledMarginWidth * 3 / 5 + 1,
-  //                  y - scaledMarginHeight + boardHeight + stoneRadius * 13 / 8 + (height + 2) /
-  // 4));
-  //      // double a =sha.getBounds().getHeight();
-  //      g0.setColor(Color.BLACK);
-  //      g0.setStroke(new BasicStroke(2));
-  //      g0.draw(sha);
-  //      g0.setColor(Color.WHITE);
-  //      g0.fill(sha);
-  //    }
-  //  }
-
   public void removedrawmovestone() {
     cachedStonesImagedraged = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     cachedStonesShadowImagedraged = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
@@ -1626,7 +1488,7 @@ public class FloatBoardRenderer {
             continue;
           }
           if (!branchOpt.isPresent() || isMouseOver) {
-            double roundedWinrate = round(move.winrate * 10) / 10.0;
+            double roundedWinrate = move.winrate;
             if (flipWinrate) {
               roundedWinrate = 100.0 - roundedWinrate;
             }
@@ -1676,7 +1538,7 @@ public class FloatBoardRenderer {
               boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
               boolean shouldShowMaxColorScoreLead =
                   canShowMaxColor && move.scoreMean == maxScoreMean;
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String playoutsText = Utils.getPlayoutsString(move.playouts);
               String scoreLeadText = Utils.convertScoreToString(score, maxScoreMean);
               if (Lizzie.config.useDefaultInfoRowOrder) {
@@ -1793,7 +1655,7 @@ public class FloatBoardRenderer {
                 if (shouldShowMaxColorRow3) g.setColor(oriColor);
               }
             } else if (showWinrate && showPlayouts) {
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String playoutsText = Utils.getPlayoutsString(move.playouts);
               boolean shouldShowMaxColorWinrate = canShowMaxColor && hasMaxWinrate;
               boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
@@ -1876,7 +1738,7 @@ public class FloatBoardRenderer {
               boolean shouldShowMaxColorScoreLead =
                   canShowMaxColor && move.scoreMean == maxScoreMean;
               double score = move.scoreMean;
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String scoreLeadText = Utils.convertScoreToString(score, maxScoreMean);
               if (Lizzie.config.useDefaultInfoRowOrder
                   || Lizzie.config.suggestionInfoWinrate < Lizzie.config.suggestionInfoScoreLead) {
@@ -2016,7 +1878,7 @@ public class FloatBoardRenderer {
                     suggestionX,
                     suggestionY,
                     LizzieFrame.winrateFont,
-                    String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+                    Utils.formatWinrate(roundedWinrate),
                     squareWidth * 0.46f,
                     stoneRadius * 1.9);
               } else {
@@ -2025,7 +1887,7 @@ public class FloatBoardRenderer {
                     suggestionX,
                     suggestionY,
                     LizzieFrame.winrateFont,
-                    String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+                    Utils.formatWinrate(roundedWinrate),
                     squareWidth * 0.46f,
                     stoneRadius * 1.9);
               }

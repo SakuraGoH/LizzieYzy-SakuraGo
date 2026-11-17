@@ -25,6 +25,11 @@ public class GameInfo {
     Lizzie.frame.setResult(result);
   }
 
+  /** 不更新界面的结果写入，供后台对局/裁判使用。 */
+  public void setResultNoMenu(String result) {
+    this.result = result;
+  }
+
   public String getPlayerBlack() {
     return playerBlack;
   }

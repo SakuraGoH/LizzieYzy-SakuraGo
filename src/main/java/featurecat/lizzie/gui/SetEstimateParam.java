@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.CommandHistory;
 import featurecat.lizzie.util.Utils;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -101,6 +102,7 @@ public class SetEstimateParam extends JDialog {
                 Utils.parseTextToDouble(txtThreshold, Lizzie.config.estimateThreshold);
             Lizzie.config.estimateCommand = textAreaCommand.getText();
             Lizzie.config.uiConfig.put("estimate-command", Lizzie.config.estimateCommand);
+            CommandHistory.add("estimate", Lizzie.config.estimateCommand);
             Lizzie.config.uiConfig.put("estimate-threshold", Lizzie.config.estimateThreshold);
             // 用户手动点过确定，标记为“已手动设置”，之后主引擎启动不再自动覆盖
             Lizzie.config.estimateCommandUserSet = true;
@@ -170,6 +172,25 @@ public class SetEstimateParam extends JDialog {
     btnGenerate.setBounds(272, 133, 93, 23);
     btnGenerate.setFocusable(false);
     getContentPane().add(btnGenerate);
+
+    JButton btnHistory = new JButton(resourceBundle.getString("CommandHistory.button"));
+    btnHistory.setBounds(372, 133, 93, 23);
+    btnHistory.setFocusable(false);
+    btnHistory.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            CommandHistoryDialog history =
+                new CommandHistoryDialog(
+                    dialog,
+                    "estimate",
+                    Lizzie.resourceBundle.getString("CommandHistory.title")
+                        + " - "
+                        + resourceBundle.getString("CommandHistory.estimate"),
+                    text -> textAreaCommand.setText(text));
+            history.setVisible(true);
+          }
+        });
+    getContentPane().add(btnHistory);
 
     setAlwaysOnTop(true);
     try {

@@ -1,0 +1,103 @@
+package featurecat.lizzie.gui;
+
+import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
+import featurecat.lizzie.util.Utils;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.JDialog;
+
+/** 野狐协议直连的独立设置窗口：监听端口 + 启动/停止。 */
+public class FoxDirectWindow extends JDialog {
+  private final JFontTextField txtPort = new JFontTextField();
+  private final JFontLabel lblStatus = new JFontLabel();
+  private final JFontButton btnToggle = new JFontButton();
+  private final JFontButton btnClose =
+      new JFontButton(Lizzie.resourceBundle.getString("FoxDirect.close"));
+
+  public FoxDirectWindow(Window owner) {
+    super(owner, Lizzie.resourceBundle.getString("FoxDirect.title"), ModalityType.MODELESS);
+    setResizable(false);
+    setAlwaysOnTop(Lizzie.frame != null && Lizzie.frame.isAlwaysOnTop());
+    setLayout(null);
+    setSize(420, 150);
+    Lizzie.setFrameSize(this, 420, 150);
+    setLocationRelativeTo(owner);
+
+    JFontLabel lblPort = new JFontLabel(Lizzie.resourceBundle.getString("FoxDirect.port"));
+    lblPort.setBounds(18, 18, 110, 24);
+    add(lblPort);
+    txtPort.setDocument(new IntDocument());
+    txtPort.setBounds(132, 19, 80, 24);
+    add(txtPort);
+    JFontLabel lblPortHint = new JFontLabel("127.0.0.1:port");
+    lblPortHint.setBounds(220, 18, 180, 24);
+    add(lblPortHint);
+
+    lblStatus.setBounds(18, 52, 380, 22);
+    add(lblStatus);
+
+    btnToggle.setMargin(new Insets(0, 4, 0, 4));
+    btnToggle.setBounds(150, 92, 120, 28);
+    btnToggle.setFocusable(false);
+    add(btnToggle);
+    btnClose.setMargin(new Insets(0, 4, 0, 4));
+    btnClose.setBounds(280, 92, 100, 28);
+    btnClose.setFocusable(false);
+    add(btnClose);
+
+    txtPort.setText(String.valueOf(Lizzie.config.foxDirectPort));
+
+    btnToggle.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (FoxDirectController.getInstance().isRunning()) {
+              Lizzie.frame.stopFoxDirect();
+              refreshState();
+              return;
+            }
+            int port;
+            try {
+              port = Integer.parseInt(txtPort.getText().trim());
+            } catch (NumberFormatException ex) {
+              Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.invalidPort"));
+              return;
+            }
+            if (port <= 0 || port > 65535) {
+              Utils.showMsg(Lizzie.resourceBundle.getString("FoxDirect.invalidPort"));
+              return;
+            }
+            FoxDirectController.getInstance().setPort(port);
+            Lizzie.frame.startFoxDirect();
+            refreshState();
+          }
+        });
+
+    btnClose.addActionListener(e -> dispose());
+    addWindowListener(
+        new WindowAdapter() {
+          public void windowClosing(WindowEvent e) {
+            dispose();
+          }
+        });
+    refreshState();
+  }
+
+  public void refreshState() {
+    FoxDirectController controller = FoxDirectController.getInstance();
+    boolean running = controller.isRunning();
+    txtPort.setEnabled(!running);
+    if (running) {
+      lblStatus.setText(
+          Lizzie.resourceBundle.getString("FoxDirect.running") + " " + controller.getPort());
+      btnToggle.setText(Lizzie.resourceBundle.getString("FoxDirect.stop"));
+    } else {
+      lblStatus.setText(Lizzie.resourceBundle.getString("FoxDirect.stopped"));
+      btnToggle.setText(Lizzie.resourceBundle.getString("FoxDirect.start"));
+    }
+  }
+}

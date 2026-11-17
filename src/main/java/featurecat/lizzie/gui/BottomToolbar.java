@@ -2,13 +2,16 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.EngineGameArena;
 import featurecat.lizzie.analysis.EngineManager;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Movelist;
 import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.util.Utils;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -69,7 +72,6 @@ public class BottomToolbar extends JPanel {
   JButton refresh;
   JPopupMenu yike;
   JPopupMenu sharePopup;
-  // 底部“同步”里的野狐直连菜单项，与顶部“同步”菜单项状态保持一致
   public JFontCheckBoxMenuItem foxDirectItemBottom;
   JPopupMenu autoAnalyzePopup;
   JPopupMenu flashAnalyzePopup;
@@ -238,6 +240,13 @@ public class BottomToolbar extends JPanel {
   public JButton btnEnginePkStop;
   public JButton btnEngineMannul;
 
+  /** 多场对战的翻页键与页码显示。 */
+  public JButton btnPrevGamePk;
+
+  public JButton btnNextGamePk;
+  public JButton btnStopGamePk;
+  public JLabel lblGamePk;
+
   JLabel lblenginePk;
   // JLabel lblgenmove;
   JLabel lblenginePkTime;
@@ -333,6 +342,10 @@ public class BottomToolbar extends JPanel {
     coords = new JFontButton(Lizzie.resourceBundle.getString("BottomToolbar.coords")); // ("坐标");
     autoPlay =
         new JFontButton(Lizzie.resourceBundle.getString("BottomToolbar.autoPlay")); // ("自动播放");
+    btnPrevGamePk = new JFontButton(Lizzie.resourceBundle.getString("EnginePkConfig.prevGame"));
+    btnNextGamePk = new JFontButton(Lizzie.resourceBundle.getString("EnginePkConfig.nextGame"));
+    btnStopGamePk = new JFontButton(Lizzie.resourceBundle.getString("EnginePkConfig.stopThisGame"));
+    lblGamePk = new JLabel("1/1");
 
     iconUp = new ImageIcon();
 
@@ -381,6 +394,10 @@ public class BottomToolbar extends JPanel {
     buttonPane.add(gotomove);
     buttonPane.add(backward1);
     buttonPane.add(forward1);
+    buttonPane.add(btnPrevGamePk);
+    buttonPane.add(lblGamePk);
+    buttonPane.add(btnNextGamePk);
+    buttonPane.add(btnStopGamePk);
     buttonPane.add(openfile);
     buttonPane.add(kataEstimate);
     buttonPane.add(analyse);
@@ -398,6 +415,28 @@ public class BottomToolbar extends JPanel {
 
     rightMove.setVisible(false);
     leftMove.setVisible(false);
+    btnPrevGamePk.setVisible(false);
+    btnNextGamePk.setVisible(false);
+    btnStopGamePk.setVisible(false);
+    lblGamePk.setVisible(false);
+    btnPrevGamePk.setMargin(new Insets(0, 0, 0, 0));
+    btnNextGamePk.setMargin(new Insets(0, 0, 0, 0));
+    btnStopGamePk.setMargin(new Insets(0, 0, 0, 0));
+    btnPrevGamePk.setFocusable(false);
+    btnNextGamePk.setFocusable(false);
+    btnStopGamePk.setFocusable(false);
+    btnPrevGamePk.addActionListener(
+        e -> {
+          if (EngineManager.isEngineGame) EngineGameArena.getInstance().prev();
+        });
+    btnNextGamePk.addActionListener(
+        e -> {
+          if (EngineManager.isEngineGame) EngineGameArena.getInstance().next();
+        });
+    btnStopGamePk.addActionListener(
+        e -> {
+          if (EngineGameArena.isRunning()) EngineGameArena.getInstance().stopActiveGame();
+        });
     firstButton.setFocusable(false);
     lastButton.setFocusable(false);
     clearButton.setFocusable(false);
@@ -642,42 +681,6 @@ public class BottomToolbar extends JPanel {
           }
         });
 
-    //    JMenuItem shareHistory =
-    //        new JMenuItem(
-    //            Lizzie.resourceBundle.getString("BottomToolbar.shareHistory")); // ("历史记录(本地)");
-    //    shareHistory.addActionListener(
-    //        new ActionListener() {
-    //          public void actionPerformed(ActionEvent e) {
-    //            File file = new File("");
-    //            String courseFile = "";
-    //            try {
-    //              courseFile = file.getCanonicalPath();
-    //            } catch (IOException se) {
-    //              // TODO Auto-generated catch block
-    //            }
-    //            try {
-    //              File linkHistory = new File(courseFile + File.separator + "shareLinks.txt"); //
-    // 创建文件对象
-    //              if (!linkHistory.exists()) {
-    //                Utils.showMsg(
-    //                    Lizzie.resourceBundle.getString("BottomToolbar.linkHistoryHint")); // );
-    //                //                Message msg = new Message();
-    //                //                msg.setMessage("历史记录为空");
-    //                //                msg.setVisible(true);
-    //                return;
-    //              }
-    //              Desktop.getDesktop().open(linkHistory); // 启动已在本机桌面上注册的关联应用程序，打开文件文件file。
-    //            } catch (IOException e1) {
-    //              // TODO Auto-generated catch block
-    //              Utils.showMsg(Lizzie.resourceBundle.getString("BottomToolbar.linkHistoryFail"));
-    // // );
-    //              //   Message msg = new Message();
-    //              //              msg.setMessage("打开失败");
-    //              //              msg.setVisible(true);
-    //            }
-    //          }
-    //        });
-
     JFontMenuItem editHistoryRemote =
         new JFontMenuItem(
             Lizzie.resourceBundle.getString(
@@ -765,13 +768,14 @@ public class BottomToolbar extends JPanel {
 
     // ---- 野狐（协议直连）---- 与顶部“同步 -> 野狐（协议直连）”联动
     yike.addSeparator();
-    foxDirectItemBottom = new JFontCheckBoxMenuItem("野狐（协议直连）");
-    foxDirectItemBottom.setState(Lizzie.foxBridge != null);
+    foxDirectItemBottom =
+        new JFontCheckBoxMenuItem(Lizzie.resourceBundle.getString("FoxDirect.menu"));
+    foxDirectItemBottom.setState(FoxDirectController.getInstance().isRunning());
     yike.add(foxDirectItemBottom);
     foxDirectItemBottom.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.toggleFoxDirect();
+            Lizzie.frame.openFoxDirectWindow();
             Menu.refreshFoxDirectItemState();
           }
         });
@@ -787,7 +791,8 @@ public class BottomToolbar extends JPanel {
     deleteMove.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+            if (FoxDirectController.getInstance().isRunning()
+                && FoxDirectController.getInstance().isInputLocked()) {
               Utils.showMsgNoModal(
                   Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
               return;
@@ -968,7 +973,7 @@ public class BottomToolbar extends JPanel {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             if (Lizzie.frame.commentEditPane.isVisible()) Lizzie.frame.setCommentEditable(false);
-            if (EngineManager.isEngineGame || Lizzie.frame.foxGameInputLocked) {
+            if (EngineManager.isEngineGame || FoxDirectController.getInstance().isInputLocked()) {
               // 引擎对战/野狐对局：正常回退一手，不做“退两手”处理
               Lizzie.board.previousMove(true);
             } else if (Lizzie.frame.isPlayingAgainstLeelaz
@@ -994,6 +999,8 @@ public class BottomToolbar extends JPanel {
     liveButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+            if (foxDirectItemBottom != null)
+              foxDirectItemBottom.setState(FoxDirectController.getInstance().isRunning());
             yike.show(buttonPane, yike.getX(), yike.getY() - yike.getHeight());
           }
         });
@@ -1029,7 +1036,8 @@ public class BottomToolbar extends JPanel {
     clearButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (Lizzie.foxBridge != null && Lizzie.frame.foxGameInputLocked) {
+            if (FoxDirectController.getInstance().isRunning()
+                && FoxDirectController.getInstance().isInputLocked()) {
               Utils.showMsgNoModal(
                   Lizzie.resourceBundle.getString("LizzieFrame.foxGameNoManualPlace"));
               return;
@@ -1562,24 +1570,6 @@ public class BottomToolbar extends JPanel {
     // chkenginePkgenmove.setBounds(70, 23, 20, 18);
     // lblgenmove.setBounds(90, 22, 60, 18);
 
-    // chkenginePkgenmove.addActionListener(
-    // new ActionListener() {
-    // @Override
-    // public void actionPerformed(ActionEvent e) {
-    // // TBD未完成
-    // setTxtUnfocuse();
-    // if (chkenginePkgenmove.isSelected()) {
-    // chkenginePkPlayouts.setSelected(false);
-    // chkenginePkPlayouts.setEnabled(false);
-    // chkenginePkFirstPlayputs.setSelected(false);
-    // chkenginePkFirstPlayputs.setEnabled(false);
-    // } else {
-    // chkenginePkFirstPlayputs.setEnabled(true);
-    // chkenginePkPlayouts.setEnabled(true);
-    // }
-    // }
-    // });
-
     btnEnginePkConfig = new JButton("设置");
     enginePkPanel.add(btnEnginePkConfig);
     btnEnginePkConfig.setBounds(42, 22, 35, 20);
@@ -1604,6 +1594,15 @@ public class BottomToolbar extends JPanel {
           public void actionPerformed(ActionEvent e) {
             // TBD未完成
             setTxtUnfocuse();
+            if (EngineGameArena.isRunning()) {
+              EngineGameArena arena = EngineGameArena.getInstance();
+              arena.togglePause();
+              btnEnginePkStop.setText(
+                  arena.isPaused()
+                      ? Lizzie.resourceBundle.getString("EnginePkConfig.resume")
+                      : Lizzie.resourceBundle.getString("EnginePkConfig.pause"));
+              return;
+            }
             if (isGenmoveToolbar) {
               if (isPkStop) {
                 if (!isPkGenmoveStop) {
@@ -3325,30 +3324,6 @@ public class BottomToolbar extends JPanel {
         list.ensureIndexIsVisible(selectedIndex);
       }
     }
-
-    //    private java.awt.Point getPopupLocation() {
-    //      Dimension popupSize = comboBox.getSize();
-    //      Insets insets = getInsets();
-    //
-    //      // reduce the width of the scrollpane by the insets so that the popup
-    //      // is the same width as the combo box.
-    //      popupSize.setSize(
-    //          popupSize.width - (insets.right + insets.left),
-    //          getPopupHeightForRowCount(comboBox.getMaximumRowCount()));
-    //      Rectangle popupBounds =
-    //          computePopupBounds(0, comboBox.getBounds().height, popupSize.width,
-    // popupSize.height);
-    //      Dimension scrollSize = popupBounds.getSize();
-    //      java.awt.Point popupLocation = popupBounds.getLocation();
-    //
-    //      //          scroller.setMaximumSize( scrollSize );
-    //      //          scroller.setPreferredSize( scrollSize );
-    //      //          scroller.setMinimumSize( scrollSize );
-    //
-    //      list.revalidate();
-    //
-    //      return popupLocation;
-    //    }
   }
 
   public void resetAutoAna() {
@@ -3468,59 +3443,6 @@ public class BottomToolbar extends JPanel {
     enginePkWhite.removeItemListener(enginePkWhiteLis);
   }
 
-  //  public void stopEnginePK(boolean mannul) {
-  //    if (!isEnginePk) return;
-  //    Lizzie.frame.winrateGraph.maxcoreMean = 30;
-  //    isEnginePk = false;
-  //    btnStartPk.setText("开始");
-  //    Lizzie.frame.subBoardRenderer.reverseBestmoves = false;
-  //    Lizzie.frame.boardRenderer.reverseBestmoves = false;
-  //    Lizzie.engineManager.engineList.get(engineBlack).played = false;
-  //    Lizzie.engineManager.engineList.get(engineWhite).played = false;
-  //    Lizzie.frame.addInput();
-  //    analyse.setEnabled(true);
-  //    enginePkBlack.setEnabled(true);
-  //    enginePkWhite.setEnabled(true);
-  //    // txtenginePkBatch.setEnabled(true);
-  //    // chkenginePkAutosave.setEnabled(true);
-  //    // AutosavePk=true;
-  //    btnEnginePkConfig.setEnabled(true);
-  //    chkenginePkBatch.setEnabled(true);
-  //    chkenginePkTime.setEnabled(true);
-  //    txtenginePkTime.setEnabled(true);
-  //    txtenginePkTimeWhite.setEnabled(true);
-  //    batchPkName = "";
-  //    // chkenginePkgenmove.setEnabled(true);
-  //    chkenginePk.setEnabled(true);
-  //    Lizzie.board.clearbestmovesafter(Lizzie.board.getHistory().getStart());
-  //    Lizzie.engineManager.changeEngIcoForEndPk();
-  //    Lizzie.leelaz.notPondering();
-  //    Lizzie.leelaz.nameCmd();
-  //    Lizzie.frame.addInput();
-  //    if (mannul && isEnginePkBatch) {
-  //      msg = new Message();
-  //      String passandMove = "";
-  //      if (Lizzie.frame.toolbar.doublePassGame > 0)
-  //        passandMove = passandMove + "双方Pass局数 " + doublePassGame;
-  //      if (Lizzie.frame.toolbar.maxMoveGame > 0)
-  //        passandMove = passandMove + "超最大手数局数  " + maxMoveGame;
-  //      msg.setMessage(
-  //          "批量对战已结束,比分为["
-  //              + Lizzie.frame.toolbar.engineBlackName
-  //              + "   "
-  //              + pkBlackWins
-  //              + ":"
-  //              + pkWhiteWins
-  //              + "   "
-  //              + Lizzie.frame.toolbar.engineWhiteName
-  //              + "]"
-  //              + passandMove
-  //              + ",棋谱保存在"
-  //              + "Lizzie目录PkAutoSave文件夹下");
-  //      msg.setVisible(true);
-  //    }
-  //  }
-
   public ArrayList<Movelist> getStartListForEnginePk() {
     if (chkenginePkContinue.isSelected()) {
       return startGame;
@@ -3537,6 +3459,33 @@ public class BottomToolbar extends JPanel {
       return Lizzie.frame.enginePKSgfString.get(currentEnginePkSgfNum);
     }
     return null;
+  }
+
+  /** 多场对战：显示/隐藏翻页键与页码。 */
+  public void setEngineGamePagingVisible(boolean visible) {
+    if (btnPrevGamePk == null) return;
+    btnPrevGamePk.setVisible(visible);
+    btnNextGamePk.setVisible(visible);
+    btnStopGamePk.setVisible(visible);
+    lblGamePk.setVisible(visible);
+    btnPrevGamePk.setEnabled(visible);
+    btnNextGamePk.setEnabled(visible);
+    btnStopGamePk.setEnabled(visible);
+    if (visible) {
+      btnPrevGamePk.setSize(40, 26);
+      btnNextGamePk.setSize(40, 26);
+      btnStopGamePk.setSize(Lizzie.config.isChinese ? 55 : 70, 26);
+      lblGamePk.setFont(new Font(Config.sysDefaultFontName, Font.PLAIN, 12));
+      lblGamePk.setSize(lblGamePk.getPreferredSize().width, 26);
+    }
+    reSetButtonLocation();
+  }
+
+  /** 更新页码显示：当前第几局/同时几局 (已完成/总场数)。 */
+  public void updateEngineGamePaging(int current, int lanes, int finished, int total) {
+    if (lblGamePk == null) return;
+    lblGamePk.setText(" " + current + "/" + lanes + " (" + finished + "/" + total + ") ");
+    if (lblGamePk.isVisible()) reSetButtonLocation();
   }
 
   public void enableDisabelForEngineGame(boolean enable) {
@@ -3613,377 +3562,6 @@ public class BottomToolbar extends JPanel {
         checkGameMaxMove,
         maxGameMoves);
   }
-
-  //  public void startEnginePk() {
-  //    if (!Lizzie.engineManager.isEmpty && Lizzie.leelaz != null) {
-  //      Lizzie.leelaz.clearBestMoves();
-  //    }
-  //    Lizzie.frame.hasEnginePkTitile = false;
-  //    Lizzie.frame.enginePkTitile = "";
-  //    pkBlackPlayouts = 0;
-  //    pkWhitePlayouts = 0;
-  //    pkBlackWinAsBlack = 0;
-  //    pkBlackWinAsWhite = 0;
-  //    pkWhiteWinAsBlack = 0;
-  //    pkWhiteWinAsWhite = 0;
-  //    if (engineWhite == engineBlack) {
-  ////      // if (isGenmove) {
-  ////      boolean onTop = false;
-  ////      if (Lizzie.frame.isAlwaysOnTop()) {
-  ////        Lizzie.frame.setAlwaysOnTop(false);
-  ////        onTop = true;
-  ////      }
-  ////      JOptionPane.showMessageDialog(null, "黑白必须为不同引擎");
-  ////      if (onTop) Lizzie.frame.setAlwaysOnTop(true);
-  //    	Utils.showMsg("黑白不能选择相同引擎");
-  //      Lizzie.frame.addInput();
-  //      return;
-  //      //    }
-  //      //   isSameEngine = true;
-  //    }
-  //    //    else {
-  //    //      isSameEngine = false;
-  //    //    }
-  //    if (Lizzie.engineManager.isEmpty) Lizzie.engineManager.isEmpty = false;
-  //    pkBlackTimeAll = 0;
-  //    pkWhiteTimeAll = 0;
-  //    timeb = -1;
-  //    timew = -1;
-  //    engineBlackName =
-  // Lizzie.engineManager.engineList.get(engineBlack).getEngineName(engineBlack);
-  //    engineWhiteName =
-  // Lizzie.engineManager.engineList.get(engineWhite).getEngineName(engineWhite);
-  //    Lizzie.frame.winrateGraph.maxcoreMean = 15;
-  //    if (isGenmove && chkenginePkTime.isSelected()) {
-  //      try {
-  //        timeb = Integer.parseInt(txtenginePkTime.getText().replace(" ", ""));
-  //      } catch (NumberFormatException err) {
-  //      }
-  //      try {
-  //        timew = Integer.parseInt(txtenginePkTimeWhite.getText().replace(" ", ""));
-  //      } catch (NumberFormatException err) {
-  //      }
-  //      // if (timeb <= 0 || timew <= 0) {
-  //      // boolean onTop = false;
-  //      // if (Lizzie.frame.isAlwaysOnTop()) {
-  //      // Lizzie.frame.setAlwaysOnTop(false);
-  //      // onTop = true;
-  //      // }
-  //      // JOptionPane.showMessageDialog(Lizzie.frame,
-  //      // "genmove模式下必须设置黑白双方用时");
-  //      // if (onTop) Lizzie.frame.setAlwaysOnTop(true);
-  //      // return;
-  //      // }
-  //    }
-  //    Lizzie.config.isAutoAna=false;
-  //    isAutoPlay = false;
-  //    Lizzie.board.isPkBoard = true;
-  //    //    if (checkGameTime) {
-  //    //      Lizzie.engineManager.gameTime = System.currentTimeMillis();
-  //    //    }
-  //
-  //    Lizzie.frame.isPlayingAgainstLeelaz = false;
-  //    Lizzie.frame.isAnaPlayingAgainstLeelaz = false;
-  //    btnStartPk.setText("终止");
-  //    btnEnginePkStop.setText("暂停");
-  //    isPkStop = false;
-  //    EnginePkBatchNumberNow = 1;
-  //    isEnginePkBatch = chkenginePkBatch.isSelected();
-  //    if (batchPkName.equals("")) {
-  //      // batchPkName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-  //      String SF = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-  //      SF =
-  //          Lizzie.engineManager.getEngineName(Lizzie.frame.toolbar.engineBlack)
-  //              + "_VS_"
-  //              + Lizzie.engineManager.getEngineName(Lizzie.frame.toolbar.engineWhite)
-  //              + "_"
-  //              + SF;
-  //      SF = SF.replaceAll("[/\\\\:*?|]", ".");
-  //      SF = SF.replaceAll("[\"<>]", "'");
-  //      batchPkName = SF;
-  //    }
-  //    SF = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-  //
-  //    // txtenginePkBatch.setEnabled(false);
-  //
-  //    chkenginePkBatch.setEnabled(false);
-  //    enginePkBlack.setEnabled(false);
-  //    enginePkWhite.setEnabled(false);
-  //    // chkenginePkgenmove.setEnabled(false);
-  //    chkenginePk.setEnabled(false);
-  //    btnEnginePkConfig.setEnabled(false);
-  //    // if (isEnginePkBatch) {
-  //    // chkenginePkAutosave.setSelected(true);
-  //    // chkenginePkAutosave.setEnabled(false);
-  //    // AutosavePk=true;
-  //    // }
-  //    if (chkenginePkContinue.isSelected()) {
-  //      startGame = Lizzie.board.getmovelist();
-  //    }
-  //    lblenginePkResult.setText("0:0");
-  //    pkBlackWins = 0;
-  //    pkWhiteWins = 0;
-  //
-  //    featurecat.lizzie.gui.Menu.engineMenu.setText("对战中");
-  //    featurecat.lizzie.gui.Menu.engineMenu.setEnabled(false);
-  //    analyse.setEnabled(false);
-  //    Lizzie.frame.setResult("");
-  //    Lizzie.engineManager.killOtherEngines(engineBlack, engineWhite);
-  //    if (Lizzie.engineManager.currentEngineNo == engineWhite
-  //        || Lizzie.engineManager.currentEngineNo == engineBlack) {
-  //      Lizzie.leelaz.nameCmd();
-  //
-  //    } else {
-  //      if (!Lizzie.engineManager.isEmpty) {
-  //        try {
-  //          Lizzie.leelaz.normalQuit();
-  //        } catch (Exception ex) {
-  //        }
-  //      } else {
-  //        Lizzie.engineManager.switchEngine(engineBlack);
-  //      }
-  //    }
-  //    doublePassGame = 0;
-  //    maxMoveGame = 0;
-  //    if (!isGenmove) {
-  //      // 分析模式对战
-  //      if (checkGameMinMove) {
-  //        minMove = minGanmeMove;
-  //      } else minMove = -1;
-  //      Lizzie.engineManager.engineList.get(engineBlack).blackResignMoveCounts = 0;
-  //      Lizzie.engineManager.engineList.get(engineBlack).whiteResignMoveCounts = 0;
-  //      Lizzie.engineManager.engineList.get(engineWhite).blackResignMoveCounts = 0;
-  //      Lizzie.engineManager.engineList.get(engineBlack).whiteResignMoveCounts = 0;
-  //
-  //      Lizzie.board.clearforpk();
-  //
-  //      ArrayList<Movelist> startList = getStartListForEnginePk();
-  //      if (startList != null) {
-  //        Lizzie.engineManager.isEmpty = true;
-  //        Lizzie.board.setlist(startList);
-  //        Lizzie.engineManager.isEmpty = false;
-  //      }
-  //      //      if (chkenginePkContinue.isSelected()) {
-  //      //        Lizzie.engineManager.isEmpty = true;
-  //      //        Lizzie.board.setlist(startGame);
-  //      //        Lizzie.engineManager.isEmpty = false;
-  //      //      }
-  //      isEnginePk = true;
-  //      if (Lizzie.board.getHistory().isBlacksTurn()) {
-  //        Lizzie.engineManager.startEngineForPk(engineBlack);
-  //        Lizzie.engineManager.startEngineForPk(engineWhite);
-  //        Runnable runnable =
-  //            new Runnable() {
-  //              public void run() {
-  //                while (!Lizzie.engineManager.engineList.get(engineWhite).isLoaded()
-  //                    || !Lizzie.engineManager.engineList.get(engineBlack).isLoaded()) {
-  //                  try {
-  //                    Thread.sleep(500);
-  //                  } catch (InterruptedException e) {
-  //                    // TODO Auto-generated catch block
-  //                    e.printStackTrace();
-  //                  }
-  //                }
-  //                if (Lizzie.config.autoLoadLzsaiEngineVisits) {
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineBlack)
-  //                      .sendCommand("lz-setoption name Visits value 1000000000");
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineWhite)
-  //                      .sendCommand("lz-setoption name Visits value 1000000000");
-  //                }
-  //                Lizzie.leelaz = Lizzie.engineManager.engineList.get(engineBlack);
-  //                Lizzie.leelaz.ponder();
-  //              }
-  //            };
-  //        Thread thread = new Thread(runnable);
-  //        thread.start();
-  //      } else {
-  //        chkenginePkTime.setEnabled(false);
-  //        txtenginePkTime.setEnabled(false);
-  //        txtenginePkTimeWhite.setEnabled(false);
-  //        Lizzie.engineManager.startEngineForPk(engineWhite);
-  //        Lizzie.engineManager.startEngineForPk(engineBlack);
-  //        Runnable runnable =
-  //            new Runnable() {
-  //              public void run() {
-  //                while (!Lizzie.engineManager.engineList.get(engineWhite).isLoaded()
-  //                    || !Lizzie.engineManager.engineList.get(engineBlack).isLoaded()) {
-  //                  try {
-  //                    Thread.sleep(500);
-  //                  } catch (InterruptedException e) {
-  //                    // TODO Auto-generated catch block
-  //                    e.printStackTrace();
-  //                  }
-  //                }
-  //                if (Lizzie.config.autoLoadLzsaiEngineVisits) {
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineBlack)
-  //                      .sendCommand("lz-setoption name Visits value 1000000000");
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineWhite)
-  //                      .sendCommand("lz-setoption name Visits value 1000000000");
-  //                }
-  //                Lizzie.leelaz = Lizzie.engineManager.engineList.get(engineWhite);
-  //                Lizzie.leelaz.ponder();
-  //              }
-  //            };
-  //        Thread thread = new Thread(runnable);
-  //        thread.start();
-  //      }
-  //      Lizzie.board.clearbestmovesafter2(Lizzie.board.getHistory().getStart());
-  //
-  //      Lizzie.frame.setPlayers(
-  //          Lizzie.engineManager.engineList.get(engineWhite).oriEnginename,
-  //          Lizzie.engineManager.engineList.get(engineBlack).oriEnginename);
-  //      GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
-  //      gameInfo.setPlayerWhite(Lizzie.engineManager.engineList.get(engineWhite).oriEnginename);
-  //      gameInfo.setPlayerBlack(Lizzie.engineManager.engineList.get(engineBlack).oriEnginename);
-  //      Runnable runnable =
-  //          new Runnable() {
-  //            public void run() {
-  //              while (isEnginePk) {
-  //                try {
-  //                  Thread.sleep(Lizzie.config.analyzeUpdateIntervalCentisec * 10);
-  //                } catch (InterruptedException e) {
-  //                  // TODO Auto-generated catch block
-  //                  e.printStackTrace();
-  //                }
-  //                Lizzie.engineManager.engineList.get(engineBlack).pkResign();
-  //                Lizzie.engineManager.engineList.get(engineWhite).pkResign();
-  //              }
-  //            }
-  //          };
-  //      Thread thread = new Thread(runnable);
-  //      thread.start();
-  //    } else {
-  //      // genmove对战
-  //      chkenginePkTime.setEnabled(false);
-  //      txtenginePkTime.setEnabled(false);
-  //      txtenginePkTimeWhite.setEnabled(false);
-  //      Lizzie.board.clearforpk();
-  //      ArrayList<Movelist> startList = getStartListForEnginePk();
-  //      if (startList != null) {
-  //        Lizzie.engineManager.isEmpty = true;
-  //        Lizzie.board.setlist(startList);
-  //        Lizzie.engineManager.isEmpty = false;
-  //      }
-  //      //      if (chkenginePkContinue.isSelected()) {
-  //      //        Lizzie.engineManager.isEmpty = true;
-  //      //        Lizzie.board.setlist(startGame);
-  //      //        Lizzie.engineManager.isEmpty = false;
-  //      //      }
-  //      isEnginePk = true;
-  //      enginePKGenmoveBestMovesSize =
-  //          (Lizzie.config.limitMaxSuggestion > 0 && !Lizzie.config.showNoSuggCircle
-  //              ? Lizzie.config.limitMaxSuggestion
-  //              : 361);
-  //      if (Lizzie.board.getHistory().isBlacksTurn()) {
-  //        Lizzie.engineManager.startEngineForPk(engineWhite);
-  //        Lizzie.engineManager.startEngineForPk(engineBlack);
-  //        Runnable runnable =
-  //            new Runnable() {
-  //              public void run() {
-  //                while (!Lizzie.engineManager.engineList.get(engineWhite).isLoaded()
-  //                    || !Lizzie.engineManager.engineList.get(engineBlack).isLoaded()) {
-  //                  try {
-  //                    Thread.sleep(500);
-  //                  } catch (InterruptedException e) {
-  //                    // TODO Auto-generated catch block
-  //                    e.printStackTrace();
-  //                  }
-  //                }
-  //                Lizzie.engineManager.engineList.get(engineBlack).nameCmd();
-  //                Lizzie.engineManager.engineList.get(engineBlack).notPondering();
-  //                Lizzie.engineManager.engineList.get(engineWhite).nameCmd();
-  //                Lizzie.engineManager.engineList.get(engineWhite).notPondering();
-  //                if (Lizzie.config.pkAdvanceTimeSettings) {
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineBlack)
-  //                      .sendCommand(Lizzie.config.advanceBlackTimeTxt);
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineWhite)
-  //                      .sendCommand(Lizzie.config.advanceWhiteTimeTxt);
-  //                } else {
-  //                  if (timew > 0)
-  //                    Lizzie.engineManager
-  //                        .engineList
-  //                        .get(engineWhite)
-  //                        .sendCommand("time_settings 0 " + timew + " 1");
-  //                  if (timeb > 0)
-  //                    Lizzie.engineManager
-  //                        .engineList
-  //                        .get(engineBlack)
-  //                        .sendCommand("time_settings 0 " + timeb + " 1");
-  //                }
-  //                Lizzie.engineManager.engineList.get(engineBlack).genmoveForPk("B");
-  //              }
-  //            };
-  //        Thread thread = new Thread(runnable);
-  //        thread.start();
-  //
-  //      } else {
-  //        Lizzie.engineManager.startEngineForPk(engineBlack);
-  //        Lizzie.engineManager.startEngineForPk(engineWhite);
-  //        Runnable runnable =
-  //            new Runnable() {
-  //              public void run() {
-  //                while (!Lizzie.engineManager.engineList.get(engineWhite).isLoaded()
-  //                    || !Lizzie.engineManager.engineList.get(engineBlack).isLoaded()) {
-  //                  try {
-  //                    Thread.sleep(500);
-  //                  } catch (InterruptedException e) {
-  //                    // TODO Auto-generated catch block
-  //                    e.printStackTrace();
-  //                  }
-  //                }
-  //                Lizzie.engineManager.engineList.get(engineBlack).nameCmd();
-  //                Lizzie.engineManager.engineList.get(engineBlack).notPondering();
-  //                Lizzie.engineManager.engineList.get(engineWhite).nameCmd();
-  //                Lizzie.engineManager.engineList.get(engineWhite).notPondering();
-  //                if (Lizzie.config.pkAdvanceTimeSettings) {
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineBlack)
-  //                      .sendCommand(Lizzie.config.advanceBlackTimeTxt);
-  //                  Lizzie.engineManager
-  //                      .engineList
-  //                      .get(engineWhite)
-  //                      .sendCommand(Lizzie.config.advanceWhiteTimeTxt);
-  //                } else {
-  //                  if (timew > 0)
-  //                    Lizzie.engineManager
-  //                        .engineList
-  //                        .get(engineWhite)
-  //                        .sendCommand("time_settings 0 " + timew + " 1");
-  //                  if (timeb > 0)
-  //                    Lizzie.engineManager
-  //                        .engineList
-  //                        .get(engineBlack)
-  //                        .sendCommand("time_settings 0 " + timeb + " 1");
-  //                }
-  //                Lizzie.engineManager.engineList.get(engineWhite).genmoveForPk("W");
-  //              }
-  //            };
-  //        Thread thread = new Thread(runnable);
-  //        thread.start();
-  //      }
-  //
-  //      Lizzie.board.clearbestmovesafter2(Lizzie.board.getHistory().getStart());
-  //      Lizzie.frame.setPlayers(
-  //          Lizzie.engineManager.engineList.get(engineWhite).oriEnginename,
-  //          Lizzie.engineManager.engineList.get(engineBlack).oriEnginename);
-  //      GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
-  //      gameInfo.setPlayerWhite(Lizzie.engineManager.engineList.get(engineWhite).oriEnginename);
-  //      gameInfo.setPlayerBlack(Lizzie.engineManager.engineList.get(engineBlack).oriEnginename);
-  //    }
-  //  }
 
   public void resetEnginePk() {
     enginePkPanel.add(chkenginePkPlayouts);
@@ -4261,6 +3839,18 @@ public class BottomToolbar extends JPanel {
     if (forward10.isVisible()) {
       length = length + forward10.getWidth() - (Config.isScaled ? 0 : 1);
     }
+    if (btnPrevGamePk.isVisible()) {
+      length = length + btnPrevGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
+    if (lblGamePk.isVisible()) {
+      length = length + lblGamePk.getPreferredSize().width;
+    }
+    if (btnNextGamePk.isVisible()) {
+      length = length + btnNextGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
+    if (btnStopGamePk.isVisible()) {
+      length = length + btnStopGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
     if (lastButton.isVisible()) {
       length = length + lastButton.getWidth() - (Config.isScaled ? 0 : 1);
     }
@@ -4304,6 +3894,23 @@ public class BottomToolbar extends JPanel {
     if (lastButton.isVisible()) {
       w = w - (lastButton.getWidth() - (Config.isScaled ? 0 : 1));
       lastButton.setLocation(w, 0);
+    }
+    if (btnStopGamePk.isVisible()) {
+      w = w - (btnStopGamePk.getWidth() - (Config.isScaled ? 0 : 1));
+      btnStopGamePk.setLocation(w, 0);
+    }
+    if (btnNextGamePk.isVisible()) {
+      w = w - (btnNextGamePk.getWidth() - (Config.isScaled ? 0 : 1));
+      btnNextGamePk.setLocation(w, 0);
+    }
+    if (lblGamePk.isVisible()) {
+      int lw = lblGamePk.getPreferredSize().width;
+      w = w - lw;
+      lblGamePk.setLocation(w, 3);
+    }
+    if (btnPrevGamePk.isVisible()) {
+      w = w - (btnPrevGamePk.getWidth() - (Config.isScaled ? 0 : 1));
+      btnPrevGamePk.setLocation(w, 0);
     }
     if (forward10.isVisible()) {
       w = w - (forward10.getWidth() - (Config.isScaled ? 0 : 1));
@@ -4508,6 +4115,22 @@ public class BottomToolbar extends JPanel {
       forward10.setLocation(w, 0);
       w = w + forward10.getWidth() - (Config.isScaled ? 0 : 1);
     }
+    if (btnPrevGamePk.isVisible()) {
+      btnPrevGamePk.setLocation(w, 0);
+      w = w + btnPrevGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
+    if (lblGamePk.isVisible()) {
+      lblGamePk.setLocation(w, 3);
+      w = w + lblGamePk.getPreferredSize().width;
+    }
+    if (btnNextGamePk.isVisible()) {
+      btnNextGamePk.setLocation(w, 0);
+      w = w + btnNextGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
+    if (btnStopGamePk.isVisible()) {
+      btnStopGamePk.setLocation(w, 0);
+      w = w + btnStopGamePk.getWidth() - (Config.isScaled ? 0 : 1);
+    }
     if (lastButton.isVisible()) {
       lastButton.setLocation(w, 0);
       w = w + lastButton.getWidth() - (Config.isScaled ? 0 : 1);
@@ -4588,23 +4211,6 @@ public class BottomToolbar extends JPanel {
         rightMove.setVisible(false);
       }
     }
-    //    if (liveButtonListener != null) liveButton.removeActionListener(liveButtonListener);
-    //    liveButtonListener =
-    //        new ActionListener() {
-    //          public void actionPerformed(ActionEvent e) {
-    //            yike.show(buttonPane, yike.getX(), yike.getY() - yike.getHeight());
-    //          }
-    //        };
-    //    liveButton.addActionListener(liveButtonListener);
-    //
-    //    if (shareListener != null) share.removeActionListener(shareListener);
-    //    shareListener =
-    //        new ActionListener() {
-    //          public void actionPerformed(ActionEvent e) {
-    //            sharePopup.show(buttonPane, share.getX(), share.getY() - sharePopup.getHeight());
-    //          }
-    //        };
-    //    share.addActionListener(shareListener);
   }
 
   public void setChkShowBlack(boolean show) {
@@ -4632,28 +4238,4 @@ public class BottomToolbar extends JPanel {
     flashAnalyzePopup.setVisible(true);
     flashAnalyzePopup.setVisible(false);
   }
-
-  //  public void setFontSize(int fontSize) {
-  //    Font smallFont = new Font(Config.sysDefaultFontName, Font.PLAIN, fontSize);
-  //    deleteMove.setFont(smallFont);
-  //    share.setFont(smallFont);
-  //    badMoves.setFont(smallFont);
-  //    liveButton.setFont(smallFont);
-  //    clearButton.setFont(smallFont);
-  //    gotomove.setFont(smallFont);
-  //    savefile.setFont(smallFont);
-  //    openfile.setFont(smallFont);
-  //    kataEstimate.setFont(smallFont);
-  //    analyse.setFont(smallFont);
-  //    heatMap.setFont(smallFont);
-  //    backMain.setFont(smallFont);
-  //    setMain.setFont(smallFont);
-  //    batchOpen.setFont(smallFont);
-  //    refresh.setFont(smallFont);
-  //    tryPlay.setFont(smallFont);
-  //    analyzeList.setFont(smallFont);
-  //    move.setFont(smallFont);
-  //    coords.setFont(smallFont);
-  //    autoPlay.setFont(smallFont);
-  //  }
 }

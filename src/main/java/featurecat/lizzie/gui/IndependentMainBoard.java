@@ -60,6 +60,7 @@ public class IndependentMainBoard extends JFrame {
   private JButton lockUnlock;
   private JButton btnClose;
   public int[] mouseOverCoordinate = LizzieFrame.outOfBoundCoordinate;
+  public int[] rawMouseOverCoordinate = LizzieFrame.outOfBoundCoordinate;
   public Optional<List<String>> variationOpt;
   private int curSuggestionMoveOrderByNumber = -1;
   private Stone draggedstone;
@@ -423,6 +424,7 @@ public class IndependentMainBoard extends JFrame {
             Lizzie.board.clearPressStoneInfo(null);
             if (!Lizzie.frame.isShowingRightMenu) {
               mouseOverCoordinate = LizzieFrame.outOfBoundCoordinate;
+              rawMouseOverCoordinate = LizzieFrame.outOfBoundCoordinate;
               isMouseOver = false;
               Draggedmode = false;
               clearMoved();
@@ -530,6 +532,7 @@ public class IndependentMainBoard extends JFrame {
                     || mouseOverCoordinate[1] != curCoords[1]) {
                   isCoordsChanged = true;
                   mouseOverCoordinate = curCoords;
+                  rawMouseOverCoordinate = curCoords;
                 }
                 if (isCoordsChanged) {
                   boolean isCurMouseOver = false;

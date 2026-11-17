@@ -261,8 +261,79 @@ public class BoardRenderer {
         // timer.lap("leelaz");
       }
     }
+    drawHoverOwnership(g);
     cachedShowCoords = showCoordinates();
     // timer.print();
+  }
+
+  /** 在鼠标悬停的交叉点旁显示 KataGo 对该点的领地归属比例。 */
+  private void drawHoverOwnership(Graphics2D g) {
+    if (!Lizzie.config.showKataGoEstimate
+        || !Lizzie.config.showKataGoOwnershipOnHover
+        || Lizzie.board == null
+        || Lizzie.frame == null) return;
+    int[] mouse =
+        isIndependBoard
+            ? (Lizzie.frame.independentMainBoard == null
+                ? null
+                : Lizzie.frame.independentMainBoard.rawMouseOverCoordinate)
+            : Lizzie.frame.rawMouseOverCoordinate;
+    if (mouse == null || !Board.isValid(mouse[0], mouse[1])) return;
+    BoardData data = Lizzie.board.getHistory().getCurrentHistoryNode().getData();
+    ArrayList<Double> ownership =
+        data.estimateArray != null ? data.estimateArray : data.estimateArray2;
+    if (ownership == null) return;
+    // 方块透明度使用 getCoordKataGo(i) 做坐标映射，这里必须使用同一套映射，不能直接用 Board.getIndex。
+    int ownershipIndex = -1;
+    for (int i = 0; i < ownership.size(); i++) {
+      int[] coords = Lizzie.board.getCoordKataGo(i);
+      if (coords[0] == mouse[0] && coords[1] == mouse[1]) {
+        ownershipIndex = i;
+        break;
+      }
+    }
+    if (ownershipIndex < 0) return;
+    double value = Math.max(-1, Math.min(1, ownership.get(ownershipIndex)));
+    boolean blackToPlay = Lizzie.board.getHistory().isBlacksTurn();
+    // 与方块透明度完全一致：正值表示“当前行棋方”的领地，负值表示对手。
+    boolean blackOwns = (value > 0 && blackToPlay) || (value < 0 && !blackToPlay);
+    // value 是 -1..1 的领地值，不是概率；黑白各占一半时为 0，对应 50% 对 50%。
+    double blackPercent = blackToPlay ? (1.0 + value) * 50.0 : (1.0 - value) * 50.0;
+    blackPercent = Math.max(0, Math.min(100, blackPercent));
+    int percent = (int) Math.round(blackOwns ? blackPercent : 100.0 - blackPercent);
+    String side =
+        blackOwns
+            ? resourceBundle.getString("Leelaz.black")
+            : resourceBundle.getString("Leelaz.white");
+    String text = side + percent + "%";
+
+    int cx = x + scaledMarginWidth + squareWidth * mouse[0];
+    int cy = y + scaledMarginHeight + squareHeight * mouse[1];
+    Font font = LizzieFrame.uiFont.deriveFont(Font.PLAIN, Math.max(10f, stoneRadius * 0.9f));
+    FontMetrics metrics = g.getFontMetrics(font);
+    int textWidth = metrics.stringWidth(text);
+    int boxW = textWidth + Math.max(6, stoneRadius / 2);
+    int boxH = metrics.getHeight() + Math.max(2, stoneRadius / 6);
+    int boxX = cx - boxW / 2;
+    int boxY = cy - stoneRadius - boxH - 2;
+    if (boxY < y + 2) boxY = cy + stoneRadius + 2;
+    if (boxX < x + 2) boxX = x + 2;
+
+    Composite oldComposite = g.getComposite();
+    Color oldColor = g.getColor();
+    Font oldFont = g.getFont();
+    g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.82f));
+    g.setColor(new Color(20, 20, 20));
+    g.fillRoundRect(boxX, boxY, boxW, boxH, boxH, boxH);
+    g.setComposite(oldComposite);
+    g.setColor(Color.WHITE);
+    g.setFont(font);
+    g.drawString(
+        text,
+        boxX + (boxW - textWidth) / 2,
+        boxY + (boxH - metrics.getHeight()) / 2 + metrics.getAscent());
+    g.setFont(oldFont);
+    g.setColor(oldColor);
   }
 
   private void drawLastMoveMark(Graphics2D g, BoardHistoryNode mouseOnNode) {
@@ -2548,7 +2619,7 @@ public class BoardRenderer {
             }
           }
           if (!branchOpt.isPresent() || (isMouseOver && !isMouseOverNextBlunder)) {
-            double roundedWinrate = round(move.winrate * 10) / 10.0;
+            double roundedWinrate = move.winrate;
             if (flipWinrate) {
               roundedWinrate = 100.0 - roundedWinrate;
             }
@@ -2605,7 +2676,7 @@ public class BoardRenderer {
               boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
               boolean shouldShowMaxColorScoreLead =
                   canShowMaxColor && move.scoreMean == maxScoreMean;
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String playoutsText = Utils.getPlayoutsString(move.playouts);
               String scoreLeadText = Utils.convertScoreToString(score, maxScoreMean);
               if (Lizzie.config.useDefaultInfoRowOrder) {
@@ -2722,7 +2793,7 @@ public class BoardRenderer {
                 if (shouldShowMaxColorRow3) g.setColor(oriColor);
               }
             } else if (showWinrate && showPlayouts) {
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String playoutsText = Utils.getPlayoutsString(move.playouts);
               boolean shouldShowMaxColorWinrate = canShowMaxColor && hasMaxWinrate;
               boolean shouldShowMaxColorPlayouts = canShowMaxColor && move.playouts == maxPlayouts;
@@ -2793,7 +2864,7 @@ public class BoardRenderer {
               boolean shouldShowMaxColorScoreLead =
                   canShowMaxColor && move.scoreMean == maxScoreMean;
               double score = move.scoreMean;
-              String winrateText = String.format(Locale.ENGLISH, "%.1f", roundedWinrate);
+              String winrateText = Utils.formatWinrate(roundedWinrate);
               String scoreLeadText = Utils.convertScoreToString(score, maxScoreMean);
               if (Lizzie.config.useDefaultInfoRowOrder
                   || Lizzie.config.suggestionInfoWinrate < Lizzie.config.suggestionInfoScoreLead) {
@@ -2922,7 +2993,7 @@ public class BoardRenderer {
                     suggestionX,
                     suggestionY,
                     LizzieFrame.winrateFont,
-                    String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+                    Utils.formatWinrate(roundedWinrate),
                     squareWidth * 0.46f,
                     stoneRadius * 1.9);
               } else {
@@ -2931,7 +3002,7 @@ public class BoardRenderer {
                     suggestionX,
                     suggestionY,
                     LizzieFrame.winrateFont,
-                    String.format(Locale.ENGLISH, "%.1f", roundedWinrate),
+                    Utils.formatWinrate(roundedWinrate),
                     squareWidth * 0.46f,
                     stoneRadius * 1.9);
               }
@@ -3856,36 +3927,6 @@ public class BoardRenderer {
    * multi-step approach to prevent the information loss and produces a much higher quality that is
    * close to the Image.getScaledInstance() and faster than Image.getScaledInstance() method.
    */
-  // public void drawScaleImage(Graphics2D g, BufferedImage img, int x, int y, int
-  // width, int
-  // height, ImageObserver observer) {
-  // BufferedImage newstone = (BufferedImage)img;
-  // int w = img.getWidth();
-  // int h = img.getHeight();
-  // do {
-  // if (w > width) {
-  // w /= 2;
-  // if (w < width) {
-  // w = width;
-  // }
-  // }
-  // if (h > height) {
-  // h /= 2;
-  // if (h < height) {
-  // h = height;
-  // }
-  // }
-  // BufferedImage tmp = new BufferedImage(w, h, TYPE_INT_ARGB);
-  // Graphics2D g2 = tmp.createGraphics();
-  // g2.setRenderingHint(KEY_INTERPOLATION,
-  // VALUE_INTERPOLATION_BICUBIC);
-  // g2.drawImage(newstone, 0, 0, w, h, null);
-  // g2.dispose();
-  // newstone = tmp;
-  // }
-  // while (w != width || h != height);
-  // g.drawImage(newstone, x, y, width, height, observer);
-  // }
 
   /** Draw texture image */
   public void drawTextureImage(

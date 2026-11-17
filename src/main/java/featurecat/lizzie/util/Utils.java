@@ -925,6 +925,14 @@ public class Utils {
     }
   }
 
+  public static void copyFoxSgfsDownload() {
+    try {
+      copy("/assets/foxSgfsDownload/FoxSgfsDownload-Pro.exe", "foxSgfsDownload");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void copyReadBoardJava(String javaReadBoardName) {
     // TODO Auto-generated method stub
     try {
@@ -1009,13 +1017,12 @@ public class Utils {
   }
 
   public static String convertScoreToString(double score, double bestScore) {
+    int precision = Math.max(0, Math.min(3, Lizzie.config.suggestionInfoPrecision));
     if (Lizzie.config.showScoreAsDiff) {
       double diff = score - bestScore;
-      String result = "";
-      if (diff > 0) result = "+" + String.valueOf(round(diff * 10) / 10.0);
-      else if (diff < 0) result = "-" + String.valueOf(round(Math.abs(diff) * 10) / 10.0);
-      else result = String.valueOf(round(diff * 10) / 10.0);
-      return result;
+      if (diff > 0) return "+" + formatScore(diff, precision);
+      if (diff < 0) return "-" + formatScore(Math.abs(diff), precision);
+      return formatScore(0, precision);
     } else if (Lizzie.board.getHistory().isBlacksTurn()) {
       if (Lizzie.config.showKataGoScoreLeadWithKomi) {
         score += Lizzie.board.getHistory().getGameInfo().getKomi();
@@ -1028,7 +1035,25 @@ public class Utils {
         score = -score;
       }
     }
-    return String.valueOf(round(score * 10) / 10.0);
+    return formatScore(score, precision);
+  }
+
+  private static String formatScore(double value, int precision) {
+    String text = String.format(java.util.Locale.ENGLISH, "%." + precision + "f", value);
+    if (text.startsWith("-") && text.replaceAll("[-0.]", "").isEmpty()) text = text.substring(1);
+    return text;
+  }
+
+  /** 按“显示-选点信息-精度”的设置格式化胜率。 */
+  public static String formatWinrate(double value) {
+    int precision = Math.max(0, Math.min(3, Lizzie.config.suggestionInfoPrecision));
+    return String.format(java.util.Locale.ENGLISH, "%." + precision + "f", value);
+  }
+
+  /** 按“显示-选点信息-精度”的设置格式化目差。 */
+  public static String formatScoreValue(double value) {
+    int precision = Math.max(0, Math.min(3, Lizzie.config.suggestionInfoPrecision));
+    return formatScore(value, precision);
   }
 
   public static void changeFontRecursive(Container root, String fontName) {

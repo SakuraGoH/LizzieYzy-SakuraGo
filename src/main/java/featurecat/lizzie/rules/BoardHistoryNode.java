@@ -3,6 +3,7 @@ package featurecat.lizzie.rules;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.EngineManager;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.fox.FoxDirectController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,9 @@ public class BoardHistoryNode {
   public boolean isBest = false;
   public ArrayList<ExtraStones> extraStones;
   private boolean hasRemovedStone = false;
+
+  /** 后台对局节点：不触发主界面/主引擎的副作用。 */
+  public boolean headless = false;
 
   private BoardData data;
 
@@ -58,7 +62,7 @@ public class BoardHistoryNode {
         EngineManager.isEngineGame
             || Lizzie.frame.isPlayingAgainstLeelaz
             || Lizzie.frame.isAnaPlayingAgainstLeelaz
-            || (Lizzie.frame != null && Lizzie.frame.foxGameInputLocked);
+            || (Lizzie.frame != null && FoxDirectController.getInstance().isInputLocked());
     if (inGame) return;
     for (ExtraStones stone : extraStones) {
       Lizzie.leelaz.undo(true, Lizzie.board.getHistory().getPrevious().get().blackToPlay);
@@ -118,6 +122,7 @@ public class BoardHistoryNode {
           m -> data.moveNumberList[Board.getIndex(m[0], m[1])] = data.moveMNNumber);
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
+    node.headless = headless;
     // Add node
     if (variations.size() == 0) {
       if (this.data.blackToPlay != node.getData().lastMoveColor.isBlack()) {
@@ -175,12 +180,14 @@ public class BoardHistoryNode {
 
   public BoardHistoryNode addOrGoto(
       BoardData data, boolean newBranch, boolean changeMove, boolean tsumego) {
-    if (!Lizzie.board.isLoadingFile && Lizzie.leelaz != null && !EngineManager.isEngineGame) {
-      Lizzie.leelaz.clearBestMoves();
-    }
-    if (Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz) {
-      if (Lizzie.frame.playerIsBlack == Lizzie.board.getHistory().isBlacksTurn())
-        Lizzie.frame.tryToResetByoTime();
+    if (!headless) {
+      if (!Lizzie.board.isLoadingFile && Lizzie.leelaz != null && !EngineManager.isEngineGame) {
+        Lizzie.leelaz.clearBestMoves();
+      }
+      if (Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.frame.isAnaPlayingAgainstLeelaz) {
+        if (Lizzie.frame.playerIsBlack == Lizzie.board.getHistory().isBlacksTurn())
+          Lizzie.frame.tryToResetByoTime();
+      }
     }
     Optional<BoardHistoryNode> next = next(true);
     boolean nextDummy = next.isPresent() && next.get().isEndDummay();
@@ -199,8 +206,7 @@ public class BoardHistoryNode {
           if (i != 0 && changeMove) {
             break;
           }
-          // if (Lizzie.config.playSound) Utils.playVoiceFile();
-          Lizzie.board.clearAfterMove();
+          if (!headless) Lizzie.board.clearAfterMove();
           return variations.get(i);
         }
       }
@@ -221,6 +227,7 @@ public class BoardHistoryNode {
           m -> data.moveNumberList[Board.getIndex(m[0], m[1])] = data.moveMNNumber);
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
+    node.headless = headless;
     if (changeMove) {
       //   Optional<BoardHistoryNode> next = next(true);
       next.ifPresent(
@@ -242,8 +249,10 @@ public class BoardHistoryNode {
     }
     node.previous = Optional.of(this);
     // if (Lizzie.config.playSound) Utils.playVoiceFile();
-    Lizzie.board.clearAfterMove();
-    Lizzie.leelaz.maybeAjustPDA(node);
+    if (!headless) {
+      Lizzie.board.clearAfterMove();
+      Lizzie.leelaz.maybeAjustPDA(node);
+    }
     return node;
   }
 

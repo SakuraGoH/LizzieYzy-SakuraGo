@@ -18,7 +18,8 @@ public class LizzieFoxHost implements FoxBridge.LizzieHost {
   }
 
   private Leelaz engine() {
-    return Lizzie.foxEngine != null ? Lizzie.foxEngine : Lizzie.leelaz;
+    Leelaz selected = FoxDirectController.getInstance().getEngine();
+    return selected != null ? selected : Lizzie.leelaz;
   }
 
   @Override
@@ -48,12 +49,6 @@ public class LizzieFoxHost implements FoxBridge.LizzieHost {
   }
 
   @Override
-  public void onCandidates(List<FoxBridge.Candidate> cands) {
-    // 纯 genmove 模式：FoxBridge 不提供候选点，这里什么都不做。
-    // 实时胜率/候选由 Leelaz.parseInfoKatago 正常写入，胜率曲线依赖它。
-  }
-
-  @Override
   public void onGameEnd() {
     if (Lizzie.board != null) Lizzie.board.clear(false);
   }
@@ -66,9 +61,7 @@ public class LizzieFoxHost implements FoxBridge.LizzieHost {
 
   @Override
   public void onInputLockChanged(boolean locked) {
-    if (Lizzie.frame != null) {
-      Lizzie.frame.foxGameInputLocked = locked;
-    }
+    FoxDirectController.getInstance().setInputLocked(locked);
     log("棋盘手动落子 " + (locked ? "已锁定" : "已解锁"));
   }
 
@@ -105,15 +98,6 @@ public class LizzieFoxHost implements FoxBridge.LizzieHost {
 
   @Override
   public void onFoxMove(int x, int y, String color) {
-    placeAtMainEndKeepView(x, y, "B".equals(color) ? Stone.BLACK : Stone.WHITE);
-  }
-
-  @Override
-  public void onAiMove(int x, int y, String color) {
-    try {
-      bridge.setLastAiVertex(bridge.xyToGtp(x, y));
-    } catch (Throwable ignored) {
-    }
     placeAtMainEndKeepView(x, y, "B".equals(color) ? Stone.BLACK : Stone.WHITE);
   }
 

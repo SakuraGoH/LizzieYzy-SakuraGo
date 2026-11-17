@@ -19,20 +19,32 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -59,6 +71,12 @@ public class FoxKifuDownload extends JFrame {
   private ArrayList<String[]> rows;
   private boolean isSecondTimeReqEmpty = false;
   private boolean isRequestEmpty = false;
+  private JFontCheckBox chkFullHistory;
+  private JLabel lblStatus;
+  private JTextField txtConcurrent;
+  private JProgressBar progressBar;
+  private boolean fullHistoryMode = false;
+  private boolean downloading = false;
 
   public FoxKifuDownload() {
     Lizzie.setFrameSize(this, 950, 635);
@@ -102,6 +120,11 @@ public class FoxKifuDownload extends JFrame {
         });
     panel.add(btnSearch);
 
+    chkFullHistory =
+        new JFontCheckBox(Lizzie.resourceBundle.getString("FoxKifuDownload.chkFullHistory"));
+    chkFullHistory.setSelected(true);
+    panel.add(chkFullHistory);
+
     JLabel lblAfterGet = new JFontLabel();
     lblAfterGet.setText(Lizzie.resourceBundle.getString("FoxKifuDownload.lblAfterGet"));
     panel.add(lblAfterGet);
@@ -122,6 +145,10 @@ public class FoxKifuDownload extends JFrame {
     cbxAfterGet.setSelectedIndex(Lizzie.config.foxAfterGet);
 
     JPanel buttonPane = new JPanel();
+    JPanel downloadPane = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 4, 2));
+    JPanel southPane = new JPanel(new java.awt.GridLayout(2, 1));
+    southPane.add(buttonPane);
+    southPane.add(downloadPane);
 
     table =
         new JTable() {
@@ -130,7 +157,7 @@ public class FoxKifuDownload extends JFrame {
             else return false;
           }
         };
-    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     table.setFillsViewportHeight(true);
     ((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer())
         .setHorizontalAlignment(JLabel.CENTER);
@@ -155,7 +182,7 @@ public class FoxKifuDownload extends JFrame {
     table.setDefaultRenderer(Object.class, tcr);
     scrollPane = new JScrollPane(table);
     getContentPane().add(scrollPane, BorderLayout.CENTER);
-    getContentPane().add(buttonPane, BorderLayout.SOUTH);
+    getContentPane().add(southPane, BorderLayout.SOUTH);
 
     JButton btnFirst = new JFontButton("|<");
     btnFirst.addActionListener(
@@ -249,9 +276,38 @@ public class FoxKifuDownload extends JFrame {
     lblTab = new JFontLabel("1/1");
     lblTab.setPreferredSize(new Dimension(Config.menuHeight * 3, Config.menuHeight));
     buttonPane.add(lblTab);
+
+    downloadPane.add(new JLabel(Lizzie.resourceBundle.getString("FoxKifuDownload.concurrent")));
+    txtConcurrent = new JFontTextField();
+    txtConcurrent.setColumns(3);
+    txtConcurrent.setText("3");
+    downloadPane.add(txtConcurrent);
+
+    JButton btnSelectAll =
+        new JFontButton(Lizzie.resourceBundle.getString("FoxKifuDownload.selectAll"));
+    btnSelectAll.addActionListener(e -> table.selectAll());
+    downloadPane.add(btnSelectAll);
+
+    JButton btnDownloadSelected =
+        new JFontButton(Lizzie.resourceBundle.getString("FoxKifuDownload.downloadSelected"));
+    btnDownloadSelected.addActionListener(e -> downloadSelected());
+    downloadPane.add(btnDownloadSelected);
+
+    JButton btnDownloadAll =
+        new JFontButton(Lizzie.resourceBundle.getString("FoxKifuDownload.downloadAll"));
+    btnDownloadAll.addActionListener(e -> downloadAll());
+    downloadPane.add(btnDownloadAll);
+
+    progressBar = new JProgressBar();
+    progressBar.setPreferredSize(new Dimension(160, 20));
+    progressBar.setVisible(false);
+    downloadPane.add(progressBar);
+    lblStatus = new JFontLabel("");
+    buttonPane.add(lblStatus);
   }
 
   private void maybeGetNextPage() {
+    if (fullHistoryMode) return;
     // TODO Auto-generated method stub
     if (curTabNumber == tabNumber || tabNumber >= 4 && curTabNumber == tabNumber - 1) {
       String last = foxKifuInfos.get(foxKifuInfos.size() - 1).chessid;
@@ -283,14 +339,334 @@ public class FoxKifuDownload extends JFrame {
     }
     myUid = 0;
     isSearching = true;
+    isComplete = false;
+    fullHistoryMode = false;
     isSecondTimeReqEmpty = false;
     isRequestEmpty = false;
-    foxReq = new GetFoxRequest(this);
+    if (foxReq == null) foxReq = new GetFoxRequest(this);
     foxKifuInfos = new ArrayList<KifuInfo>();
     lastCode = "";
+    lblStatus.setText("");
     Lizzie.config.lastFoxName = txtUserName.getText();
-    foxReq.sendCommand("user_name " + Lizzie.config.lastFoxName);
+    boolean full = chkFullHistory != null && chkFullHistory.isSelected();
+    foxReq.sendCommand((full ? "user_name_all " : "user_name ") + Lizzie.config.lastFoxName);
     Lizzie.config.uiConfig.put("last-fox-name", Lizzie.config.lastFoxName);
+  }
+
+  private void downloadSelected() {
+    if (table == null || foxKifuInfos == null || foxKifuInfos.isEmpty()) return;
+    List<KifuInfo> selected = new ArrayList<>();
+    for (int row : table.getSelectedRows()) {
+      String chessid = String.valueOf(table.getValueAt(row, 10));
+      for (KifuInfo info : foxKifuInfos) {
+        if (info.chessid.equals(chessid)) {
+          selected.add(info);
+          break;
+        }
+      }
+    }
+    downloadGames(selected);
+  }
+
+  private void downloadAll() {
+    if (foxKifuInfos == null || foxKifuInfos.isEmpty()) return;
+    downloadGames(new ArrayList<>(foxKifuInfos));
+  }
+
+  private void downloadGames(List<KifuInfo> games) {
+    if (games == null || games.isEmpty()) {
+      Utils.showMsgNoModal(Lizzie.resourceBundle.getString("FoxKifuDownload.noKifu"));
+      return;
+    }
+    if (downloading) return;
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    chooser.setDialogTitle(Lizzie.resourceBundle.getString("FoxKifuDownload.downloadDir"));
+    if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+    File dir = chooser.getSelectedFile();
+    if (dir == null) return;
+    if (!dir.exists() && !dir.mkdirs()) return;
+    int concurrent = 3;
+    try {
+      concurrent = Math.max(1, Math.min(10, Integer.parseInt(txtConcurrent.getText().trim())));
+    } catch (Exception ignored) {
+    }
+    if (foxReq == null) foxReq = new GetFoxRequest(this);
+    downloading = true;
+    progressBar.setVisible(true);
+    progressBar.setMaximum(games.size());
+    progressBar.setValue(0);
+    lblStatus.setText(
+        Lizzie.resourceBundle.getString("FoxKifuDownload.downloading") + " 0/" + games.size());
+    final File outDir = dir;
+    final int poolSize = concurrent;
+    new Thread(
+            () -> {
+              ExecutorService pool = Executors.newFixedThreadPool(poolSize);
+              AtomicInteger done = new AtomicInteger();
+              AtomicInteger failed = new AtomicInteger();
+              AtomicInteger skipped = new AtomicInteger();
+              for (KifuInfo info : games) {
+                pool.execute(
+                    () -> {
+                      try {
+                        File out = new File(outDir, safeFileName(info));
+                        if (out.exists()) {
+                          skipped.incrementAndGet();
+                        } else {
+                          String sgf = foxReq.fetchSgfNow(info.chessid);
+                          Files.write(out.toPath(), sgf.getBytes(StandardCharsets.UTF_8));
+                          done.incrementAndGet();
+                        }
+                      } catch (Exception e) {
+                        failed.incrementAndGet();
+                      }
+                      int completed = done.get() + failed.get() + skipped.get();
+                      SwingUtilities.invokeLater(
+                          () -> {
+                            progressBar.setValue(completed);
+                            lblStatus.setText(
+                                Lizzie.resourceBundle.getString("FoxKifuDownload.downloading")
+                                    + " "
+                                    + completed
+                                    + "/"
+                                    + games.size());
+                          });
+                    });
+              }
+              pool.shutdown();
+              try {
+                pool.awaitTermination(30, TimeUnit.MINUTES);
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+              SwingUtilities.invokeLater(
+                  () -> {
+                    downloading = false;
+                    progressBar.setVisible(false);
+                    lblStatus.setText(
+                        Lizzie.resourceBundle.getString("FoxKifuDownload.downloadDone")
+                            + " "
+                            + done.get()
+                            + "，"
+                            + Lizzie.resourceBundle.getString("FoxKifuDownload.downloadSkipped")
+                            + " "
+                            + skipped.get()
+                            + "，"
+                            + Lizzie.resourceBundle.getString("FoxKifuDownload.downloadFailed")
+                            + " "
+                            + failed.get());
+                    Utils.showMsgNoModal(lblStatus.getText());
+                  });
+            },
+            "fox-kifu-download")
+        .start();
+  }
+
+  private String safeFileName(KifuInfo info) {
+    String name =
+        (info.blackName == null ? "" : info.blackName)
+            + "_vs_"
+            + (info.whiteName == null ? "" : info.whiteName)
+            + "_"
+            + info.chessid;
+    return name.replaceAll("[\\\\/:*?\"<>|\\s]+", "_") + ".sgf";
+  }
+
+  private String formatRank(int dan) {
+    if (dan <= 0) return "";
+    if (dan >= 100) {
+      return Lizzie.resourceBundle.getString("FoxKifuDownload.rank.pro")
+          + (dan - 99)
+          + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.dan");
+    }
+    int rank = dan - 17;
+    if (rank > 0) return rank + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.dan");
+    return (Math.abs(rank) + 1) + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.kyu");
+  }
+
+  /** 处理全量检索的流式事件：reset / append / updates / done。 */
+  private void handleStreamEvent(JSONObject event) {
+    if (event.optBoolean("reset", false)) {
+      foxKifuInfos = new ArrayList<>();
+      rows = null;
+      model = null;
+      curTabNumber = 1;
+      tabNumber = 1;
+      isComplete = false;
+      fullHistoryMode = true;
+      isSearching = true;
+      table.setModel(new DefaultTableModel());
+    }
+    if (event.has("chesslist")) appendGames(event.getJSONArray("chesslist"));
+    if (event.has("updates")) updateGames(event.getJSONArray("updates"));
+    if (event.optBoolean("done", false)) {
+      isSearching = false;
+      isComplete = true;
+      fullHistoryMode = true;
+      rebuildTable();
+    }
+  }
+
+  private void appendGames(JSONArray array) {
+    if (foxKifuInfos == null) foxKifuInfos = new ArrayList<>();
+    Set<String> existing = new HashSet<>();
+    for (KifuInfo info : foxKifuInfos) existing.add(info.chessid);
+    for (int i = 0; i < array.length(); i++) {
+      JSONObject object = array.optJSONObject(i);
+      if (object == null) continue;
+      String chessid = object.optString("chessid", "");
+      if (chessid.isEmpty() || existing.contains(chessid)) continue;
+      KifuInfo info = parseKifu(object, foxKifuInfos.size() + 1);
+      foxKifuInfos.add(info);
+      existing.add(chessid);
+    }
+    rebuildTable();
+  }
+
+  private void updateGames(JSONArray array) {
+    if (foxKifuInfos == null || foxKifuInfos.isEmpty()) return;
+    java.util.Map<String, KifuInfo> byId = new java.util.HashMap<>();
+    for (KifuInfo info : foxKifuInfos) byId.put(info.chessid, info);
+    boolean changed = false;
+    for (int i = 0; i < array.length(); i++) {
+      JSONObject object = array.optJSONObject(i);
+      if (object == null) continue;
+      KifuInfo old = byId.get(object.optString("chessid", ""));
+      if (old == null) continue;
+      KifuInfo fresh = parseKifu(object, old.index);
+      copyKifu(fresh, old);
+      changed = true;
+    }
+    if (changed) rebuildTable();
+  }
+
+  private KifuInfo parseKifu(JSONObject object, int index) {
+    KifuInfo info = new KifuInfo();
+    info.index = index;
+    info.playTime = object.optString("starttime", "");
+    info.blackName = object.optString("blacknick", object.optString("blackenname", ""));
+    info.blackRank = formatRank(object.optInt("blackdan", 0));
+    info.whiteName = object.optString("whitenick", object.optString("whiteenname", ""));
+    info.whiteRank = formatRank(object.optInt("whitedan", 0));
+    info.chessid = object.optString("chessid", "");
+    info.totalMoves = object.optInt("movenum", 0);
+    int winner = object.optInt("winner", 0);
+    int point = object.optInt("point", 0);
+    int rule = object.optInt("rule", 0);
+    String result;
+    if (winner == 1 || winner == 2) {
+      result =
+          Lizzie.resourceBundle.getString(
+              winner == 1 ? "FoxKifuDownload.black" : "FoxKifuDownload.white");
+      int my = winner == 1 ? object.optInt("blackuid", 0) : object.optInt("whiteuid", 0);
+      info.isWin = my == myUid;
+      if (point < 0) {
+        if (point == -1) result += Lizzie.resourceBundle.getString("FoxKifuDownload.winByRes");
+        else if (point == -2)
+          result += Lizzie.resourceBundle.getString("FoxKifuDownload.winByTime");
+        else result += Lizzie.resourceBundle.getString("FoxKifuDownload.win");
+      } else {
+        String unit = "";
+        if (rule == 1) unit = Lizzie.resourceBundle.getString("FoxKifuDownload.stones");
+        if (rule == 0) unit = Lizzie.resourceBundle.getString("FoxKifuDownload.points");
+        result +=
+            (Lizzie.config.isChinese ? Lizzie.resourceBundle.getString("FoxKifuDownload.win") : "+")
+                + point / 100f
+                + unit;
+      }
+    } else {
+      result = Lizzie.resourceBundle.getString("FoxKifuDownload.other");
+    }
+    info.result = result;
+    return info;
+  }
+
+  private void copyKifu(KifuInfo from, KifuInfo to) {
+    to.playTime = from.playTime;
+    to.blackName = from.blackName;
+    to.blackRank = from.blackRank;
+    to.whiteName = from.whiteName;
+    to.whiteRank = from.whiteRank;
+    to.result = from.result;
+    to.totalMoves = from.totalMoves;
+    to.isWin = from.isWin;
+  }
+
+  private void rebuildTable() {
+    if (table == null) return;
+    Set<String> selected = new HashSet<>();
+    for (int row : table.getSelectedRows()) {
+      if (row >= 0 && row < table.getRowCount())
+        selected.add(String.valueOf(table.getValueAt(row, 10)));
+    }
+    rows = new ArrayList<>();
+    for (KifuInfo info : foxKifuInfos) {
+      rows.add(
+          new String[] {
+            String.valueOf(info.index),
+            info.playTime,
+            info.blackName,
+            info.blackRank,
+            info.whiteName,
+            info.whiteRank,
+            info.result,
+            String.valueOf(info.totalMoves),
+            "",
+            String.valueOf(info.isWin),
+            info.chessid
+          });
+    }
+    tabNumber = Math.max(1, (int) Math.ceil(rows.size() / (double) numbersPerTab));
+    curTabNumber = Math.max(1, Math.min(curTabNumber, tabNumber));
+    DefaultTableModel newModel = new DefaultTableModel();
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.index"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.time"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.black"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.rank"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.white"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.rank"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.result"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.moves"));
+    newModel.addColumn(Lizzie.resourceBundle.getString("FoxKifuDownload.column.open"));
+    newModel.addColumn("");
+    newModel.addColumn("");
+    int start = (curTabNumber - 1) * numbersPerTab;
+    for (int i = start; i < start + numbersPerTab && i < rows.size(); i++) {
+      newModel.addRow(rows.get(i));
+    }
+    model = newModel;
+    table.setModel(model);
+    table.getColumnModel().getColumn(0).setPreferredWidth(25);
+    table.getColumnModel().getColumn(1).setPreferredWidth(190);
+    table.getColumnModel().getColumn(2).setPreferredWidth(100);
+    table.getColumnModel().getColumn(3).setPreferredWidth(40);
+    table.getColumnModel().getColumn(4).setPreferredWidth(100);
+    table.getColumnModel().getColumn(5).setPreferredWidth(35);
+    table.getColumnModel().getColumn(6).setPreferredWidth(100);
+    table.getColumnModel().getColumn(7).setPreferredWidth(50);
+    table.getColumnModel().getColumn(8).setPreferredWidth(35);
+    table.getColumnModel().getColumn(8).setCellEditor(new MyButtonOpenFoxKifuEditor());
+    table.getColumnModel().getColumn(8).setCellRenderer(new MyButtonOpenFoxKifu());
+    table.getColumnModel().getColumn(9).setPreferredWidth(0);
+    table.getColumnModel().getColumn(10).setPreferredWidth(0);
+    hideColumn(9);
+    hideColumn(10);
+    for (int row = 0; row < table.getRowCount(); row++) {
+      if (selected.contains(String.valueOf(table.getValueAt(row, 10)))) {
+        table.addRowSelectionInterval(row, row);
+      }
+    }
+    table.revalidate();
+    setLblTab(curTabNumber);
+    if (lblStatus != null) {
+      lblStatus.setText(
+          Lizzie.resourceBundle.getString("FoxKifuDownload.total")
+              + foxKifuInfos.size()
+              + (fullHistoryMode
+                  ? Lizzie.resourceBundle.getString("FoxKifuDownload.fullHistorySuffix")
+                  : ""));
+    }
   }
 
   class UserInfo {
@@ -306,6 +682,21 @@ public class FoxKifuDownload extends JFrame {
     // TODO Auto-generated method stub
     try {
       JSONObject jsonOjbect = new JSONObject(string);
+      if (jsonOjbect.has("progress")) {
+        if (lblStatus != null) lblStatus.setText(jsonOjbect.optString("progress"));
+        return;
+      }
+      if (jsonOjbect.has("error")) {
+        isSearching = false;
+        if (lblStatus != null) lblStatus.setText(jsonOjbect.optString("error"));
+        Utils.showMsg(
+            Lizzie.resourceBundle.getString("FoxKifuDownload.getKifuFailed")
+                + jsonOjbect.optString("error"),
+            this);
+        return;
+      }
+      if (jsonOjbect.has("full")) fullHistoryMode = jsonOjbect.optBoolean("full", false);
+      if (jsonOjbect.has("myuid")) myUid = jsonOjbect.optInt("myuid", myUid);
       if (myUid == 0) {
         if (jsonOjbect.has("chesslist")) {
           JSONArray jsonArray = jsonOjbect.getJSONArray("chesslist");
@@ -313,12 +704,12 @@ public class FoxKifuDownload extends JFrame {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             UserInfo userInfo = new UserInfo();
             userInfo.blackNickName = jsonObject.optString("blacknick", "");
-            userInfo.blackUserName = jsonObject.getString("blackenname");
-            userInfo.blackUid = jsonObject.getInt("blackuid");
+            userInfo.blackUserName = jsonObject.optString("blackenname", "");
+            userInfo.blackUid = jsonObject.optInt("blackuid", 0);
 
             userInfo.whiteNickName = jsonObject.optString("whitenick", "");
-            userInfo.whiteUserName = jsonObject.getString("whiteenname");
-            userInfo.whiteUid = jsonObject.getInt("whiteuid");
+            userInfo.whiteUserName = jsonObject.optString("whiteenname", "");
+            userInfo.whiteUid = jsonObject.optInt("whiteuid", 0);
             if (userInfo.blackNickName.trim().equalsIgnoreCase(Lizzie.config.lastFoxName)
                 || userInfo.blackUserName.trim().equalsIgnoreCase(Lizzie.config.lastFoxName)) {
               myUid = userInfo.blackUid;
@@ -331,6 +722,13 @@ public class FoxKifuDownload extends JFrame {
           }
         }
       }
+      if (jsonOjbect.has("reset")
+          || jsonOjbect.has("append")
+          || jsonOjbect.has("updates")
+          || jsonOjbect.has("done")) {
+        handleStreamEvent(jsonOjbect);
+        return;
+      }
       if (jsonOjbect.has("chesslist")) {
         isSearching = false;
         JSONArray jsonArray = jsonOjbect.getJSONArray("chesslist");
@@ -342,43 +740,32 @@ public class FoxKifuDownload extends JFrame {
             isRequestEmpty = true;
           } else Utils.showMsg(Lizzie.resourceBundle.getString("FoxKifuDownload.noKifu"), this);
         }
-        isComplete = jsonArray.length() < 100;
+        isComplete = fullHistoryMode || jsonArray.length() < 100;
         for (int i = 0; i < jsonArray.length(); i++) {
           JSONObject jsonObject = jsonArray.getJSONObject(i);
           KifuInfo kifuInfo = new KifuInfo();
           kifuInfo.index = i + 1;
-          kifuInfo.playTime = jsonObject.getString("starttime");
+          kifuInfo.playTime = jsonObject.optString("starttime", "");
           kifuInfo.blackName =
-              jsonObject.optString("blacknick", jsonObject.getString("blackenname"));
-          int bRank = jsonObject.getInt("blackdan") - 17;
-          kifuInfo.blackRank =
-              bRank > 0
-                  ? bRank + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.dan")
-                  : (Math.abs(bRank) + 1)
-                      + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.kyu");
+              jsonObject.optString("blacknick", jsonObject.optString("blackenname", ""));
+          kifuInfo.blackRank = formatRank(jsonObject.optInt("blackdan", 0));
           kifuInfo.whiteName =
-              jsonObject.optString("whitenick", jsonObject.getString("whiteenname"));
-          int wRank = jsonObject.getInt("whitedan") - 17;
-          kifuInfo.whiteRank =
-              wRank > 0
-                  ? wRank + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.dan")
-                  : (Math.abs(wRank) + 1)
-                      + Lizzie.resourceBundle.getString("FoxKifuDownload.rank.kyu");
-          kifuInfo.chessid = jsonObject.getString("chessid");
-          // kifuInfo.result=
-          kifuInfo.totalMoves = jsonObject.getInt("movenum");
+              jsonObject.optString("whitenick", jsonObject.optString("whiteenname", ""));
+          kifuInfo.whiteRank = formatRank(jsonObject.optInt("whitedan", 0));
+          kifuInfo.chessid = jsonObject.optString("chessid", "");
+          kifuInfo.totalMoves = jsonObject.optInt("movenum", 0);
           String result = "";
-          int winner = jsonObject.getInt("winner");
-          int point = jsonObject.getInt("point");
-          int rule = jsonObject.getInt("rule");
+          int winner = jsonObject.optInt("winner", 0);
+          int point = jsonObject.optInt("point", 0);
+          int rule = jsonObject.optInt("rule", 0);
           if (winner == 1 || winner == 2) {
             if (winner == 1) {
               result = Lizzie.resourceBundle.getString("FoxKifuDownload.black");
-              if (jsonObject.getInt("blackuid") == myUid) kifuInfo.isWin = true;
+              if (jsonObject.optInt("blackuid", 0) == myUid) kifuInfo.isWin = true;
               else kifuInfo.isWin = false;
             } else {
               result = Lizzie.resourceBundle.getString("FoxKifuDownload.white");
-              if (jsonObject.getInt("whiteuid") == myUid) kifuInfo.isWin = true;
+              if (jsonObject.optInt("whiteuid", 0) == myUid) kifuInfo.isWin = true;
               else kifuInfo.isWin = false;
             }
             if (point < 0) {
@@ -469,6 +856,13 @@ public class FoxKifuDownload extends JFrame {
             curTabNumber = 1;
           }
           setLblTab(curTabNumber);
+          if (lblStatus != null)
+            lblStatus.setText(
+                Lizzie.resourceBundle.getString("FoxKifuDownload.total")
+                    + foxKifuInfos.size()
+                    + (fullHistoryMode
+                        ? Lizzie.resourceBundle.getString("FoxKifuDownload.fullHistorySuffix")
+                        : ""));
         }
       }
       if (jsonOjbect.has("chess")) {

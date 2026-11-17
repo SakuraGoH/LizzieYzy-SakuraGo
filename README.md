@@ -47,8 +47,14 @@ The whole bridge lives under `src/main/java/featurecat/lizzie/analysis/fox/` and
 - **Manual placement lock** — during a Fox game, clicking on the board is disabled to prevent accidental moves. Analysis, winrate graph, and variation tree remain fully interactive.
 - **Pass and resign support** — engine `pass` → `AFSKIP`, engine `resign` → `AFGIVEUP`.
 - **Final score reporting** — `FASCORE` is answered with the engine's `final_score`.
-- **Live winrate mode (optional)** — instead of a single `genmove`, the bridge can run `kata-analyze` continuously and commit the best move after a configurable time/visits budget.
 - **Rule switching** — China, Japan, Korea, AGA, New Zealand, etc., via `kata-set-rules`.
+
+### Engine-game enhancements
+
+- **Saved command-line history** — every time an engine command line is saved (main engine, analysis engine, estimate engine or referee engine) a timestamped history node is stored in `commandHistory.json`. Use the **历史 / History** button in the engine settings to reuse or manage old command lines.
+- **Simultaneous engine games** — open **引擎对战设置** (the “设置” button in the engine-game panel) and set **同时进行场数**. Each lane owns its own board and two engine processes (separate stdin/stdout/stderr pipes, command queue and read loop), so GTP traffic can never cross between games. The total number of games is the batch-game count, and the parallel count cannot exceed it. Use the **<局 / 局>** page keys at the bottom of the window to switch between running games; the page label shows the current lane and overall progress. **结束本局** ends only the game currently being viewed; other lanes keep playing.
+- **Per-game GTP channels** — every lane/game writes its own GTP transcript under `EngineGames/<batch-name>/gtp-lane-<n>-game-<m>.log`; commands and responses from different games are never mixed.
+- **Referee engine (`final_score`)** — in the same settings dialog, set **裁判引擎命令行** (a full engine command line including its weights). When a game ends with two consecutive passes, the referee replays the game and calls GTP `final_score`; `B+…` / `W+…` / draw is used for the result, SGF `RE`, and the batch score.
 
 ---
 
@@ -81,14 +87,14 @@ For the upstream LizzieYzy project:
 3. Start the Fox Weiqi client and log in with an AI-permitted account.
 4. Launch LizzieYzy.
 5. Configure KataGo (engine path, model, config) as usual via **Settings → Engine**.
-6. In the menu bar, choose **Sync → Fox Direct (协议直连)**.
-7. In the Fox Weiqi client, set the AI address to `127.0.0.1:6000`.
+6. In the menu bar, choose **Sync → Fox Direct (协议直连)** to open the Fox Direct window.
+7. Set the listen port in the window (default `6000`) and start the listener. In the Fox Weiqi client, set the AI address to `127.0.0.1:<port>`.
 8. Start a game on Fox. LizzieYzy will keep the board in sync and play for you.
 
 The GTP console (`E` key) will show bridge messages prefixed with `[Fox]`, for example:
 
 ```
-[Fox] 开始监听野狐客户端端口 6000
+[Fox] 协议直连已启动，端口 6000，对弈引擎: KataGo
 [Fox] 野狐客户端已连接: /127.0.0.1:4752
 [Fox] 规则: 棋盘19, 贴目6.5, 让子[]
 [Fox] 野狐确认落子: B Q16（第 1 手） isAiTurn=false
@@ -169,14 +175,11 @@ It runs `mvn clean package`, copies the jar to the configured distribution folde
 
 ## Configuration
 
-The Fox bridge currently exposes only two settings, both controlled from the GTP console or by editing the code:
+The Fox Direct window (**Sync → Fox Direct**) exposes the bridge settings:
 
 | Setting | Default | How to change |
 |---------|---------|---------------|
-| Listen port | `6000` | Edit `LizzieFrame.toggleFoxDirect` (search for `final int port`). |
-| Live winrate | disabled | Call `FoxBridge.setLiveWinrate(true)` before starting a game; not yet exposed in the GUI. |
-
-A proper settings dialog is on the roadmap. For now, if you need a different port, edit the hardcoded `6000` and rebuild.
+| Listen port | `6000` | Edit the port field in the Fox Direct window and start/restart the listener. |
 
 ---
 
@@ -192,8 +195,8 @@ Launch LizzieYzy normally. The Fox bridge is inactive until you explicitly start
    - Engine path: `C:\path\to\katago.exe`
    - Weight: `C:\path\to\model.bin.gz`
    - Config: `C:\path\to\gtp.cfg`
-2. **Sync → Fox Direct** — start the TCP listener on port 6000.
-3. In Fox, set the AI address to `127.0.0.1:6000`.
+2. **Sync → Fox Direct** — open the Fox Direct window, choose the port and start the listener.
+3. In Fox, set the AI address to `127.0.0.1:<port>`.
 4. Start a game. The board auto-syncs and the engine plays.
 5. When the game ends, `FARESULT` clears the board and unlocks manual placement.
 
@@ -201,7 +204,7 @@ Launch LizzieYzy normally. The Fox bridge is inactive until you explicitly start
 
 Either:
 
-- **Sync → Fox Direct** again (toggles off), or
+- **Sync → Fox Direct** again and click **停止直连**, or
 - Close LizzieYzy. The TCP port is released on exit.
 
 If the Fox client disconnects unexpectedly, the bridge automatically waits for reconnection (5-second interval by default, see `FoxClientServer.setAutoReconnect`).
@@ -210,7 +213,7 @@ If the Fox client disconnects unexpectedly, the bridge automatically waits for r
 
 | Message | Meaning |
 |---------|---------|
-| `[Fox] 开始监听野狐客户端端口 6000` | Listener started |
+| `[Fox] 协议直连已启动，端口 6000` | Listener started |
 | `[Fox] 野狐客户端已连接` | Fox client connected |
 | `[Fox] 规则: 棋盘19, 贴目6.5, 让子[]` | Game rules received |
 | `[Fox] 重连重放完成，已同步到第 N 手` | Replay after reconnect |
@@ -235,12 +238,10 @@ If the Fox client disconnects unexpectedly, the bridge automatically waits for r
 
 ## Known Limitations
 
-- **Live winrate mode is not exposed in the GUI.** `setLiveWinrate` must be called programmatically.
-- **The listen port is hardcoded** to `6000`. A settings dialog is planned.
 - **Fox protocol variants are not exhaustively covered.** The bridge handles `FARULE`, `FAMOVE`, `FASTATUS`, `FASKIP`, `FATIMELEFT`, `FARESULT`, `FASCORE`. New commands added by Fox in the future may be silently ignored.
 - **Undo / delete move / clear board are not locked.** Only placement on the board is blocked. If you also want the menu items `Clear Board`, `Delete Move`, `Delete Branch`, and `Undo` to be disabled during a Fox game, this must be added manually in `Menu.java`.
 - **Windows only (tested).** The bridge uses standard `java.net` APIs and should work on Linux and macOS, but this has not been tested.
-- **Double-engine mode is not supported.** `sendCommandNoLeelaz2` is used exclusively, so `Lizzie.leelaz2` will not participate in Fox games.
+- **Double-engine mode:** the Fox Direct window lets you choose which of the two loaded engines plays; the non-selected engine is not sent Fox GTP commands.
 
 ---
 

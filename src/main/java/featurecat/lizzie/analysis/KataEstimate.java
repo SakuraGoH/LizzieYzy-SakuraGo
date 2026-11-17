@@ -287,30 +287,6 @@ public class KataEstimate {
         }
         if (!noGtp) Lizzie.gtpConsole.addLineEstimate(line);
       }
-      //      if (line.startsWith("#")) {
-      //
-      //        String[] params = line.substring(2).trim().split(" ");
-      //        if (params.length == Lizzie.board.boardWidth) {
-      //          for (int i = 0; i < params.length; i++) {
-      //            int temp = Integer.parseInt(params[i]);
-      //            if (temp >= threshold || temp <= -threshold) tempcount.add(temp);
-      //            else tempcount.add(0);
-      //          }
-      //          // Lizzie.gtpConsole.addLineforce("这是详细点目");
-      //        }
-      //      }
-      //      //  }
-      //      if (line.startsWith("= territory")) {
-      //        // String[] params = line.trim().split(" ");
-      //        // if (params.length == 14) {
-      //        // Lizzie.gtpConsole.addLineforce("这是点目结果");
-      //        // if (noread) {
-      //        //   numberofcount = 0;
-      //        // } else {
-      //        territory();
-      //        // }
-      //        //  }
-      //      }
     }
   }
 

@@ -57,6 +57,7 @@ public class NewEngineGameDialog extends JDialog {
   public JComboBox<String> enginePkBlack;
   public JComboBox<String> enginePkWhite;
   private JComboBox<String> cbxRandomSgf;
+  private JFontTextField txtParallel;
 
   private JCheckBox chkDisableWRNInGame;
   private JCheckBox chkUseAdvanceTime;
@@ -88,7 +89,7 @@ public class NewEngineGameDialog extends JDialog {
     // setMinimumSize(new Dimension(580, 530));
     Lizzie.setFrameSize(
         this,
-        Lizzie.config.isFrameFontSmall() ? 445 : (Lizzie.config.isFrameFontMiddle() ? 515 : 595),
+        Lizzie.config.isFrameFontSmall() ? 505 : (Lizzie.config.isFrameFontMiddle() ? 575 : 655),
         Lizzie.config.isFrameFontSmall() ? 408 : (Lizzie.config.isFrameFontMiddle() ? 409 : 421));
     setResizable(false);
     setTitle(Lizzie.resourceBundle.getString("NewEngineGameDialog.title")); // "引擎对战");
@@ -616,6 +617,24 @@ public class NewEngineGameDialog extends JDialog {
     contentPanel.add(LizzieFrame.toolbar.txtenginePkBatch);
     contentPanel.add(btnConfig);
 
+    JFontLabel lblParallel =
+        new JFontLabel(Lizzie.resourceBundle.getString("EnginePkConfig.lblParallelShort"));
+    lblParallel.setBounds(
+        Lizzie.config.isFrameFontSmall() ? 415 : (Lizzie.config.isFrameFontMiddle() ? 475 : 485),
+        240,
+        50,
+        20);
+    txtParallel = new JFontTextField();
+    txtParallel.setDocument(new IntDocument());
+    txtParallel.setBounds(
+        Lizzie.config.isFrameFontSmall() ? 465 : (Lizzie.config.isFrameFontMiddle() ? 528 : 538),
+        Lizzie.config.isFrameFontSmall() ? 241 : (Lizzie.config.isFrameFontMiddle() ? 240 : 239),
+        35,
+        Lizzie.config.isFrameFontSmall() ? 20 : (Lizzie.config.isFrameFontMiddle() ? 22 : 24));
+    txtParallel.setText(String.valueOf(Lizzie.config.enginePkParallelGames));
+    contentPanel.add(lblParallel);
+    contentPanel.add(txtParallel);
+
     textFieldKomi.setEnabled(true);
 
     //    if (Lizzie.config.showHiddenYzy) {
@@ -1006,6 +1025,15 @@ public class NewEngineGameDialog extends JDialog {
       }
       Lizzie.config.newEngineGameHandicap = handicap;
       Lizzie.config.newEngineGameKomi = komi;
+      try {
+        Lizzie.config.enginePkParallelGames =
+            Math.min(
+                Config.ENGINE_PK_PARALLEL_MAX,
+                Math.max(1, Integer.parseInt(txtParallel.getText().trim())));
+      } catch (NumberFormatException err) {
+        Lizzie.config.enginePkParallelGames = 1;
+      }
+      Lizzie.config.uiConfig.put("engine-pk-parallel-games", Lizzie.config.enginePkParallelGames);
       Lizzie.config.uiConfig.put("new-engine-game-komi", Lizzie.config.newEngineGameKomi);
       Lizzie.config.uiConfig.put("new-engine-game-handicap", Lizzie.config.newEngineGameHandicap);
 
