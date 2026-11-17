@@ -199,6 +199,7 @@ Copy the jar into the LizzieYzy distribution directory.
 - **SakuraGTP**: <https://github.com/SakuraGoH/SakuraGTP>
 - **Original Lizzie**: <https://github.com/featurecat/lizzie>
 - **Fox Weiqi**: <https://www.foxwq.com/>
+- **FoxSgfsDownload**: <https://github.com/SakuraGoH/FoxSgfsDownload>
 
 ---
 
