@@ -1,9 +1,11 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.analysis.AnalysisEngine;
+import featurecat.lizzie.analysis.EngineGameArena;
 import featurecat.lizzie.analysis.EngineManager;
 import featurecat.lizzie.analysis.KataEstimate;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.RefereeEngine;
 import featurecat.lizzie.gui.AwareScaled;
 import featurecat.lizzie.gui.FirstUseSettings;
 import featurecat.lizzie.gui.GtpConsolePane;
@@ -42,9 +44,6 @@ public class Lizzie {
   public static Board board;
   public static Leelaz leelaz;
   public static Leelaz leelaz2;
-  public static featurecat.lizzie.analysis.fox.FoxBridge foxBridge;
-  // 改进3：野狐对弈专用引擎，双引擎模式下必须指定一个
-  public static Leelaz foxEngine = null;
   public static String lizzieVersion = "2.5.3";
   public static String checkVersion = "230614";
   public static boolean readMode = false;
@@ -218,8 +217,13 @@ public class Lizzie {
             Lizzie.frame.setMainPanelFocus();
           }
         });
-    gtpConsole = new GtpConsolePane(frame);
-    gtpConsole.setVisible(config.persistedUi.optBoolean("gtp-console-opened", false));
+    SwingUtilities.invokeLater(
+        () -> {
+          gtpConsole = new GtpConsolePane(frame);
+          gtpConsole.setVisible(config.persistedUi.optBoolean("gtp-console-opened", false));
+          // GTP 控制台若被恢复显示，可能抢走前台，这里再把棋盘窗口拉回最前。
+          frame.bringToFront();
+        });
     SwingUtilities.invokeLater(
         new Thread() {
           public void run() {
@@ -434,6 +438,11 @@ public class Lizzie {
     //    }
     // 改进5：关闭时保存当前盘面和落子树（SGF格式），用于下次启动恢复
     try {
+      if (EngineGameArena.isRunning()) EngineGameArena.getInstance().stop(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    try {
       String stateFile = "save" + File.separator + "last_state.sgf";
       SGFParser.save(Lizzie.board, stateFile, true);
     } catch (Exception e) {
@@ -478,6 +487,17 @@ public class Lizzie {
       e.printStackTrace();
     }
     try {
+      if (EngineGameArena.isRunning()) EngineGameArena.getInstance().stop(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    try {
+      if (EngineGameArena.isRunning()) EngineGameArena.getInstance().stop(false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    RefereeEngine.shutdown();
+    try {
       if (engineManager != null) engineManager.forceKillAllEngines();
     } catch (Exception e) {
       e.printStackTrace();
@@ -489,13 +509,12 @@ public class Lizzie {
         e.printStackTrace();
       }
     // 停止野狐协议直连
-    if (Lizzie.foxBridge != null) {
+    if (featurecat.lizzie.analysis.fox.FoxDirectController.getInstance().isRunning()) {
       try {
         frame.stopFoxDirect();
       } catch (Exception e) {
         e.printStackTrace();
       }
-      Lizzie.foxBridge = null;
     }
     try {
       frame.shutdownClockHelper();

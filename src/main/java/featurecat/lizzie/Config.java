@@ -50,6 +50,9 @@ public class Config {
   // public boolean allowDrageDoubleClick = true;
   public boolean showKataGoEstimateOnSubbord = true;
   public boolean showKataGoEstimateOnMainbord = true;
+  /** Kata评估开启时，鼠标悬停交叉点显示该点归属比例。 */
+  public boolean showKataGoOwnershipOnHover = true;
+
   public boolean showSuggestionOrder = true;
   public boolean showSuggestionMaxRed = true;
   public boolean showStatus = true;
@@ -384,6 +387,15 @@ public class Config {
   public double firstEngineResignWinrate = 10.0;
   public double secondEngineResignWinrate = 10.0;
 
+  /** 双pass时用于 final_score 判定的裁判引擎命令行(空表示不启用)。 */
+  public String refereeEngineCommand = "";
+
+  /** 引擎对战时同时进行的对局数(1 表示原有单局/顺序多盘模式)。 */
+  public int enginePkParallelGames = 1;
+
+  /** 同时进行对局数的上限，防止误设过多进程。 */
+  public static final int ENGINE_PK_PARALLEL_MAX = 16;
+
   public boolean independentSubBoardLocked = false;
   public boolean independentMainBoardLocked = false;
 
@@ -473,6 +485,9 @@ public class Config {
   public int suggestionInfoWinrate = 1;
   public int suggestionInfoPlayouts = 2;
   public int suggestionInfoScoreLead = 3;
+  /** 选点信息中胜率/目差的小数位数，0-3。 */
+  public int suggestionInfoPrecision = 1;
+
   public boolean useDefaultInfoRowOrder = true;
 
   public boolean useIinCoordsName = false;
@@ -619,6 +634,9 @@ public class Config {
   public int foxAfterGet = 0; // 0=最小化,1=关闭,2=无动作
   public String lastFoxName = "";
 
+  /** 野狐协议直连监听端口。默认 6000，可在野狐直连窗口中修改。 */
+  public int foxDirectPort = 6000;
+
   public boolean continueWithBestMove = false;
   public boolean directlyWithBestMove = true;
 
@@ -666,6 +684,8 @@ public class Config {
   public int tsumeGoAttaker = 1; // 1=自动检测,2=黑,3=白
   public int tsumeGoKoThreat = 1; // 1=双方,2=进攻,3=防守,4=无
   public int tsumeGoWallDistance = 1;
+  /** 抓取死活题时跳过步骤说明，直接开始抓取。 */
+  public boolean captureTsumeGoSkipHint = false;
 
   public int captureBlackOffset = 120;
   public int captureBlackPercent = 25;
@@ -798,35 +818,6 @@ public class Config {
    * @param config The config json object to check
    * @return if any correction has been made.
    */
-  //    private boolean validateAndCorrectSettings(JSONObject config) {
-  //      boolean madeCorrections = false;
-  //
-  //      // Check ui configs
-  //      JSONObject ui = config.getJSONObject("ui");
-  //
-  //      // Check board-size
-  //      int boardSize = ui.optInt("board-size", 19);
-  //      if (boardSize < 2) {
-  //        // Correct it to default 19x19
-  //        ui.put("board-size", 19);
-  //        madeCorrections = true;
-  //      }
-  //
-  //      // Check engine configs
-  //      JSONObject leelaz = config.getJSONObject("leelaz");
-  //      // Checks for startup directory. It should exist and should be a directory.
-  //      String engineStartLocation = getBestDefaultLeelazPath();
-  //      if (!(Files.exists(Paths.get(engineStartLocation))
-  //          && Files.isDirectory(Paths.get(engineStartLocation)))) {
-  //       // leelaz.put("engine-start-location", ".");
-  //        madeCorrections = true;
-  //      }
-  //      if (checkEmptyBlunderThresholds(ui)) {
-  //        madeCorrections = true;
-  //      }
-  //
-  //      return madeCorrections;
-  //    }
 
   /**
    * Apply the default blunder thresholds in Default theme if they are empty. This works only once
@@ -1111,6 +1102,7 @@ public class Config {
     myByoyomiTimes = uiConfig.optInt("my-byoyomo-times", 2);
     showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
     showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
+    showKataGoOwnershipOnHover = uiConfig.optBoolean("show-katago-ownership-on-hover", true);
     if (!showKataGoEstimateOnMainbord && !showKataGoEstimateOnSubbord && showKataGoEstimate)
       isHiddenKataEstimate = true;
     // showBestMoves = uiConfig.getBoolean("show-best-moves");
@@ -1234,6 +1226,8 @@ public class Config {
     suggestionInfoWinrate = uiConfig.optInt("suggestion-info-winrate", 1);
     suggestionInfoPlayouts = uiConfig.optInt("suggestion-info-playouts", 2);
     suggestionInfoScoreLead = uiConfig.optInt("suggestion-info-scorelead", 3);
+    suggestionInfoPrecision =
+        Math.max(0, Math.min(3, uiConfig.optInt("suggestion-info-precision", 1)));
     useDefaultInfoRowOrder =
         suggestionInfoWinrate == 1 && suggestionInfoPlayouts == 2 && suggestionInfoScoreLead == 3;
     useIinCoordsName = uiConfig.optBoolean("use-i-in-coords-name", false);
@@ -1386,6 +1380,8 @@ public class Config {
     showPonderLimitedTips = uiConfig.optBoolean("show-ponder-limited-tips", true);
     foxAfterGet = uiConfig.optInt("fox-after-get", 0);
     lastFoxName = uiConfig.optString("last-fox-name", "");
+    foxDirectPort = uiConfig.optInt("fox-direct-port", 6000);
+    if (foxDirectPort <= 0 || foxDirectPort > 65535) foxDirectPort = 6000;
     continueWithBestMove = uiConfig.optBoolean("continue-with-best-move", false);
     directlyWithBestMove = uiConfig.optBoolean("directly-with-best-move", false);
     delayShowCandidates = uiConfig.optBoolean("delay-show-candidates", false);
@@ -1398,6 +1394,10 @@ public class Config {
     showScrollVariation = uiConfig.optBoolean("show-scroll-variation", true);
     ignoreOutOfWidth = uiConfig.optBoolean("ignore-out-of-width", false);
     enginePkPonder = uiConfig.optBoolean("engine-pk-ponder", false);
+    refereeEngineCommand = uiConfig.optString("referee-engine-command", "");
+    enginePkParallelGames =
+        Math.min(
+            ENGINE_PK_PARALLEL_MAX, Math.max(1, uiConfig.optInt("engine-pk-parallel-games", 1)));
     alwaysGtp = uiConfig.optBoolean("always-gtp", true);
     noCapture = uiConfig.optBoolean("no-capture", false);
     showrect = uiConfig.optInt("show-move-rect", 1);
@@ -1436,6 +1436,7 @@ public class Config {
     tsumeGoAttaker = uiConfig.optInt("tsume-go-attaker", 1);
     tsumeGoKoThreat = uiConfig.optInt("tsume-go-ko-threat", 1);
     tsumeGoWallDistance = uiConfig.optInt("tsume-go-wall-distance", 1);
+    captureTsumeGoSkipHint = uiConfig.optBoolean("capture-tsume-go-skip-hint", false);
 
     captureBlackOffset = uiConfig.optInt("capture-black-offset", 120);
     captureBlackPercent = uiConfig.optInt("capture-black-percent", 25);
@@ -2167,7 +2168,7 @@ public class Config {
 
   public void persist() throws IOException {
     if (deletedPersist) return;
-    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
+    boolean windowIsMaximized = Lizzie.frame.isMaximizedForPersist();
     persistedUi.put("gtp-console-opened", Lizzie.gtpConsole.isVisible());
     JSONArray mainPos = new JSONArray();
     JSONArray mainOhter = new JSONArray();
@@ -2195,15 +2196,21 @@ public class Config {
     }
 
     if (!windowIsMaximized) {
-      mainPos.put(Lizzie.frame.getX());
-      mainPos.put(Lizzie.frame.getY());
-      mainPos.put(Lizzie.frame.getWidth());
-      mainPos.put(Lizzie.frame.getHeight());
-    } else {
-      if (Lizzie.frame.noneMaxX > 0
-          && Lizzie.frame.noneMaxY > 0
+      if ((Lizzie.frame.getExtendedState() & java.awt.Frame.ICONIFIED) != 0
           && Lizzie.frame.noneMaxWidth > 0
           && Lizzie.frame.noneMaxHeight > 0) {
+        mainPos.put(Lizzie.frame.noneMaxX);
+        mainPos.put(Lizzie.frame.noneMaxY);
+        mainPos.put(Lizzie.frame.noneMaxWidth);
+        mainPos.put(Lizzie.frame.noneMaxHeight);
+      } else {
+        mainPos.put(Lizzie.frame.getX());
+        mainPos.put(Lizzie.frame.getY());
+        mainPos.put(Lizzie.frame.getWidth());
+        mainPos.put(Lizzie.frame.getHeight());
+      }
+    } else {
+      if (Lizzie.frame.noneMaxWidth > 0 && Lizzie.frame.noneMaxHeight > 0) {
         mainPos.put(Lizzie.frame.noneMaxX);
         mainPos.put(Lizzie.frame.noneMaxY);
         mainPos.put(Lizzie.frame.noneMaxWidth);
@@ -2605,6 +2612,7 @@ public class Config {
   }
 
   public void saveKataEstimateConfigs() {
+    uiConfig.put("show-katago-ownership-on-hover", showKataGoOwnershipOnHover);
     uiConfig.put("show-katago-estimate-normal", showKataGoEstimateNormal);
     uiConfig.put("show-katago-estimate-by-size", showKataGoEstimateBySize);
     uiConfig.put("show-katago-estimate-big-below", showKataGoEstimateBigBelow);
