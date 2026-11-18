@@ -2058,7 +2058,6 @@ public class FloatBoardRenderer {
     // decrease boardLength until the availableLength will result in square board
     // intersections
     //    if (Board.boardWidth != Board.boardHeight) {
-    //
     //    } else {
     //      boardHeight = boardWidth;
     //      availableHeight = availableWidth;
@@ -3006,7 +3005,6 @@ public class FloatBoardRenderer {
         try {
           latch.await();
         } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }

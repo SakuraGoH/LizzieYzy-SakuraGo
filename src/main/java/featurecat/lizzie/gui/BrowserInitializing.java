@@ -49,7 +49,6 @@ public class BrowserInitializing extends JDialog {
       printStream = new PrintStream(new MyOutputStream(msg), true, Charset.defaultCharset().name());
       System.setErr(printStream);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     pack();

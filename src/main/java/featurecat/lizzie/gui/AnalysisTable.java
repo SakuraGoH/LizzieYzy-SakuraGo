@@ -35,7 +35,6 @@ public class AnalysisTable {
   //            {1, 2, 3},
   //            {4, 5, 6},
   //            {7, 8, 9}};
-  //
 
   public AnalysisTable() {
     frame = new JFrame();
@@ -244,7 +243,6 @@ public class AnalysisTable {
   }
 
   protected void verifyCurrentKifu() {
-    // TODO Auto-generated method stub
     String firstFileName = Lizzie.frame.Batchfiles.get(Lizzie.frame.BatchAnaNum).getName();
     if (!LizzieFrame.fileNameTitle.equals(firstFileName)) {
       Lizzie.frame.loadFile(Lizzie.frame.Batchfiles.get(Lizzie.frame.BatchAnaNum), false, false);
@@ -258,7 +256,6 @@ public class AnalysisTable {
   }
 
   public void resetAnalysisMode() {
-    // TODO Auto-generated method stub
     if (Lizzie.frame.isBatchAnalysisMode) {
       stopGo.setEnabled(false);
       stopStart.setEnabled(false);
@@ -345,7 +342,6 @@ class MyButtonFirstEditor extends AbstractCellEditor implements TableCellEditor 
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -427,7 +423,6 @@ class MyButtonUpEditor extends AbstractCellEditor implements TableCellEditor {
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -511,7 +506,6 @@ class MyButtonDownEditor extends AbstractCellEditor implements TableCellEditor {
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -587,7 +581,6 @@ class MyButtonDeleteEditor extends AbstractCellEditor implements TableCellEditor
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }

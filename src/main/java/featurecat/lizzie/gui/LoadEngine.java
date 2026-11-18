@@ -57,7 +57,6 @@ public class LoadEngine extends JPanel {
   // JTextField txtWidth;
   // JTextField txtHeight;
   // JTextField txtKomi;
-  //
   // JFontButton scan;
   // JFontButton delete;
   JFontButton ok;
@@ -308,7 +307,6 @@ public class LoadEngine extends JPanel {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             System.exit(0);
           }
         });

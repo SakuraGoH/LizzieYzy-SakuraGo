@@ -128,7 +128,6 @@ public class SetAnaGameRandomStart extends JDialog {
     try {
       this.setIconImage(ImageIO.read(MoreEngines.class.getResourceAsStream("/assets/logo.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -155,7 +154,6 @@ public class SetAnaGameRandomStart extends JDialog {
       Lizzie.config.anaGameRandomWinrateDiff = Double.parseDouble(txtWinrate.getText());
       Lizzie.config.anaGameRandomPlayoutsDiff = Double.parseDouble(txtPlayouts.getText());
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
       return false;
     }
     Lizzie.config.uiConfig.put(

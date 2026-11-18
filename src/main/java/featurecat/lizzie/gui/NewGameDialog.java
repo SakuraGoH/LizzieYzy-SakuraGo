@@ -359,7 +359,6 @@ public class NewGameDialog extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -667,7 +666,6 @@ public class NewGameDialog extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             setNoTimeStatus(chkNoTime.isSelected());
           }
         });
@@ -795,13 +793,11 @@ public class NewGameDialog extends JDialog {
   }
 
   protected void setKataAdvStatus() {
-    // TODO Auto-generated method stub
     txtKataPlayouts.setEnabled(chkUseKataAdvSettings.isSelected());
     txtKataVisits.setEnabled(chkUseKataAdvSettings.isSelected());
   }
 
   private void setNoTimeStatus(boolean selected) {
-    // TODO Auto-generated method stub
     if (selected) {
       kataTimeComboBox.setEnabled(false);
       txtKataTimeSaveMins.setEnabled(false);
@@ -971,14 +967,11 @@ public class NewGameDialog extends JDialog {
 
   //  public void setGameInfo(GameInfo gameInfo) {
   //    this.gameInfo = gameInfo;
-  //
   //    //  textFieldBlack.setText(gameInfo.getPlayerBlack());
   //    // textFieldWhite.setText(gameInfo.getPlayerWhite());
   //    textFieldHandicap.setText(FORMAT_HANDICAP.format(gameInfo.getHandicap()));
   //    textFieldKomi.setText(FORMAT_KOMI.format(gameInfo.getKomi()));
-  //
   //    // update player names
-  //
   //  }
 
   public boolean playerIsBlack() {

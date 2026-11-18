@@ -218,7 +218,6 @@ public class OtherPrograms extends JPanel {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             String el = getEngineLine();
             if (!el.isEmpty()) {
               command.setText(el);
@@ -231,7 +230,6 @@ public class OtherPrograms extends JPanel {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             command.setText("");
             saveEngineConfig();
             command.setText("");
@@ -257,7 +255,6 @@ public class OtherPrograms extends JPanel {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             engjf.setVisible(false);
           }
         });
@@ -266,7 +263,6 @@ public class OtherPrograms extends JPanel {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             command.setText("");
             engineName.setText(resourceBundle.getString("MoreEngines.lblCommand"));
             txtName.setText("");
@@ -391,7 +387,6 @@ public class OtherPrograms extends JPanel {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
 
             ArrayList<ProgramData> programData = getProgramData();
             if (curIndex < 0 || curIndex > programData.size() - 2) return;

@@ -363,7 +363,6 @@ public class VariationTree {
     //      if (Lizzie.config.usePureBackground) g.setColor(Lizzie.config.pureBackgroundColor);
     //      else g.setPaint(Lizzie.frame.backgroundPaint);
     //      g.fillRect(posx, posy, width, height);
-    //
     //      g.setColor(new Color(0, 0, 0, 130));
     //      g.fillRect(posx, posy, width, height);
     //      g.setStroke(new BasicStroke(1));

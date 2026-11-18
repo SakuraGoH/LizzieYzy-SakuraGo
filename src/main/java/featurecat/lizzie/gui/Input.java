@@ -249,7 +249,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   //    }
   //    Lizzie.config.showRawBoard = true;
   //  }
-  //
   //  private void stopRawBoard() {
   //    Lizzie.frame.stopRawBoard();
   //    Lizzie.config.showRawBoard = false;

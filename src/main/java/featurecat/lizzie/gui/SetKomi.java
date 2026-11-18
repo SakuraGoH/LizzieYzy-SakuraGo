@@ -85,7 +85,6 @@ public class SetKomi extends JDialog {
     try {
       this.setIconImage(ImageIO.read(MoreEngines.class.getResourceAsStream("/assets/logo.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -104,7 +103,6 @@ public class SetKomi extends JDialog {
     try {
       komi = FORMAT_KOMI.parse(textFieldKomi.getText()).doubleValue();
     } catch (ParseException e) {
-      // TODO Auto-generated catch block
       return;
     }
     Lizzie.board.clearBestMovesAfter(Lizzie.board.getHistory().getStart());

@@ -96,14 +96,12 @@ public class EngineManager {
               e.startEngine(engineDt.index);
               Menu.engineMenu.setText("[" + (e.currentEngineN() + 1) + "]: " + e.oriEnginename);
             } catch (IOException e2) {
-              // TODO Auto-generated catch block
               e2.printStackTrace();
             }
             while (!e.isLoaded() || e.isCheckingName) {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
               }
             }
@@ -119,7 +117,6 @@ public class EngineManager {
               try {
                 e.startEngine(engineDt.index);
               } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -467,7 +464,6 @@ public class EngineManager {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -609,7 +605,6 @@ public class EngineManager {
             autoSavePng);
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       if (engineGameInfo.isBatchGame) {
         try {
           File fileParent2 = autoSaveFile2.getParentFile();
@@ -643,7 +638,6 @@ public class EngineManager {
                 autoSavePng2);
           }
         } catch (IOException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
@@ -821,7 +815,6 @@ public class EngineManager {
       writer.flush();
       writer.close();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -838,7 +831,6 @@ public class EngineManager {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     // 增加如果已命名,则保存在命名的文件夹下
@@ -874,7 +866,6 @@ public class EngineManager {
     try {
       writeToFile(autoSaveFile, settingAll, settingB, settingW, resultB, resultW, resultOther);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
 
       try {
         File fileParent2 = autoSaveFile2.getParentFile();
@@ -884,7 +875,6 @@ public class EngineManager {
         writeToFile(autoSaveFile2, settingAll, settingB, settingW, resultB, resultW, resultOther);
 
       } catch (IOException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
       e.printStackTrace();
@@ -933,7 +923,6 @@ public class EngineManager {
         try {
           courseFile = file.getCanonicalPath();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         String passandMove = "";
@@ -1162,7 +1151,6 @@ public class EngineManager {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     // showmsg 多局
@@ -1394,7 +1382,6 @@ public class EngineManager {
                 try {
                   Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
               }
@@ -1481,7 +1468,6 @@ public class EngineManager {
                         try {
                           Thread.sleep(100);
                         } catch (InterruptedException e) {
-                          // TODO Auto-generated catch block
                           e.printStackTrace();
                         }
                       }
@@ -1499,7 +1485,6 @@ public class EngineManager {
                         try {
                           Thread.sleep(100);
                         } catch (InterruptedException e) {
-                          // TODO Auto-generated catch block
                           e.printStackTrace();
                         }
                       }
@@ -1606,7 +1591,6 @@ public class EngineManager {
                 try {
                   Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
               }
@@ -1725,7 +1709,6 @@ public class EngineManager {
         try {
           Lizzie.leelaz.restartClosedEngine(currentEngineNo);
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       if (Lizzie.leelaz.useJavaSSH && Lizzie.leelaz.isLoaded() && Lizzie.leelaz.canCheckAlive) {
@@ -1733,7 +1716,6 @@ public class EngineManager {
           try {
             Lizzie.leelaz.restartClosedEngine(currentEngineNo);
           } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
       }
@@ -1759,7 +1741,6 @@ public class EngineManager {
       try {
         restartEngineForPk(engineGameInfo.firstEngineIndex);
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -1770,7 +1751,6 @@ public class EngineManager {
       try {
         restartEngineForPk(engineGameInfo.secondEngineIndex);
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -1778,7 +1758,6 @@ public class EngineManager {
     //      timer2.stop();
     //      // timer2 = null;
     //    } catch (Exception ex) {
-    //
     //    }
   }
 
@@ -1856,14 +1835,12 @@ public class EngineManager {
               e.startEngine(engineDt.index);
               Menu.engineMenu.setText("[" + (e.currentEngineN() + 1) + "]: " + e.oriEnginename);
             } catch (IOException e2) {
-              // TODO Auto-generated catch block
               e2.printStackTrace();
             }
             while (!e.isLoaded() || e.isCheckingName) {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
               }
             }
@@ -1880,7 +1857,6 @@ public class EngineManager {
               try {
                 e.startEngine(engineDt.index);
               } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -2079,7 +2055,6 @@ public class EngineManager {
       try {
         newEng.startEngine(index);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
@@ -2103,7 +2078,6 @@ public class EngineManager {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -2190,7 +2164,6 @@ public class EngineManager {
     try {
       newEng.startEngine(index);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     // }
@@ -2206,7 +2179,6 @@ public class EngineManager {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -2354,7 +2326,6 @@ public class EngineManager {
                   try {
                     Thread.sleep(100);
                   } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
                 } while (!newEng.isLoaded() || newEng.isCheckingName);
@@ -2393,7 +2364,6 @@ public class EngineManager {
                   try {
                     Thread.sleep(100);
                   } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
                 }

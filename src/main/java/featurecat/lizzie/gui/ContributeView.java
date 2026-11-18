@@ -700,7 +700,6 @@ public class ContributeView extends JFrame {
   //    // TODO Auto-generated method stub
   //    if (set) {
   //      btnSlowShutdown.setVisible(true);
-  //
   // btnForceShutdown.setText(Lizzie.resourceBundle.getString("ContributeView.btnForceShutdown"));
   //      btnForceShutdown.setToolTipText(
   //          Lizzie.resourceBundle.getString("ContributeView.btnForceShutdownTip"));
@@ -799,7 +798,6 @@ public class ContributeView extends JFrame {
         doc.remove(0, length - max_length / 2);
       }
     } catch (BadLocationException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -853,7 +851,6 @@ public class ContributeView extends JFrame {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
       synchronized (docQueue) {
@@ -874,7 +871,6 @@ public class ContributeView extends JFrame {
   }
 
   public void exitedAfterSignal() {
-    // TODO Auto-generated method stub
     btnSlowShutdown.setVisible(false);
     btnForceShutdown.setVisible(false);
     btnCloseView.setVisible(true);

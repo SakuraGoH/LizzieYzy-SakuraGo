@@ -191,14 +191,12 @@ public class GtpConsolePane extends JFrame {
       try {
         bos = new FileOutputStream("LastGtpLogs_" + Lizzie.lizzieVersion + ".txt");
       } catch (FileNotFoundException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
     }
   }
 
   public void openCommands() {
-    // TODO Auto-generated method stub
     if (Lizzie.leelaz.commandLists.isEmpty()) {
       Utils.showMsg(resourceBundle.getString("GtpConsolePane.noCommands"));
       return;
@@ -239,7 +237,6 @@ public class GtpConsolePane extends JFrame {
         doc.remove(0, length - max_length / 2);
       }
     } catch (BadLocationException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -249,7 +246,6 @@ public class GtpConsolePane extends JFrame {
     try {
       doc.insertString(doc.getLength(), str, attrSet);
     } catch (BadLocationException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -259,7 +255,6 @@ public class GtpConsolePane extends JFrame {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
       synchronized (docQueue) {
@@ -271,7 +266,6 @@ public class GtpConsolePane extends JFrame {
               try {
                 bos.write(doc.content.getBytes());
               } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -527,12 +521,10 @@ public class GtpConsolePane extends JFrame {
   }
 
   public void addErrorLine(String line) {
-    // TODO Auto-generated method stub
     setDocs(line, new Color(255, 0, 0), false, Config.frameFontSize);
   }
 
   public void setViewEnd() {
-    // TODO Auto-generated method stub
     Color cl = console.getSelectionColor();
     console.setSelectionColor(new Color(0, 0, 0, 0));
     console.selectAll();

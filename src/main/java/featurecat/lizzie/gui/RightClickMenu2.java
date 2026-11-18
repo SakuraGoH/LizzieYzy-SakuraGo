@@ -94,7 +94,6 @@ public class RightClickMenu2 extends JPopupMenu {
       iconBack.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/left.png")));
       iconSearch.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/upSearch.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     findStone = new JFontMenuItem(resourceBundle.getString("RightClickMenu2.findStone"));
@@ -180,7 +179,6 @@ public class RightClickMenu2 extends JPopupMenu {
   }
 
   public void setCoords(int[] coords) {
-    // TODO Auto-generated method stub
     RightClickMenu2.coords = coords;
   }
   //	public void Store(int x, int y) {

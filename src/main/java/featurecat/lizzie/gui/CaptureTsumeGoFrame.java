@@ -86,7 +86,6 @@ public class CaptureTsumeGoFrame extends JFrame {
       capture3.setIcon(
           new ImageIcon(ImageIO.read(getClass().getResourceAsStream("/assets/capture3.png"))));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 

@@ -21,7 +21,6 @@ public class Base64AesEncrypt {
     try {
       bt = base64Content.getBytes("utf-8");
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     //  String aesContent = (new BASE64Encoder()).encodeBuffer(bt);

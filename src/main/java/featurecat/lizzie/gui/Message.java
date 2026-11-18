@@ -74,7 +74,6 @@ public class Message extends JDialog {
               Thread.sleep(seconds * 1000);
               setVisible(false);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
           }
@@ -84,7 +83,6 @@ public class Message extends JDialog {
   }
 
   public void setMessage(String message, Window owner) {
-    // TODO Auto-generated method stub
     String regex = "[\u4e00-\u9fa5]";
     lblmessage.setText(message);
     setSize((int) (message.replaceAll(regex, "12").length() * (Config.frameFontSize / 1.6)), 80);

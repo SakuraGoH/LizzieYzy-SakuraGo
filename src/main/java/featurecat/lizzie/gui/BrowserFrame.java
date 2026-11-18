@@ -74,12 +74,10 @@ public class BrowserFrame extends JFrame {
     // (1) The entry point to JCEF is always the class CefApp. There is only one
     //     instance per application and therefore you have to call the method
     //     "getInstance()" instead of a CTOR.
-    //
     //     CefApp is responsible for the global CEF context. It loads all
     //     required native libraries, initializes CEF accordingly, starts a
     //     background task to handle CEF's message loop and takes care of
     //     shutting down CEF after disposing it.
-    //
     //     WHEN WORKING WITH MAVEN: Use the builder.build() method to
     //     build the CefApp on first run and fetch the instance on all consecutive
     //     runs. This method is thread-safe and will always return a valid app
@@ -93,7 +91,6 @@ public class BrowserFrame extends JFrame {
           if (!Lizzie.config.browserInitiazed) Lizzie.frame.browserInitializing.setVisible(true);
           else Lizzie.frame.browserInitializing.dispose();
         } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
@@ -119,7 +116,6 @@ public class BrowserFrame extends JFrame {
     //     client. To get an instance of CefClient you have to use the method
     //     "createClient()" of your CefApp instance. Calling an CTOR of
     //     CefClient is not supported.
-    //
     //     CefClient is a connector to all possible events which come from the
     //     CefBrowser instances. Those events could be simple things like the
     //     change of the browser title or more complex ones like context menu
@@ -137,7 +133,6 @@ public class BrowserFrame extends JFrame {
     //     rendered or windowed rendered. To get an instance of CefBrowser you
     //     have to call the method "createBrowser()" of your CefClient
     //     instances.
-    //
     //     CefBrowser has methods like "goBack()", "goForward()", "loadURL()",
     //     and many more which are used to control the behavior of the displayed
     //     content. The UI is held within a UI-Compontent which can be accessed
@@ -239,7 +234,6 @@ public class BrowserFrame extends JFrame {
     try {
       iconLeft.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/left.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     JButton back = new JButton(iconLeft);
@@ -324,7 +318,6 @@ public class BrowserFrame extends JFrame {
   }
 
   private void checkBundleFolder() {
-    // TODO Auto-generated method stub
     String tag = "jcef-56fb723+cef-95.7.14+g9f72f35+chromium-95.0.4638.69";
     File meta = new File("jcef-bundle" + File.separator + "build_meta.json");
     if (meta.exists()) {
@@ -341,20 +334,16 @@ public class BrowserFrame extends JFrame {
           Utils.deleteDir(dir);
         }
       } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       } catch (UnsupportedEncodingException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       } catch (IOException e2) {
-        // TODO Auto-generated catch block
         e2.printStackTrace();
       }
     }
   }
 
   private void setFrameSize() {
-    // TODO Auto-generated method stub
     if (isYike) {
       setSize(Lizzie.frame.bowserWidth, Lizzie.frame.bowserHeight);
       setLocation(Lizzie.frame.bowserX, Lizzie.frame.bowserY);
@@ -362,7 +351,6 @@ public class BrowserFrame extends JFrame {
   }
 
   public void openURL(String url, String title, boolean yike) {
-    // TODO Auto-generated method stub
     browser_.loadURL(url);
     SwingUtilities.invokeLater(
         new Runnable() {

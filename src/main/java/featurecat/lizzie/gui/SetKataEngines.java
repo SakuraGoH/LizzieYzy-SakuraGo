@@ -192,7 +192,6 @@ public class SetKataEngines extends JDialog {
             try {
               pda = Double.parseDouble(txtPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -206,7 +205,6 @@ public class SetKataEngines extends JDialog {
             try {
               pda = Double.parseDouble(txtPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -220,7 +218,6 @@ public class SetKataEngines extends JDialog {
             try {
               pda = Double.parseDouble(txtPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -250,7 +247,6 @@ public class SetKataEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditPDA.isSelected()) {
               chkAutoLoadPDA.setEnabled(true);
               txtPDA.setEnabled(true);
@@ -286,7 +282,6 @@ public class SetKataEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditWRN.isSelected()) {
               txtWRN.setEnabled(true);
               chkAutoLoadWRN.setEnabled(true);
@@ -325,7 +320,6 @@ public class SetKataEngines extends JDialog {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn > 2 || wrn < 0) {
@@ -339,7 +333,6 @@ public class SetKataEngines extends JDialog {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn > 2 || wrn < 0) {
@@ -353,7 +346,6 @@ public class SetKataEngines extends JDialog {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn > 2 || wrn < 0) {
@@ -382,7 +374,6 @@ public class SetKataEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditRPT.isSelected()) {
               txtRPT.setEnabled(true);
               chkAutoRPT.setEnabled(true);
@@ -412,7 +403,6 @@ public class SetKataEngines extends JDialog {
             try {
               rpt = Double.parseDouble(txtRPT.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || rpt > 100 || rpt < 0.01) {
@@ -426,7 +416,6 @@ public class SetKataEngines extends JDialog {
             try {
               rpt = Double.parseDouble(txtRPT.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || rpt > 100 || rpt < 0.01) {
@@ -440,7 +429,6 @@ public class SetKataEngines extends JDialog {
             try {
               rpt = Double.parseDouble(txtRPT.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || rpt > 100 || rpt < 0.01) {
@@ -481,7 +469,6 @@ public class SetKataEngines extends JDialog {
       int y = (int) screensize.getHeight() / 2 - this.getHeight() / 2;
       setLocation(x, y);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -543,7 +530,6 @@ public class SetKataEngines extends JDialog {
     //              chkAutoLoadPDA.setEnabled(false);
     //              chkEditPDA.setEnabled(false);
     //            } else {
-    //
     //              chkEditPDA.setEnabled(true);
     //              if (chkEditPDA.isSelected()) {
     //                txtPDA.setEnabled(true);
@@ -575,7 +561,6 @@ public class SetKataEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditThreads.isSelected()) {
               txtThreads.setEnabled(true);
               chkAutoLoadThreads.setEnabled(true);

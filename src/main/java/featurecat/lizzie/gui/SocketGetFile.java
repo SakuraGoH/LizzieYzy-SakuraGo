@@ -19,7 +19,6 @@ public class SocketGetFile {
   Socket socket = null;
 
   public void SocketGetFile(String name, String date, String file) {
-    // TODO Auto-generated method stub
 
     BufferedReader br = null;
     PrintWriter pw = null;
@@ -53,16 +52,13 @@ public class SocketGetFile {
                     socket.close();
                     // msg = new SMessage();
                     //    msg.setMessage(
-                    //
                     // "连接失败...请重试或下载最新版Lizzie,链接:https://pan.baidu.com/s/1q615GHD62F92mNZbTYfcxA");
                     //     msg.setVisible(true);
                     Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
                   } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -98,7 +94,6 @@ public class SocketGetFile {
           pw.close();
           socket.close();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       else {

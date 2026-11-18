@@ -361,7 +361,6 @@ public class Config {
   public boolean anaBlack = true;
   public boolean anaWhite = true;
 
-  //
   public boolean usePipeReadBoard = false;
   public boolean anaFrameShowNext = true;
   public boolean anaFrameUseMouseMove = false;
@@ -873,7 +872,6 @@ public class Config {
       try {
         save();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -1006,7 +1004,6 @@ public class Config {
               || !(Boolean)
                   Toolkit.getDefaultToolkit().getDesktopProperty("win.xpstyle.themeActive");
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       // e.printStackTrace();
     }
     showSuggestionVariations = uiConfig.optBoolean("show-suggestion-variations", true);
@@ -1646,7 +1643,6 @@ public class Config {
     try {
       save();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -1881,7 +1877,6 @@ public class Config {
     try {
       Lizzie.config.save();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     Lizzie.frame.setVarTreeVisible(showVariationGraph);
@@ -2032,7 +2027,6 @@ public class Config {
   //    List<String> potentialPaths = new ArrayList<>();
   //    potentialPaths.add(".");
   //    potentialPaths.addAll(Arrays.asList(System.getenv("PATH").split(":")));
-  //
   //    for (String potentialPath : potentialPaths) {
   //      for (String potentialExtension : Arrays.asList(new String[] {"", ".exe"})) {
   //        File potentialLeelaz = new File(potentialPath, "leelaz" + potentialExtension);
@@ -2041,7 +2035,6 @@ public class Config {
   //        }
   //      }
   //    }
-  //
   //    return "./leelaz";
   //  }
 
@@ -2638,7 +2631,6 @@ public class Config {
     try {
       save();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -2784,7 +2776,6 @@ public class Config {
   }
 
   public void setMoveNumber(int num) {
-    // TODO Auto-generated method stub
     Lizzie.config.allowMoveNumber = num;
     Lizzie.config.uiConfig.put("allow-move-number", Lizzie.config.allowMoveNumber);
     if (num != 0 && num != -1) {

@@ -236,14 +236,11 @@ public class OnlineDialog extends JDialog {
     // buttonPane.add(lblPrompt2);
     //    JLabel lblPrompt3 =
     //        new JLabel(
-    //
     // "支持野狐(腾讯围棋)分享链接，例如:http://share.foxwq.com/index.html?gameid=369&showtype=1&showid=83&chessid=383699091456898&status=0&createtime=1559816204&title=%E9%9F%A9%E5%9B%BD%E5%9B%B4%E6%A3%8BTV%E6%9D%AF32%E5%BC%BA%E6%88%98&chatid=880&support=1");
     //    lblPrompt3.setBounds(10, 50, 755, 14);
     //    buttonPane.add(lblPrompt3);
-    //
     //    JLabel lblPrompt4 =
     //        new JLabel(
-    //
     // "或:http://huanle.qq.com/act/a20170110wq/index-share.html?srctype=2&svrid=2404&roomid=20&tableid=6354&gametag=S2404R20T6354t5D06F6ECS82&title=%E8%85%BE%E8%AE%AF%E5%9B%B4%E6%A3%8B%E5%9C%A8%E7%BA%BF%E5%AF%B9%E5%BC%88&uin=643324524&support=0");
     //    lblPrompt4.setBounds(10, 65, 755, 14);
     //    buttonPane.add(lblPrompt4);
@@ -280,7 +277,6 @@ public class OnlineDialog extends JDialog {
   }
 
   private void applyChange() {
-    //
     if (LizzieFrame.urlSgf) {
       if (client != null && client.isOpen()) {
         client.close();
@@ -582,7 +578,6 @@ public class OnlineDialog extends JDialog {
           String sgf = response.toString();
           parseSgf(sgf, "", 0, false, true);
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
@@ -2592,7 +2587,6 @@ public class OnlineDialog extends JDialog {
   }
 
   public void applyChangeWeb(String url) {
-    //
     isStoped = false;
     fromBrowser = true;
     firstTime = true;

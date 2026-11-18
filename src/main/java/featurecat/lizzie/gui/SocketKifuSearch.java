@@ -20,7 +20,6 @@ public class SocketKifuSearch {
   Socket socket = null;
 
   public List<String> SocketKifuSearch(String Sql) {
-    // TODO Auto-generated method stub
 
     BufferedReader br = null;
     PrintWriter pw = null;
@@ -54,15 +53,12 @@ public class SocketKifuSearch {
                     Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
                     //                    msg = new SMessage();
                     //                    msg.setMessage(
-                    //
                     // "连接超时...请重试或下载最新版Lizzie,链接:https://pan.baidu.com/s/1q615GHD62F92mNZbTYfcxA");
                     //                    //     msg.setVisible(true);
                   } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -107,15 +103,12 @@ public class SocketKifuSearch {
           pw.close();
           socket.close();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       else {
         //        System.out.println("连接失败...");
         //        Lizzie.gtpConsole.addLine("连接失败..." + "\n");
-        //
         //        msg = new SMessage();
-        //
         // msg.setMessage("连接失败...请重试或下载最新版Lizzie,链接:https://pan.baidu.com/s/1q615GHD62F92mNZbTYfcxA");
         Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
         //  msg.setVisible(true);

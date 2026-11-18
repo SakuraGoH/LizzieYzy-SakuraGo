@@ -315,7 +315,6 @@ public class SuggestionInfoOrderSettings extends JDialog {
     try {
       this.setIconImage(ImageIO.read(MoreEngines.class.getResourceAsStream("/assets/logo.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     addWindowListener(
@@ -653,7 +652,6 @@ public class SuggestionInfoOrderSettings extends JDialog {
       Color maxColor;
       if (isBestMove) maxColor = Lizzie.config.bestColor;
       else maxColor = Color.RED;
-      //
       boolean showWinrate = currentShowWinrateInSuggestion;
       boolean showPlayouts = currentShowPlayoutsInSuggestion;
       boolean showScoreLead = move.isKataData && currentShowScoremeanInSuggestion;

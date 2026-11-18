@@ -314,7 +314,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.showTempGamePanel();
           }
         });
@@ -331,7 +330,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.saveMainBoardToClipboard();
           }
         });
@@ -345,7 +343,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.copySubBoard();
           }
         });
@@ -358,7 +355,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.copySgf();
           }
         });
@@ -372,7 +368,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.pasteSgf();
           }
         });
@@ -384,19 +379,16 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.readKomi = !Lizzie.config.readKomi;
             Lizzie.config.uiConfig.put("read-komi", Lizzie.config.readKomi);
           }
         });
     fileMenu.add(loadKomi);
 
-    //
     //    final JFontMenuItem resume = new JFontMenuItem(resourceBundle.getString("Menu.resume"));
     // // ();
     //    // resume.setText("恢复自动保存的棋谱");
     //    fileMenu.add(resume);
-    //
     //    resume.addActionListener(
     //        new ActionListener() {
     //          @Override
@@ -416,7 +408,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             System.exit(0);
           }
         });
@@ -429,7 +420,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.shutdown();
           }
         });
@@ -447,15 +437,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu viewMenu = new JFontMenu(resourceBundle.getString("Menu.viewMenu")); // ("显示");
@@ -480,7 +465,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (Lizzie.frame.BoardPositionProportion > 0) Lizzie.frame.BoardPositionProportion--;
             Lizzie.frame.refresh();
           }
@@ -493,7 +477,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (Lizzie.frame.BoardPositionProportion < 8) Lizzie.frame.BoardPositionProportion++;
             Lizzie.frame.refresh();
           }
@@ -506,7 +489,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.toggleCoordinates();
             Lizzie.frame.refresh();
           }
@@ -547,7 +529,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setShowNextMoves(false, false);
           }
         });
@@ -559,7 +540,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setShowNextMoves(true, false);
           }
         });
@@ -571,7 +551,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setShowNextMoves(true, true);
           }
         });
@@ -631,7 +610,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setMoveNumber(0);
           }
         });
@@ -643,7 +621,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setMoveNumber(1);
           }
         });
@@ -655,7 +632,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setMoveNumber(5);
           }
         });
@@ -667,7 +643,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setMoveNumber(10);
           }
         });
@@ -679,7 +654,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.setMoveNumber(-1);
           }
         });
@@ -691,7 +665,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             MovenumberDialog mvDialog = new MovenumberDialog();
             mvDialog.setVisible(true);
           }
@@ -706,7 +679,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.showMoveNumberFromOne = !Lizzie.config.showMoveNumberFromOne;
             Lizzie.config.uiConfig.put("movenumber-from-one", Lizzie.config.showMoveNumberFromOne);
             Lizzie.config.showMoveAllInBranch = false;
@@ -728,7 +700,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.newMoveNumberInBranch = true;
             // Lizzie.frame.refresh();
             Lizzie.config.uiConfig.put(
@@ -746,8 +717,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
-            // TODO Auto-generated method stub
             Lizzie.config.newMoveNumberInBranch = false;
             // Lizzie.frame.refresh();
             Lizzie.config.uiConfig.put(
@@ -767,7 +736,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.toggleShowMoveAllInBranch();
             Lizzie.frame.refresh();
           }
@@ -784,7 +752,6 @@ public class Menu extends JMenuBar {
 
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.showVarMove = !Lizzie.config.showVarMove;
             Lizzie.config.uiConfig.put("show-var-move", Lizzie.config.showVarMove);
             if (Lizzie.config.showVariationGraph) Lizzie.frame.renderVarTree(0, 0, false, false);
@@ -1535,7 +1502,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (LizzieFrame.subBoardRenderer == null) return;
             Lizzie.config.showHeat = false;
             Lizzie.config.subBoardRaw = false;
@@ -1564,7 +1530,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (LizzieFrame.subBoardRenderer == null) return;
             Lizzie.config.showHeat = false;
             Lizzie.config.subBoardRaw = true;
@@ -1593,7 +1558,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (LizzieFrame.subBoardRenderer == null) return;
             Lizzie.config.showHeat = true;
             Lizzie.config.showHeatAfterCalc = false;
@@ -1623,7 +1587,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (LizzieFrame.subBoardRenderer == null) return;
             Lizzie.config.showHeat = true;
             Lizzie.config.showHeatAfterCalc = true;
@@ -1653,7 +1616,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (LizzieFrame.subBoardRenderer == null) return;
             Lizzie.config.showHeat = false;
             Lizzie.config.subBoardRaw = false;
@@ -1719,7 +1681,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.toggleExtraMode(3);
           }
         });
@@ -1732,7 +1693,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.toggleExtraMode(1);
           }
         });
@@ -1745,7 +1705,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.toggleExtraMode(2);
           }
         });
@@ -1762,7 +1721,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.independentBoardMode(false);
           }
         });
@@ -1775,7 +1733,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.independentBoardMode(true);
             if (Lizzie.config.isShowingIndependentSub) Lizzie.frame.toggleIndependentSubBoard();
           }
@@ -1789,7 +1746,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.defaultMode();
             Lizzie.config.toggleShowSubBoard();
             if (!Lizzie.config.isShowingIndependentSub) Lizzie.frame.toggleIndependentSubBoard();
@@ -1805,7 +1761,6 @@ public class Menu extends JMenuBar {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.frame.defaultMode();
             if (!Lizzie.config.isShowingIndependentSub) Lizzie.frame.toggleIndependentSubBoard();
             if (!Lizzie.config.isShowingIndependentMain) Lizzie.frame.toggleIndependentMainBoard();
@@ -2731,15 +2686,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu gameMenu = new JFontMenu(resourceBundle.getString("Menu.game"));
@@ -3048,15 +2998,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenuItem playPassMove =
@@ -3333,15 +3278,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu editMenu = new JFontMenu(resourceBundle.getString("Menu.edit"));
@@ -3359,7 +3299,6 @@ public class Menu extends JMenuBar {
                   java.awt.Image.SCALE_SMOOTH));
       // ImageIO.read(getClass().getResourceAsStream("/assets/menu.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3371,7 +3310,6 @@ public class Menu extends JMenuBar {
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
       // ImageIO.read(getClass().getResourceAsStream("/assets/menu.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3385,7 +3323,6 @@ public class Menu extends JMenuBar {
                   java.awt.Image.SCALE_SMOOTH));
       // ImageIO.read(getClass().getResourceAsStream("/assets/smallwhite.png"));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3397,7 +3334,6 @@ public class Menu extends JMenuBar {
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
       // ImageIO.read(getClass().getResourceAsStream("/assets/smallwhite.png"));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3409,7 +3345,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize + 8, Config.menuIconSize + 8, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3421,7 +3356,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize + 8, Config.menuIconSize + 8, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3433,7 +3367,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3445,7 +3378,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3457,7 +3389,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3469,7 +3400,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3481,7 +3411,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     iconplayPass = new ImageIcon();
@@ -3492,7 +3421,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -3835,15 +3763,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu shareKifu = new JFontMenu(resourceBundle.getString("Menu.share"));
@@ -3897,7 +3820,6 @@ public class Menu extends JMenuBar {
             try {
               courseFile = file.getCanonicalPath();
             } catch (IOException se) {
-              // TODO Auto-generated catch block
             }
             try {
               File linkHistory = new File(courseFile + "\\" + "shareLinks.txt");
@@ -3911,7 +3833,6 @@ public class Menu extends JMenuBar {
               }
               Desktop.getDesktop().open(linkHistory);
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               Message msg = new Message();
               msg.setMessage(
                   resourceBundle.getString(
@@ -4080,15 +4001,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JMenu topToolBar = new JFontMenu(resourceBundle.getString("Menu.topToolBar"));
@@ -4181,15 +4097,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JMenu bottomToolBar =
@@ -4306,15 +4217,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu customTopToolBar =
@@ -4564,15 +4470,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu customToolbarItem =
@@ -4914,15 +4815,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     final JFontMenu helpMenu = new JFontMenu(resourceBundle.getString("Menu.help"));
@@ -4952,7 +4848,6 @@ public class Menu extends JMenuBar {
               URI uri = new URI("https://www.h-eba.com/Lizzie/LizzieYzy/manual.html");
               java.awt.Desktop.getDesktop().browse(uri);
             } catch (Exception e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -5298,15 +5193,10 @@ public class Menu extends JMenuBar {
           }
 
           @Override
-          public void menuDeselected(MenuEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void menuDeselected(MenuEvent e) {}
 
           @Override
-          public void menuCanceled(MenuEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void menuCanceled(MenuEvent e) {}
         });
 
     contributeMenu = new JFontMenu(resourceBundle.getString("Menu.contributeMenu")); // ("跑谱贡献");
@@ -5348,7 +5238,6 @@ public class Menu extends JMenuBar {
               URI uri = new URI("https://katagotraining.org/");
               java.awt.Desktop.getDesktop().browse(uri);
             } catch (Exception e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -5375,7 +5264,6 @@ public class Menu extends JMenuBar {
       playing.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/playing.png")));
       // icon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/run.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -5383,7 +5271,6 @@ public class Menu extends JMenuBar {
     try {
       ready.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/ready.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -5392,7 +5279,6 @@ public class Menu extends JMenuBar {
       Playing2.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/playing2.png")));
       // icon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/run.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -5400,7 +5286,6 @@ public class Menu extends JMenuBar {
     try {
       ready2.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/ready2.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -5408,7 +5293,6 @@ public class Menu extends JMenuBar {
     try {
       stop.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/stop.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -5547,14 +5431,10 @@ public class Menu extends JMenuBar {
     txtKomi.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusGained(FocusEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void focusGained(FocusEvent e) {}
 
           @Override
           public void focusLost(FocusEvent e) {
-            // TODO Auto-generated method stub
             txtKomi.setText(String.valueOf(Lizzie.board.getHistory().getGameInfo().getKomi()));
           }
         });
@@ -5563,7 +5443,6 @@ public class Menu extends JMenuBar {
         new MouseAdapter() {
           @Override
           public void mouseExited(MouseEvent e) {
-            // TODO Auto-generated method stub
             try {
               double oriKomi = Lizzie.board.getHistory().getGameInfo().getKomi();
               double newKomi = Double.parseDouble(txtKomi.getText());
@@ -5599,7 +5478,6 @@ public class Menu extends JMenuBar {
     try {
       komiUp.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallUp.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     btnKomiUp = new JFontButton(komiUp);
@@ -5610,7 +5488,6 @@ public class Menu extends JMenuBar {
     try {
       komiDown.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallDown.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     btnKomiDown = new JFontButton(komiDown);
@@ -5677,7 +5554,6 @@ public class Menu extends JMenuBar {
                       try {
                         Thread.sleep(10);
                       } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                       if ((started && Duration.between(start, Instant.now()).toMillis() > 150)
@@ -5732,7 +5608,6 @@ public class Menu extends JMenuBar {
                       try {
                         Thread.sleep(10);
                       } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                       if ((started && Duration.between(start, Instant.now()).toMillis() > 150)
@@ -5926,7 +5801,6 @@ public class Menu extends JMenuBar {
               try {
                 wrn = Double.parseDouble(txtWRN.getText());
               } catch (NumberFormatException s) {
-                // TODO Auto-generated catch block
               }
               Lizzie.config.txtKataEngineWRN = String.valueOf(wrn);
               if (EngineManager.isEngineGame) {
@@ -5980,7 +5854,6 @@ public class Menu extends JMenuBar {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn < 0 || wrn > 2) txtWRN.setBackground(Color.RED);
@@ -6008,7 +5881,6 @@ public class Menu extends JMenuBar {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn < 0 || wrn > 2) txtWRN.setBackground(Color.RED);
@@ -6036,7 +5908,6 @@ public class Menu extends JMenuBar {
             try {
               wrn = Double.parseDouble(txtWRN.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || wrn < 0 || wrn > 2) txtWRN.setBackground(Color.RED);
@@ -6070,7 +5941,6 @@ public class Menu extends JMenuBar {
               try {
                 pda = Double.parseDouble(txtGfPDA.getText());
               } catch (NumberFormatException s) {
-                // TODO Auto-generated catch block
               }
               Lizzie.config.txtKataEnginePDA = String.valueOf(pda);
               if (EngineManager.isEngineGame) {
@@ -6124,7 +5994,6 @@ public class Menu extends JMenuBar {
             try {
               pda = Double.parseDouble(txtGfPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -6153,7 +6022,6 @@ public class Menu extends JMenuBar {
             try {
               pda = Double.parseDouble(txtGfPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -6182,7 +6050,6 @@ public class Menu extends JMenuBar {
             try {
               pda = Double.parseDouble(txtGfPDA.getText());
             } catch (NumberFormatException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error || pda > 3 || pda < -3) {
@@ -6396,7 +6263,6 @@ public class Menu extends JMenuBar {
   }
 
   public void updateRecentFileMenu() {
-    // TODO Auto-generated method stub
     SwingUtilities.invokeLater(
         new Runnable() {
           public void run() {
@@ -6422,7 +6288,6 @@ public class Menu extends JMenuBar {
   }
 
   private void resetMinPlayoutsForNextMove() {
-    // TODO Auto-generated method stub
     minPlayoutsForNextMove.setText(
         resourceBundle.getString("Menu.minPlayoutsForNextMove")
             + Lizzie.config.minPlayoutsForNextMove
@@ -6723,7 +6588,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     iconDown = new ImageIcon();
@@ -6733,7 +6597,6 @@ public class Menu extends JMenuBar {
               .getScaledInstance(
                   Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     btnDoubleMenu = new JFontButton();
@@ -7013,7 +6876,6 @@ public class Menu extends JMenuBar {
                     try {
                       Thread.sleep(100);
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -7049,7 +6911,6 @@ public class Menu extends JMenuBar {
             try {
               Lizzie.config.save();
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -7176,7 +7037,6 @@ public class Menu extends JMenuBar {
                     try {
                       Thread.sleep(100);
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -7283,7 +7143,6 @@ public class Menu extends JMenuBar {
     clearSelect.setToolTipText(resourceBundle.getString("Menu.clearSelectToolTipText"));
     toggleShowForce(Lizzie.config.showForceMenu);
     // add(clearSelect);
-    //
     if (!Lizzie.config.showDoubleMenu) {
       doubleMenuNewGame = new JFontButton(resourceBundle.getString("Menu.newGameBtn"));
       doubleMenuPauseGame = new JFontButton(resourceBundle.getString("Menu.pauseGameBtn"));
@@ -7457,7 +7316,6 @@ public class Menu extends JMenuBar {
       doubleMenuResign.setMargin(new Insets(0, 0, 0, 0));
       if (!first) toggleDoubleMenuGameStatus();
     }
-    //
     // add(komiPanel);
     if (!first) doubleMenu(false);
   }
@@ -7626,7 +7484,6 @@ public class Menu extends JMenuBar {
                 .getScaledInstance(
                     Config.menuIconSize, Config.menuIconSize, java.awt.Image.SCALE_SMOOTH));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -8081,7 +7938,6 @@ public class Menu extends JMenuBar {
                         : (Lizzie.config.isFrameFontMiddle() ? 25 : 30),
                     java.awt.Image.SCALE_SMOOTH));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -8176,7 +8032,6 @@ public class Menu extends JMenuBar {
                       try {
                         Thread.sleep(100);
                       } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                       if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -8341,7 +8196,6 @@ public class Menu extends JMenuBar {
                       try {
                         Thread.sleep(100);
                       } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                       if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -8856,7 +8710,6 @@ public class Menu extends JMenuBar {
           new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              // TODO Auto-generated method stub
               Lizzie.config.toggleDisableMoveRankInOrigin();
             }
           });
@@ -9017,7 +8870,6 @@ public class Menu extends JMenuBar {
   }
 
   private void pauseGame() {
-    // TODO Auto-generated method stub
     if (EngineManager.isEngineGame) {
       LizzieFrame.toolbar.btnEnginePkStop.doClick();
       return;
@@ -9375,7 +9227,6 @@ public class Menu extends JMenuBar {
   }
 
   public void setPdaAndWrnByEngineForDouble() {
-    // TODO Auto-generated method stub
     boolean needRemoveS = true;
     if (showPDA
         || (EngineManager.isEngineGame
@@ -10181,14 +10032,12 @@ public class Menu extends JMenuBar {
   }
 
   public void setWrnText(double wrn) {
-    // TODO Auto-generated method stub
     ShouldIgnoreDtChange = true;
     txtWRN.setText(String.valueOf(wrn));
     ShouldIgnoreDtChange = false;
   }
 
   public void setUseWrn(boolean use, String wrn) {
-    // TODO Auto-generated method stub
     ShouldIgnoreDtChange = true;
     txtWRN.setText(String.valueOf(wrn));
     ShouldIgnoreDtChange = false;
@@ -10197,7 +10046,6 @@ public class Menu extends JMenuBar {
   }
 
   public void setUseGfPda(boolean use, String pda) {
-    // TODO Auto-generated method stub
     ShouldIgnoreDtChange = true;
     txtGfPDA.setText(String.valueOf(pda));
     ShouldIgnoreDtChange = false;

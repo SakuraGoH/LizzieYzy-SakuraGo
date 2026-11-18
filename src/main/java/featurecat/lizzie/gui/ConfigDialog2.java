@@ -1221,7 +1221,6 @@ public class ConfigDialog2 extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     JButton btnNewButton = new JButton(iconSettings); // $NON-NLS-1$
@@ -1245,7 +1244,6 @@ public class ConfigDialog2 extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.advanceTimeSettings = chckbxNewCheckBox.isSelected();
             if (Lizzie.config.advanceTimeSettings) {
               txtMaxGameThinkingTime.setEnabled(false);
@@ -1366,7 +1364,6 @@ public class ConfigDialog2 extends JDialog {
       btnLizzieCacheIcon.setImage(
           ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -1987,7 +1984,6 @@ public class ConfigDialog2 extends JDialog {
 
   private void loadThemeTab() {
     if (tabbedPane.getSelectedIndex() != 1) return;
-    // TODO Auto-generated method stub
     File themeFolder = new File(Theme.pathPrefix);
     File[] themes =
         themeFolder.listFiles(
@@ -2029,7 +2025,6 @@ public class ConfigDialog2 extends JDialog {
                       try {
                         currentRealPath = file.getCanonicalPath();
                       } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                       if (Utils.deleteDir(
@@ -2816,20 +2811,16 @@ public class ConfigDialog2 extends JDialog {
   }
 
   public void setChkSuggestionInfo() {
-    // TODO Auto-generated method stub
     chkShowWinrateInSuggestion.setSelected(Lizzie.config.showWinrateInSuggestion);
     chkShowPlayoutsInSuggestion.setSelected(Lizzie.config.showPlayoutsInSuggestion);
     chkShowScoremeanInSuggestion.setSelected(Lizzie.config.showScoremeanInSuggestion);
   }
 
   //  class ComsWorker extends SwingWorker<Void, Integer> {
-  //
   //    private JDialog owner;
-  //
   //    public ComsWorker(JDialog owner) {
   //      this.owner = owner;
   //    }
-  //
   //    @Override
   //    protected Void doInBackground() throws Exception {
 

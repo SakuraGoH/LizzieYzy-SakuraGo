@@ -484,7 +484,6 @@ public class LizzieFrame extends JFrame {
   public static boolean isallow = false;
   public static boolean isKeepForcing = false;
   public static boolean isTempForcing = false;
-  public FoxKifuDownload foxKifuDownload;
   public int noneMaxX, noneMaxY, noneMaxWidth, noneMaxHeight;
   private boolean restoreMaximized;
   private int lastNonIconifiedState = Frame.NORMAL;
@@ -685,7 +684,6 @@ public class LizzieFrame extends JFrame {
         new MouseWheelListener() {
           @Override
           public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
             if (e.getWheelRotation() > 0) {
               Input.redo();
             } else if (e.getWheelRotation() < 0) {
@@ -834,7 +832,6 @@ public class LizzieFrame extends JFrame {
         new MouseWheelListener() {
           @Override
           public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
             if (clickOrder != -1) {
               if (e.getWheelRotation() > 0) {
                 doBranch(1);
@@ -1110,7 +1107,6 @@ public class LizzieFrame extends JFrame {
               }
 
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -1164,7 +1160,6 @@ public class LizzieFrame extends JFrame {
               }
 
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -1614,7 +1609,6 @@ public class LizzieFrame extends JFrame {
   }
 
   private void setBlunderSort() {
-    // TODO Auto-generated method stub
     if (Lizzie.config.blunderTabelOnlyAfter) {
       blunderSortNum = Lizzie.config.blunderSortNumAF;
       blunderIsSorted = Lizzie.config.blunderIsSortedAF;
@@ -1801,7 +1795,6 @@ public class LizzieFrame extends JFrame {
   }
 
   private void setTabelStyle(JTable table, int column0, int column1, int column2) {
-    // TODO Auto-generated method stub
 
     table.getColumnModel().getColumn(0).setPreferredWidth(column0);
     table.getColumnModel().getColumn(2).setPreferredWidth(column1);
@@ -2122,7 +2115,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void setCommentPaneContent() {
-    // TODO Auto-generated method stub
     if (Lizzie.config.isShowingBlunderTabel) {
       blunderContentPane.setVisible(true);
       commentScrollPane.setVisible(false);
@@ -2340,7 +2332,6 @@ public class LizzieFrame extends JFrame {
     try {
       readBoard = new ReadBoard(true, true);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -2354,12 +2345,10 @@ public class LizzieFrame extends JFrame {
       try {
         readBoard = new ReadBoard(true, false);
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         try {
           readBoard = new ReadBoard(false, false);
         } catch (Exception e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
@@ -2374,12 +2363,10 @@ public class LizzieFrame extends JFrame {
       try {
         readBoard = new ReadBoard(true, false);
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         try {
           readBoard = new ReadBoard(false, false);
         } catch (Exception e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
@@ -2527,7 +2514,6 @@ public class LizzieFrame extends JFrame {
       return false;
     }
     //    if (isPlayingAgainstLeelaz) {
-    //
     //      return true;
     //    }
     // if (Lizzie.leelaz.isPondering()) {
@@ -2599,7 +2585,6 @@ public class LizzieFrame extends JFrame {
       try {
         tryString = SGFParser.saveToString(false);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       titleBeforeTrying = this.getTitle();
@@ -2676,7 +2661,6 @@ public class LizzieFrame extends JFrame {
       try {
         Lizzie.config.persist();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -2697,7 +2681,6 @@ public class LizzieFrame extends JFrame {
     try {
       zen = new KataEstimate(false);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -2993,7 +2976,6 @@ public class LizzieFrame extends JFrame {
       try {
         Lizzie.config.persist();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
@@ -3112,14 +3094,12 @@ public class LizzieFrame extends JFrame {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
             try {
               Thread.sleep(1000);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             Lizzie.leelaz.setGameStatus(true);
@@ -3225,7 +3205,6 @@ public class LizzieFrame extends JFrame {
             try {
               Thread.sleep(400);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             text.setEnabled(true);
@@ -3326,7 +3305,6 @@ public class LizzieFrame extends JFrame {
       try {
         SGFParser.save(Lizzie.board, curFile.getPath());
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
@@ -3365,7 +3343,6 @@ public class LizzieFrame extends JFrame {
             try {
               Thread.sleep(400);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             text.setEnabled(true);
@@ -3438,7 +3415,6 @@ public class LizzieFrame extends JFrame {
             try {
               Thread.sleep(400);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             text.setEnabled(true);
@@ -3686,7 +3662,6 @@ public class LizzieFrame extends JFrame {
             try {
               Thread.sleep(1000);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             canGoAfterload = true;
@@ -4732,7 +4707,6 @@ public class LizzieFrame extends JFrame {
 
             if (Lizzie.config.showStatus && !Lizzie.config.isMinMode() && !Lizzie.config.userKnownX)
               drawCommandString(g);
-            //
             //          if (boardPos != boardX + maxSize / 2) {
             //            boardPos = boardX + maxSize / 2;
             //            //   toolbar.setButtonLocation((int) (boardPos - 22));
@@ -5111,7 +5085,6 @@ public class LizzieFrame extends JFrame {
   }
 
   private String getLoadingText() {
-    // TODO Auto-generated method stub
     if (Lizzie.leelaz.isDownWithError)
       return Lizzie.resourceBundle.getString("LizzieFrame.display.down");
     else if (Lizzie.leelaz.isTuning)
@@ -7689,7 +7662,6 @@ public class LizzieFrame extends JFrame {
       try {
         JlabelSetText(commentTextArea, comment, width, commentScrollPane.getViewport().getHeight());
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       // commentTextArea.setText(comment);
@@ -7894,7 +7866,6 @@ public class LizzieFrame extends JFrame {
                     try {
                       Thread.sleep((int) (Lizzie.config.displayEntireVariationsFirstSeconds * 10));
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                   }
@@ -7904,7 +7875,6 @@ public class LizzieFrame extends JFrame {
                     try {
                       Thread.sleep((int) (Lizzie.config.replayBranchIntervalSeconds * 15));
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                   }
@@ -8261,7 +8231,6 @@ public class LizzieFrame extends JFrame {
       // else {
       // lastponder = true;
       // }
-      //
       if (!Lizzie.leelaz.isPondering() && Lizzie.board.getData().bestMoves.isEmpty())
         Lizzie.leelaz.ponder();
     } else {
@@ -8910,7 +8879,6 @@ public class LizzieFrame extends JFrame {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     String url =
@@ -8936,7 +8904,6 @@ public class LizzieFrame extends JFrame {
               | CefInitializationException
               | IOException
               | InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
         }
@@ -8981,7 +8948,6 @@ public class LizzieFrame extends JFrame {
                                   try {
                                     Thread.sleep(500);
                                   } catch (InterruptedException e1) {
-                                    // TODO Auto-generated catch block
                                     e1.printStackTrace();
                                   }
                                   renderVarTree(0, 0, false, true);
@@ -9050,7 +9016,6 @@ public class LizzieFrame extends JFrame {
                 }
 
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -9309,7 +9274,6 @@ public class LizzieFrame extends JFrame {
                     Thread.sleep(150);
                     renderVarTree(vw, vh, true, false);
                   } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     // e.printStackTrace();
                   }
                 }
@@ -9372,7 +9336,6 @@ public class LizzieFrame extends JFrame {
               completeDrawTree = true;
             } catch (Exception e) {
               completeDrawTree = true;
-              // TODO Auto-generated catch block
               // e.printStackTrace();
             }
           }
@@ -9511,7 +9474,6 @@ public class LizzieFrame extends JFrame {
                   try {
                     Thread.sleep(1000);
                   } catch (InterruptedException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                   }
                   jScrollBarH.setValue(9999);
@@ -9558,7 +9520,6 @@ public class LizzieFrame extends JFrame {
   //    }
   //    refresh();
   //  }
-  //
   //  public void handleAfterDrawGobanBottomSub() {
   //    if (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
   //        && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals("")) {
@@ -9670,7 +9631,6 @@ public class LizzieFrame extends JFrame {
         try {
           courseFile = file.getCanonicalPath();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         File autoSaveFile;
@@ -9683,7 +9643,6 @@ public class LizzieFrame extends JFrame {
         try {
           SGFParser.save(Lizzie.board, autoSaveFile.getPath());
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
@@ -9910,7 +9869,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void testFilter(Integer txtFieldIntValue) {
-    // TODO Auto-generated method stub
     filter20 = new GaussianFilter(txtFieldIntValue);
     redrawBackgroundAnyway = true;
     redrawTree = true;
@@ -10501,12 +10459,10 @@ public class LizzieFrame extends JFrame {
   }
 
   public void processIndependentSubboardMouseEntered() {
-    // TODO Auto-generated method stub
     independentSubBoard.mouseEntered();
   }
 
   public void processIndependentSubboardMouseExited() {
-    // TODO Auto-generated method stub
     independentSubBoard.mouseExited();
   }
 
@@ -10653,7 +10609,6 @@ public class LizzieFrame extends JFrame {
     try {
       Lizzie.config.saveTempBoard();
     } catch (IOException es) {
-      // TODO Auto-generated catch block
       es.printStackTrace();
     }
   }
@@ -10672,13 +10627,11 @@ public class LizzieFrame extends JFrame {
       SGFParser.save(Lizzie.board, "save" + File.separator + "game" + index + ".sgf");
       ImageIO.write((RenderedImage) saveMainBoardToImageOri(), "bmp", file);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     try {
       Lizzie.config.saveTempBoard();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -10698,13 +10651,11 @@ public class LizzieFrame extends JFrame {
       SGFParser.save(Lizzie.board, "save" + File.separator + "game" + index + ".sgf");
       ImageIO.write((RenderedImage) saveMainBoardToImageOri(), "bmp", file);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     try {
       Lizzie.config.saveTempBoard();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -10724,13 +10675,11 @@ public class LizzieFrame extends JFrame {
       SGFParser.save(Lizzie.board, "save" + File.separator + "autoGame" + index + ".sgf", true);
       ImageIO.write((RenderedImage) saveMainBoardToImageOri(), "bmp", file);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     try {
       Lizzie.config.saveTempBoard();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -10757,7 +10706,6 @@ public class LizzieFrame extends JFrame {
       Image img2 = zoomImage(img, 300, 300);
       boardImage.setIcon(new ImageIcon(img2));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     boardImage.setBounds(x, y, 300, 300);
@@ -10813,7 +10761,6 @@ public class LizzieFrame extends JFrame {
                 try {
                   Thread.sleep(500);
                 } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
                 if (bigBoardPanel != null && bigBoardPanel.isVisible())
@@ -10854,7 +10801,6 @@ public class LizzieFrame extends JFrame {
             try {
               Lizzie.config.saveTempBoard();
             } catch (IOException es) {
-              // TODO Auto-generated catch block
               es.printStackTrace();
             }
             Lizzie.config.showListPane = oriShowListPane;
@@ -10881,7 +10827,6 @@ public class LizzieFrame extends JFrame {
             try {
               Lizzie.config.saveTempBoard();
             } catch (IOException es) {
-              // TODO Auto-generated catch block
               es.printStackTrace();
             }
             saveTempGame(data);
@@ -11259,7 +11204,6 @@ public class LizzieFrame extends JFrame {
     addTempGameNew(newIndex, newX, newY, oriShowListPane, OriShowVariationGraph);
     if (height < newY + 345) height = newY + 345;
     //    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    //
     //    addTempGameOne(1, 0, 20, "未命名", df.format(new Date()));
     //    addTempGameOne(2, 310, 20, "未命名", df.format(new Date()));
 
@@ -11295,7 +11239,6 @@ public class LizzieFrame extends JFrame {
                             try {
                               Thread.sleep(800);
                             } catch (InterruptedException es) {
-                              // TODO Auto-generated catch block
                               es.printStackTrace();
                             }
                             if (e.getX() == bigBoardLastX && e.getY() == bigBoardLastY) {
@@ -11389,7 +11332,6 @@ public class LizzieFrame extends JFrame {
       BufferedImage img = ImageIO.read(file);
       img2 = zoomImage(img, 600, 600);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       return;
     }
     bigBoardPanel.setSize(600, 600);
@@ -11546,7 +11488,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void setMarkupType(boolean isMarkuping, int type) {
-    // TODO Auto-generated method stub
     this.isMarkuping = isMarkuping;
     // 0=无 1=字母 2=圈 3=X 4=方块 5=三角
     // 增加6=数字
@@ -11554,7 +11495,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public boolean tryToRemoveMarkup(int x, int y) {
-    // TODO Auto-generated method stub
     if (isMarkuping) {
       Optional<int[]> boardCoordinates;
       if (Lizzie.config.isThinkingMode()) {
@@ -11600,7 +11540,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public boolean tryToMarkup(int x, int y) {
-    // TODO Auto-generated method stub
     if (isMarkuping) {
       Optional<int[]> boardCoordinates;
       if (Lizzie.config.isThinkingMode()) {
@@ -11689,7 +11628,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void flashAnalyzeGameBatch(int firstMove, int lastMove, boolean isAllBranches) {
-    // TODO Auto-generated method stub
     Lizzie.config.analysisStartMove = firstMove;
     Lizzie.config.analysisEndMove = lastMove;
     isBatchAnalysisMode = true;
@@ -11721,7 +11659,6 @@ public class LizzieFrame extends JFrame {
       try {
         SGFParser.save(Lizzie.board, autoSaveFile.getPath());
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       analysisEngine.waitFrame.setVisible(false);
@@ -11766,7 +11703,6 @@ public class LizzieFrame extends JFrame {
               isAllGame ? -1 : Lizzie.config.analysisStartMove,
               isAllGame ? -1 : Lizzie.config.analysisEndMove);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
@@ -11927,7 +11863,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void clearMouseOverWinrateGraph() {
-    // TODO Auto-generated method stub
     if (winrateGraph.mouseOverNode != null) {
       winrateGraph.mouseOverNode = null;
       refresh();
@@ -11935,7 +11870,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void setFrameFontSize(int type) {
-    // TODO Auto-generated method stub
     switch (type) {
       case 0:
         Config.frameFontSize = 12;
@@ -11962,7 +11896,6 @@ public class LizzieFrame extends JFrame {
   //  }
 
   public void destroyEstimateEngine() {
-    // TODO Auto-generated method stub
     if (zen != null) {
       zen.isNormalEnd = true;
       if (zen.useJavaSSH) {
@@ -11977,14 +11910,12 @@ public class LizzieFrame extends JFrame {
   }
 
   public static void openSuggestionInfoCustom(Window owner) {
-    // TODO Auto-generated method stub
     SuggestionInfoOrderSettings suggestionInfoOrderSettings =
         new SuggestionInfoOrderSettings(owner);
     suggestionInfoOrderSettings.setVisible(true);
   }
 
   public void clearMouseOverCoordinate(boolean isIndependBoard) {
-    // TODO Auto-generated method stub
     if (isIndependBoard) {
       if (independentMainBoard != null)
         independentMainBoard.mouseOverCoordinate = outOfBoundCoordinate;
@@ -12054,7 +11985,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void clearSelectImage() {
-    // TODO Auto-generated method stub
     LizzieFrame.boardRenderer.removeSelectedRect();
     if (independentMainBoard != null) independentMainBoard.boardRenderer.removeSelectedRect();
   }
@@ -12176,7 +12106,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void drawScore(GroupInfo boardGroupInfo) {
-    // TODO Auto-generated method stub
     if (Lizzie.config.isFloatBoardMode() && independentMainBoard != null)
       this.independentMainBoard.boardRenderer.drawScore(boardGroupInfo);
     else boardRenderer.drawScore(boardGroupInfo);
@@ -12184,7 +12113,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void clearScore() {
-    // TODO Auto-generated method stub
     if (Lizzie.config.isFloatBoardMode() && independentMainBoard != null)
       this.independentMainBoard.boardRenderer.clearScore();
     else boardRenderer.clearScore();
@@ -12251,7 +12179,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void clearWRNforGame(boolean isGenmove) {
-    // TODO Auto-generated method stub
     if (isGenmove) {
       try {
         WRNValueBeforeGenmove = Double.parseDouble(menu.txtWRN.getText());
@@ -12305,7 +12232,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void restoreWRN(boolean isGenmove) {
-    // TODO Auto-generated method stub
     if (isGenmove) {
       menu.chkWRN.setEnabled(true);
       menu.txtWRN.setEnabled(true);
@@ -12334,7 +12260,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void refreshCurrentMove() {
-    // TODO Auto-generated method stub
     Lizzie.board.clearbestmoves();
     Lizzie.leelaz.sendCommand("clear_cache");
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -12342,7 +12267,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public String getPlayerName(boolean isBlack, int length) {
-    // TODO Auto-generated method stub
     String player =
         isBlack
             ? Lizzie.board.getHistory().getGameInfo().getPlayerBlack()
@@ -12365,7 +12289,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void tryToRefreshVariation() {
-    // TODO Auto-generated method stub
     boardRenderer.refreshVariation();
     if (Lizzie.config.isDoubleEngineMode()) boardRenderer2.refreshVariation();
   }
@@ -12390,7 +12313,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void toggleShowCandidates() {
-    // TODO Auto-generated method stub
     if (Lizzie.config.showBlackCandidates || Lizzie.config.showWhiteCandidates) {
       toolbar.setChkShowBlack(false);
       toolbar.setChkShowWhite(false);
@@ -12415,7 +12337,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void openCandidatesDelaySettings(Window owner) {
-    // TODO Auto-generated method stub
     SetDelayShowCandidates setDelayShowCandidates = new SetDelayShowCandidates(owner);
     setDelayShowCandidates.setVisible(true);
   }
@@ -12503,7 +12424,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void addContributeLine(String line, boolean stdout) {
-    // TODO Auto-generated method stub
     if (stdout) {
       Lizzie.gtpConsole.addLine(line + "\n");
       if (contributeView != null) contributeView.addLine(line + "\n");
@@ -12660,7 +12580,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void openController() {
-    // TODO Auto-generated method stub
     if (ctrl == null) {
       ctrl = new Controller(this);
       ctrl.setVisible(true);
@@ -12671,7 +12590,6 @@ public class LizzieFrame extends JFrame {
   }
 
   public void drawPainting() {
-    // TODO Auto-generated method stub
     new DrawPainting(
             Lizzie.frame.getX() + Lizzie.frame.getInsets().left,
             Lizzie.frame.getY() + Lizzie.frame.mainPanel.getY() + Lizzie.frame.getInsets().top,

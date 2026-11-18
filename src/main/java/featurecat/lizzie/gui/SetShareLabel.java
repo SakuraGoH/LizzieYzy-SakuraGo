@@ -113,7 +113,6 @@ public class SetShareLabel extends JDialog {
       saveButton.setBounds(94, 138, 66, 23);
       getContentPane().add(saveButton);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

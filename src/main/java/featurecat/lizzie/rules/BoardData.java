@@ -268,7 +268,6 @@ public class BoardData {
   }
 
   private void tryToLimitMoves(List<MoveData> moves, List<MoveData> lastMoves, boolean isMain) {
-    // TODO Auto-generated method stub
     List<MoveData> outOfRangeMoves = new ArrayList<>();
     if (Lizzie.config.limitMaxSuggestion > 0
         && !Lizzie.config.showNoSuggCircle

@@ -17,7 +17,6 @@ public class JFontLabel extends JLabel {
   }
 
   public JFontLabel(String text, int horizontalAlignment) {
-    // TODO Auto-generated constructor stub
     super();
     this.setHorizontalAlignment(horizontalAlignment);
     this.setText(text);

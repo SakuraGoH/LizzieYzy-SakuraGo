@@ -60,6 +60,8 @@ public class Board {
 
   /** 人机悔棋后，下一次落子强制成为新主分支（旧分支保留） */
   public boolean forceNewMainBranchOnNextPlace = false;
+  /** 引擎 genmove 结果落子时，禁止 Board.place 再次触发 genmove（否则会连下两手）。 */
+  public boolean suppressGenmoveOnPlace = false;
 
   private boolean forceRefresh;
   private boolean forceRefresh2;
@@ -348,7 +350,6 @@ public class Board {
     else return LizzieFrame.outOfBoundCoordinate;
     //    if (boardWidth > 25 || boardHeight > 25) {
     //      int coords[] = new int[2];
-    //
     //      int x = Integer.parseInt(name.replaceAll("\\(|\\)", "").split(",")[0]);
     //      int y = Integer.parseInt(name.replaceAll("\\(|\\)", "").split(",")[1]);
     //      coords[0] = x;
@@ -394,7 +395,6 @@ public class Board {
             return;
           }
         } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
           // e.printStackTrace();
           return;
         }
@@ -415,7 +415,6 @@ public class Board {
           return;
         }
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         // e.printStackTrace();
         return;
       }
@@ -626,7 +625,6 @@ public class Board {
     try {
       boardstatbeforeedit = SGFParser.saveToString(false);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     tempmovelist = getmovelistWithOutStartStone();
@@ -655,7 +653,6 @@ public class Board {
       try {
         boardstatafteredit = SGFParser.saveToString(false);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       tempmovelist2 = getMoveList();
@@ -672,7 +669,6 @@ public class Board {
       try {
         boardstatbeforeedit = SGFParser.saveToString(false);
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       tempmovelist = getMoveList();
@@ -1862,7 +1858,7 @@ public class Board {
         // 落子后轮到谁：白落子后轮到黑(true)，黑落子后轮到白(false)
         boolean blackToPlayAfterPlace = color.equals(Stone.BLACK);
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y), true, blackToPlayAfterPlace);
-        needGenmove = true;
+        needGenmove = !suppressGenmoveOnPlace;
       } else if (!Lizzie.frame.isPlayingAgainstLeelaz
           && !Lizzie.leelaz.isInputCommand
           && !EngineManager.isEngineGame) {
@@ -2382,7 +2378,6 @@ public class Board {
   }
 
   public void handleCandidatesDelay() {
-    // TODO Auto-generated method stub
     if (ShowCandidateSchedule != null) ShowCandidateSchedule.interrupt();
     if (Lizzie.config.delayShowCandidates) {
       Lizzie.frame.hideCandidates();
@@ -3130,7 +3125,6 @@ public class Board {
   public boolean inAnalysisMode() {
     return analysisMode;
   }
-  //
   //  public boolean inScoreMode() {
   //    return scoreMode;
   //  }
@@ -3159,7 +3153,6 @@ public class Board {
 
   //  public void resumePreviousGame() {
   //    try {
-  //
   //      SGFParser.loadFromString(Lizzie.config.persisted.getString("autosave"));
   //      while (nextMove()) ;
   //      Lizzie.board.setMovelistAll();
@@ -3675,7 +3668,6 @@ public class Board {
   }
 
   public int getMaxMoveNumber() {
-    // TODO Auto-generated method stub
     return history.mainTrunkLength();
   }
 
@@ -3786,7 +3778,6 @@ public class Board {
   }
 
   public MoveLinkedList getMoveLinkedListAfter(BoardHistoryNode node) {
-    // TODO Auto-generated method stub
     MoveLinkedList head = new MoveLinkedList();
     ArrayList<MoveLinkedList> tempHead = new ArrayList<MoveLinkedList>();
     getMoveLinkedListAfterHelper(node, head, tempHead);
@@ -3830,7 +3821,6 @@ public class Board {
 
   public void placeLinkedList(
       MoveLinkedList move, BoardHistoryNode node, boolean isFirst, int index) {
-    // TODO Auto-generated method stub
     if (node != null) {
       while (getHistory().getCurrentHistoryNode() != node) Lizzie.board.previousMove(false);
     }
@@ -3933,7 +3923,6 @@ public class Board {
 
   public MoveLinkedList getMainMoveLinkedListBetween(
       BoardHistoryNode startNode, BoardHistoryNode endNode) {
-    // TODO Auto-generated method stub
     MoveLinkedList head = new MoveLinkedList();
     MoveLinkedList returnHead = head;
     boolean needAddFirstNode = true;
@@ -3971,7 +3960,6 @@ public class Board {
   }
 
   public void placeLinkedListReverse(MoveLinkedList move) {
-    // TODO Auto-generated method stub
     while (move.previous.isPresent()) {
       if (!move.needSkip) {
         if (!move.isPass) {
@@ -4116,7 +4104,6 @@ public class Board {
   }
 
   public void playList(String moveList) {
-    // TODO Auto-generated method stub
     boolean oriPlaySound = Lizzie.config.playSound;
     Lizzie.config.playSound = false;
     String[] moves = moveList.split("_");
@@ -4134,7 +4121,6 @@ public class Board {
   }
 
   public void findMove(int[] coords) {
-    // TODO Auto-generated method stub
     BoardHistoryNode node = history.getCurrentHistoryNode();
     if (node.getData().lastMove.isPresent()
         && node.getData().lastMove.get()[0] == coords[0]
@@ -4270,8 +4256,8 @@ public class Board {
     }
     clearAfterMove();
 
-    // 2) 引擎局面与视图一致：clear_board + 按主分支顺序重放 goal 之前的落子
-    Lizzie.leelaz.sendCommand("clear_board");
+    // 2) 引擎局面与视图一致：先停止旧 genmove 并丢弃迟到应答，再清空重放
+    Lizzie.leelaz.resetForUndo();
     Lizzie.leelaz.komi(history.getGameInfo().getKomi());
 
     // 用 goal 所在主分支从 root 到 goal 的正序落子重放，避免 getmovelist 的逆序/起始子/pass 颜色问题
@@ -4504,7 +4490,6 @@ public class Board {
   }
 
   public void changeNextTurn() {
-    // TODO Auto-generated method stub
     if (Lizzie.leelaz.canAddPlayer) {
       getHistory().getCurrentHistoryNode().getData().blackToPlay =
           !getHistory().getCurrentHistoryNode().getData().blackToPlay;
@@ -4567,7 +4552,6 @@ public class Board {
   }
 
   public boolean isFirstWhiteNodeWithHandicap(BoardHistoryNode node) {
-    // TODO Auto-generated method stub
     if (node.getData().lastMove.isPresent() && node.getData().lastMoveColor != Stone.WHITE) {
       return false;
     }
@@ -4618,7 +4602,6 @@ public class Board {
             try {
               Thread.sleep(50);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             if (preMouseOnStone) {

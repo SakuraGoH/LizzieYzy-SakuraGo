@@ -641,7 +641,6 @@ public class NewEngineGameDialog extends JDialog {
     //      JFontLabel delay = new JFontLabel("延时(分):"); // $NON-NLS-1$
     //      delay.setBounds(269, 237, 60, 20);
     //      contentPanel.add(delay);
-    //
     //      textFieldDelay = new JFormattedTextField(FORMAT_HANDICAP);
     //      textFieldDelay.setBounds(324, 237, 40, 20);
     //      contentPanel.add(textFieldDelay);
@@ -702,7 +701,6 @@ public class NewEngineGameDialog extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     JFontButton aboutAdvanceTimeSettings = new JFontButton(iconSettings); // $NON-NLS-1$
@@ -728,7 +726,6 @@ public class NewEngineGameDialog extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             Lizzie.config.pkAdvanceTimeSettings = chkUseAdvanceTime.isSelected();
             if (Lizzie.config.pkAdvanceTimeSettings) {
               LizzieFrame.toolbar.chkenginePkTime.setEnabled(false);
@@ -926,7 +923,6 @@ public class NewEngineGameDialog extends JDialog {
   //  private void togglePlayerIsBlack() {
   //    JFontTextField humanTextField = playerIsBlack() ? textFieldBlack : textFieldWhite;
   //    JFontTextField computerTextField = playerIsBlack() ? textFieldWhite : textFieldBlack;
-  //
   //    humanTextField.setEnabled(true);
   //    humanTextField.setText(GameInfo.DEFAULT_NAME_HUMAN_PLAYER);
   //    computerTextField.setEnabled(false);
@@ -974,7 +970,6 @@ public class NewEngineGameDialog extends JDialog {
             && !LizzieFrame.toolbar.chkenginePkBatch.isSelected())
           Utils.showMsg(Lizzie.resourceBundle.getString("NewEngineGameDialog.multiSgfNotBatch"));
       }
-      //
       // LizzieFrame.toolbar.chkenginePkContinue.removeActionListener(chkEnginePkContinueListener);
       //  LizzieFrame.toolbar.chkenginePkBatch.removeActionListener(chkBatchGameListener);
       String playerBlack =
@@ -1102,7 +1097,6 @@ public class NewEngineGameDialog extends JDialog {
   }
 
   private void placeHandicap(int handicap) {
-    // TODO Auto-generated method stub
     switch (handicap) {
       case 2:
         Lizzie.board.getHistory().place(3, 15, Stone.BLACK);

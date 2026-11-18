@@ -112,10 +112,8 @@ public class BottomToolbar extends JPanel {
 
   //  public long pkBlackPlayouts = 0;
   //  public long pkWhitePlayouts = 0;
-  //
   //  public int pkBlackTimeAll = 0;
   //  public int pkWhiteTimeAll = 0;
-  //
   //  public int pkBlackWinAsBlack = 0;
   //  public int pkBlackWinAsWhite = 0;
   //  public int pkWhiteWinAsBlack = 0;
@@ -352,14 +350,12 @@ public class BottomToolbar extends JPanel {
     try {
       iconUp.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/up.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     iconDown = new ImageIcon();
     try {
       iconDown.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/down.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     detail = new JButton("");
@@ -508,7 +504,6 @@ public class BottomToolbar extends JPanel {
     //        && !Lizzie.config.useJavaLooks) {
     //      extraLength = 20;
     //    }
-    //
     //    if (Config.frameFontSize > 12) {
     //      extraLength += (Config.frameFontSize - 12) * 5;
     //    }
@@ -1084,27 +1079,16 @@ public class BottomToolbar extends JPanel {
           }
 
           @Override
-          public void mousePressed(MouseEvent e) {
-            // TODO Auto-generated method stub
-          }
+          public void mousePressed(MouseEvent e) {}
 
           @Override
-          public void mouseReleased(MouseEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void mouseReleased(MouseEvent e) {}
 
           @Override
-          public void mouseEntered(MouseEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void mouseEntered(MouseEvent e) {}
 
           @Override
-          public void mouseExited(MouseEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void mouseExited(MouseEvent e) {}
         });
     anaPanel = new JPanel();
     anaPanel.setLayout(null);
@@ -1412,7 +1396,6 @@ public class BottomToolbar extends JPanel {
                     try {
                       Thread.sleep(1000);
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                     if (Lizzie.config.autoReplayBranch) {
@@ -1947,7 +1930,6 @@ public class BottomToolbar extends JPanel {
     // enginePkPanel.add(lblenginePkAutosave);
     // chkenginePkAutosave.setBounds(515, 1, 20, 18);
     // lblenginePkAutosave.setBounds(535, 0, 50, 20);
-    //
     // chkenginePkAutosave.addActionListener(
     // new ActionListener() {
     // @Override
@@ -2159,13 +2141,11 @@ public class BottomToolbar extends JPanel {
   }
 
   public void setDetailIcon() {
-    // TODO Auto-generated method stub
     if (Lizzie.frame.toolbarHeight == 26) detail.setIcon(iconUp);
     else if (Lizzie.frame.toolbarHeight == 70) detail.setIcon(iconDown);
   }
 
   public void restShowDetail() {
-    // TODO Auto-generated method stub
     showDetail = Lizzie.config.showDetailedToolbarMenu && Lizzie.config.isChinese;
     detail.setVisible(this.showDetail);
     if (showDetail) leftMove.setBounds(Config.isScaled ? 20 : 19, 0, 20, 26);
@@ -2398,7 +2378,6 @@ public class BottomToolbar extends JPanel {
         try {
           SGFParser.save(Lizzie.board, autoSaveFile.getPath());
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         if (msg == null || !msg.isVisible()) {
@@ -2411,7 +2390,6 @@ public class BottomToolbar extends JPanel {
         try {
           courseFile = file.getCanonicalPath();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         String df = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
@@ -2424,7 +2402,6 @@ public class BottomToolbar extends JPanel {
         try {
           SGFParser.save(Lizzie.board, autoSaveFile.getPath());
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
         if (msg == null || !msg.isVisible()) {
@@ -2459,7 +2436,6 @@ public class BottomToolbar extends JPanel {
       try {
         SGFParser.save(Lizzie.board, autoSaveFile.getPath());
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       if (Lizzie.frame.Batchfiles.size() > (Lizzie.frame.BatchAnaNum + 1)) {

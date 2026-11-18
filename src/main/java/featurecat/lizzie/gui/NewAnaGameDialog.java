@@ -691,7 +691,6 @@ public class NewAnaGameDialog extends JDialog {
   //  private void togglePlayerIsBlack() {
   //    JFontTextField humanTextField = playerIsBlack() ? textFieldBlack : textFieldWhite;
   //    JFontTextField computerTextField = playerIsBlack() ? textFieldWhite : textFieldBlack;
-  //
   //    humanTextField.setEnabled(true);
   //    humanTextField.setText(GameInfo.DEFAULT_NAME_HUMAN_PLAYER);
   //    computerTextField.setEnabled(false);
@@ -702,7 +701,6 @@ public class NewAnaGameDialog extends JDialog {
   //    try {
   //      int handicap = FORMAT_HANDICAP.parse(textFieldHandicap.getText()).intValue();
   //      if (handicap < 0) throw new IllegalArgumentException();
-  //
   //      // textFieldKomi.setText(FORMAT_KOMI.format(GameInfo.DEFAULT_KOMI));
   //    } catch (ParseException | RuntimeException e) {
   //      // do not correct user mistakes
@@ -863,14 +861,12 @@ public class NewAnaGameDialog extends JDialog {
                 try {
                   Thread.sleep(100);
                 } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
               }
               try {
                 Thread.sleep(1000);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
               Lizzie.leelaz.setGameStatus(true);
@@ -934,7 +930,6 @@ public class NewAnaGameDialog extends JDialog {
   }
 
   private void placeHandicap(int handicap) {
-    // TODO Auto-generated method stub
     switch (handicap) {
       case 2:
         Lizzie.board.place(3, 15, Stone.BLACK);
@@ -1004,14 +999,11 @@ public class NewAnaGameDialog extends JDialog {
 
   //  public void setGameInfo(GameInfo gameInfo) {
   //    this.gameInfo = gameInfo;
-  //
   //    // textFieldBlack.setText(gameInfo.getPlayerBlack());
   //    // textFieldWhite.setText(gameInfo.getPlayerWhite());
   //   // textFieldHandicap.(FORMAT_HANDICAP.format(gameInfo.getHandicap()));
   //    textFieldKomi.setText(FORMAT_KOMI.format(gameInfo.getKomi()));
-  //
   //    // update player names
-  //
   //  }
 
   public boolean playerIsBlack() {

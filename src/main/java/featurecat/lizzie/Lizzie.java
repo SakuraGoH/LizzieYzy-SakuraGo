@@ -233,7 +233,6 @@ public class Lizzie {
             try {
               Thread.sleep(60);
             } catch (InterruptedException e2) {
-              // TODO Auto-generated catch block
               e2.printStackTrace();
             }
             try {
@@ -246,10 +245,8 @@ public class Lizzie {
                 Lizzie.engineManager = new EngineManager(Lizzie.config, -1, false);
                 //  frame.refresh();
               } catch (JSONException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
               } catch (IOException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
               }
             }
@@ -281,7 +278,6 @@ public class Lizzie {
               try {
                 frame.analysisEngine = new AnalysisEngine(true);
               } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }

@@ -164,7 +164,6 @@ public class SetLeelaEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditMem.isSelected()) {
               chkAutoLoadMem.setEnabled(true);
               txtMem.setEditable(true);
@@ -201,7 +200,6 @@ public class SetLeelaEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditVisits.isSelected()) {
               txtVisits.setEditable(true);
               chkAutoLoadVisits.setEnabled(true);
@@ -248,7 +246,6 @@ public class SetLeelaEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditLagbuffer.isSelected()) {
               txtLagbuffer.setEditable(true);
               chkAutoLoadLagbuffer.setEnabled(true);
@@ -294,7 +291,6 @@ public class SetLeelaEngines extends JDialog {
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
             if (chkEditResign.isSelected()) {
               txtResign.setEditable(true);
               chkAutoLoadResign.setEnabled(true);
@@ -341,7 +337,6 @@ public class SetLeelaEngines extends JDialog {
       int y = (int) screensize.getHeight() / 2 - this.getHeight() / 2;
       setLocation(x, y);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 

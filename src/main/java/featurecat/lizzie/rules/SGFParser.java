@@ -1012,7 +1012,6 @@ public class SGFParser {
       else startNode.getData().comment += "\n" + infoString;
     }
   }
-  //
   //  public static void appendTimeAndPlayouts() {
   //    appendGameTime();
   //    appendGamePlayouts();
@@ -1455,7 +1454,6 @@ public class SGFParser {
                 + Lizzie.resourceBundle.getString("SGFParse.seconds");
     }
   }
-  //
   //  public static void appendCommentForPk() {
   //	  appendComment();
   //  }
@@ -2298,7 +2296,6 @@ public class SGFParser {
   }
 
   private static String getPdaWrnString(double pda, double wrn) {
-    // TODO Auto-generated method stub
     String line = pda != 0 ? " " + Lizzie.resourceBundle.getString("SGFParse.pda") + pda : "";
     line += wrn != 0 ? " " + Lizzie.resourceBundle.getString("SGFParse.wrn") + wrn : "";
     return line;
@@ -2788,7 +2785,6 @@ public class SGFParser {
       }
       return parseResult(value);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return "";

@@ -22,26 +22,20 @@ public class InputIndependentSubboard implements KeyListener, MouseListener, Mou
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseReleased(MouseEvent e) {}
 
   @Override
   public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
     Lizzie.frame.processIndependentSubboardMouseEntered();
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
     Lizzie.frame.processIndependentSubboardMouseExited();
   }
 
   @Override
   public void keyPressed(KeyEvent e) {
-    // TODO Auto-generated method stub
     switch (e.getKeyCode()) {
       case VK_SPACE:
         Lizzie.frame.togglePonderMannul();
@@ -60,14 +54,8 @@ public class InputIndependentSubboard implements KeyListener, MouseListener, Mou
   }
 
   @Override
-  public void keyReleased(KeyEvent arg0) {
-    // TODO Auto-generated method stub
-
-  }
+  public void keyReleased(KeyEvent arg0) {}
 
   @Override
-  public void keyTyped(KeyEvent arg0) {
-    // TODO Auto-generated method stub
-
-  }
+  public void keyTyped(KeyEvent arg0) {}
 }

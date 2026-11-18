@@ -335,7 +335,6 @@ public class StatisticsThreshold extends JDialog {
     try {
       Lizzie.config.save();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     Lizzie.frame.refresh();

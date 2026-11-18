@@ -381,7 +381,6 @@ public class Leelaz {
                 true);
             LizzieFrame.openMoreEngineDialog();
           } catch (JSONException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
           }
         return;
@@ -404,7 +403,6 @@ public class Leelaz {
                   times++;
                   Thread.sleep(100);
                 } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                 }
               }
@@ -434,7 +432,6 @@ public class Leelaz {
               try {
                 Thread.sleep(500);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
               sendCommand("name");
@@ -499,7 +496,6 @@ public class Leelaz {
               try {
                 Thread.sleep(100);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -840,7 +836,6 @@ public class Leelaz {
                         if (i > 19) break;
                         Thread.sleep(50);
                       } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                     }
@@ -1051,7 +1046,6 @@ public class Leelaz {
   }
 
   private void checkNameAndVersion(String[] params) {
-    // TODO Auto-generated method stub
     if (isCheckingName) {
       noAnalyze = false;
       isCheckingName = false;
@@ -1105,7 +1099,6 @@ public class Leelaz {
                   try {
                     Thread.sleep(5000);
                   } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
                   isCheckingPda = false;
@@ -1200,7 +1193,6 @@ public class Leelaz {
   }
 
   private void checkForGomokuFullBoard(boolean isGenmove) {
-    // TODO Auto-generated method stub
     if (!Lizzie.config.noCapture) return;
     Stone[] stones = Lizzie.board.getData().stones;
     for (Stone stone : stones) {
@@ -1358,7 +1350,6 @@ public class Leelaz {
                           if (i > 19) break;
                           Thread.sleep(50);
                         } catch (InterruptedException e) {
-                          // TODO Auto-generated catch block
                           e.printStackTrace();
                         }
                       }
@@ -1639,10 +1630,12 @@ public class Leelaz {
     if (body.equalsIgnoreCase("pass")) {
       notPondering();
       suppressPlayCommandOnGenmove = true;
+      Lizzie.board.suppressGenmoveOnPlace = true;
       try {
         placeAtMainEndKeepViewForPass();
       } finally {
         suppressPlayCommandOnGenmove = false;
+        Lizzie.board.suppressGenmoveOnPlace = false;
       }
       LizzieFrame.menu.toggleEngineMenuStatus(false, false);
       isThinking = false;
@@ -1653,10 +1646,12 @@ public class Leelaz {
     if (coords.isPresent()) {
       notPondering();
       suppressPlayCommandOnGenmove = true;
+      Lizzie.board.suppressGenmoveOnPlace = true;
       try {
         placeAtMainEndKeepView(coords.get()[0], coords.get()[1]);
       } finally {
         suppressPlayCommandOnGenmove = false;
+        Lizzie.board.suppressGenmoveOnPlace = false;
       }
       LizzieFrame.menu.toggleEngineMenuStatus(false, false);
     }
@@ -1732,7 +1727,6 @@ public class Leelaz {
   }
 
   private void showStopPonderTips() {
-    // TODO Auto-generated method stub
     if (!Lizzie.config.showPonderLimitedTips) return;
     if (!showStopTips) return;
     showStopTips = false;
@@ -1844,7 +1838,6 @@ public class Leelaz {
   }
 
   private boolean notifyAnaResign(boolean isResgined) {
-    // TODO Auto-generated method stub
     if (isResgined) {
       Lizzie.frame.togglePonderMannul();
       Utils.showMsg(oriEnginename + " " + Lizzie.resourceBundle.getString("Leelaz.resign"));
@@ -1876,7 +1869,6 @@ public class Leelaz {
   }
 
   private void nofityDiffAna() {
-    // TODO Auto-generated method stub
     if (this != Lizzie.leelaz) return;
     if (Lizzie.config.autoAnaDiffFirstPlayouts > 0) {
       if (!bestMoves.isEmpty()
@@ -2228,13 +2220,11 @@ public class Leelaz {
         }
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   private void parseLineForError(String line) {
-    // TODO Auto-generated method stub
     if (!this.isLoaded) {
       if (line.toLowerCase().contains("cl_platform_not_found"))
         Utils.showMsgNoModal(Lizzie.resourceBundle.getString("Leelaz.openclPlatfromNotFound"));
@@ -2457,7 +2447,6 @@ public class Leelaz {
   }
 
   private void playPassInEngineGame() {
-    // TODO Auto-generated method stub
     played = true;
     Lizzie.board.pass();
     boolean isBlackEngine = currentEngineN == EngineManager.engineGameInfo.blackEngineIndex;
@@ -2677,7 +2666,6 @@ public class Leelaz {
                     try {
                       while (!isResponseUpToDate()) Thread.sleep(10);
                     } catch (InterruptedException e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
                     }
                     if (Lizzie.board.getHistory().getCurrentHistoryNode().previous().isPresent()
@@ -2761,7 +2749,6 @@ public class Leelaz {
   //		      			//isClosing=true;
   //		      			Lizzie.frame.toolbar.stopAutoAna();
   //		      			//Lizzie.frame.addInput();
-  //
   //		      //			}
   //	}
 
@@ -3292,6 +3279,21 @@ public class Leelaz {
     currentCmdNum = Math.max(cmdNumber - 2, currentCmdNum);
   }
 
+  /** 人机对弈悔棋前重置引擎：停止当前 genmove/分析，丢弃等待中的 genmove 应答，再清空棋盘。 避免悔棋后旧 genmove 结果迟到，落到新局面上造成非法落子。 */
+  public void resetForUndo() {
+    synchronized (this) {
+      waitingGenmoveResponse = false;
+      suppressPlayCommandOnGenmove = false;
+      sendCommand("stop");
+      sendCommand("clear_board");
+      bestMoves = new ArrayList<>();
+      currentTotalPlayouts = 0;
+      engineFollowsView = true;
+      isPondering = false;
+      currentCmdNum = Math.max(cmdNumber - 2, currentCmdNum);
+    }
+  }
+
   public void undo() {
     undo(false, false);
   }
@@ -3542,7 +3544,6 @@ public class Leelaz {
   //		//isModifying=true;
   //	//	ignoreCmdNumber=cmdNumber;
   //	}
-  //
   //	public void setModifyEnd(boolean fromBoard) {
   //	//	isModifying=false;
   //	//	if(fromBoard)
@@ -3699,7 +3700,6 @@ public class Leelaz {
   //	public String currentWeight() {
   //		return currentWeight;
   //	}
-  //
   //	public String currentShortWeight() {
   //		if (currentWeight != null && currentWeight.length() > 18) {
   //			return currentWeight.substring(0, 16) + "..";
@@ -3722,7 +3722,6 @@ public class Leelaz {
   //	public void toggleGtpConsole() {
   //		gtpConsole = !gtpConsole;
   //	}
-  //
   private void setLeelaSaiEnginePara() {
     if (Lizzie.config.chkLzsaiEngineMem && Lizzie.config.autoLoadLzsaiEngineMem)
       sendCommand(
@@ -3749,7 +3748,6 @@ public class Leelaz {
       try {
         this.wrn = Double.parseDouble(Lizzie.config.autoLoadTxtKataEngineWRN);
       } catch (NumberFormatException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         return;
       }
@@ -3766,7 +3764,6 @@ public class Leelaz {
   }
 
   public void toggleHeatmap(boolean bySpace) {
-    // TODO Auto-generated method stub
     if (Lizzie.frame.isPlayingAgainstLeelaz) return;
     if (EngineManager.isEmpty) {
       Lizzie.frame.togglePolicy();
@@ -3813,7 +3810,6 @@ public class Leelaz {
   }
 
   public void toggleHeatmapSub(boolean bySpace) {
-    // TODO Auto-generated method stub
     if (isKatago && !bySpace) {
       if (isheatmap) {
         if (iskataHeatmapShowOwner) {
@@ -3867,7 +3863,6 @@ public class Leelaz {
             try {
               Thread.sleep(30000);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             Lizzie.leelaz.getRcentLine = false;
@@ -3967,19 +3962,16 @@ public class Leelaz {
   }
 
   public synchronized void modifyStart() {
-    // TODO Auto-generated method stub
     this.cmdNumber++;
     this.modifyNumber++;
   }
 
   public synchronized void setModifyEnd() {
-    // TODO Auto-generated method stub
     cmdNumber -= modifyNumber;
     modifyNumber = 0;
   }
 
   private synchronized void calculateModifyNumber() {
-    // TODO Auto-generated method stub
     cmdNumber -= modifyNumber;
     modifyNumber = 0;
   }
@@ -4006,7 +3998,6 @@ public class Leelaz {
   }
 
   public void maybeAjustPDA(BoardHistoryNode node) {
-    // TODO Auto-generated method stub
     if (!isDymPda) return;
     if (Lizzie.board.isFirstWhiteNodeWithHandicap(node)) {
       if (Lizzie.config.chkAutoPDA) sendCommand(Lizzie.config.AutoPDA);

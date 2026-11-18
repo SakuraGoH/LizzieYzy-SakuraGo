@@ -89,7 +89,6 @@ public class EstimateResults extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/config.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     btnSettings = new JButton(iconSettings);
@@ -317,7 +316,6 @@ public class EstimateResults extends JDialog {
                 new Rectangle(
                     0, 0, cachedBackgroundImage.getWidth(), cachedBackgroundImage.getHeight()));
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         paint = null;
       }

@@ -81,7 +81,6 @@ public class ContributeEngine {
         File file = new File("");
         courseFile = file.getCanonicalPath();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       boolean useConfigFile = Lizzie.config.contributeConfigPath.trim().length() > 0;
@@ -261,7 +260,6 @@ public class ContributeEngine {
   }
 
   private void parseLine(String line) {
-    // TODO Auto-generated method stub
     // 2022-03-14 09:00:41+0800: KataGo v1.10.0
     if (!getVersion && line.contains("KataGo")) {
       String params[] = line.split(" ");
@@ -350,7 +348,6 @@ public class ContributeEngine {
   }
 
   private void parseTips(String line) {
-    // TODO Auto-generated method stub
     if (line.contains("Starting game")) {
       setTip(Lizzie.resourceBundle.getString("Contribute.tips.startingNewGame")); // ("开始新的一局...");
     }
@@ -483,7 +480,6 @@ public class ContributeEngine {
   }
 
   public void slowQuit() {
-    // TODO Auto-generated method stub
     // if (useProcessHandler) {
     if (!isSlowQuiting) {
       try {
@@ -491,7 +487,6 @@ public class ContributeEngine {
         outputStream.flush();
         isSlowQuiting = true;
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
@@ -738,7 +733,6 @@ public class ContributeEngine {
   }
 
   private String getModelName(String string) {
-    // TODO Auto-generated method stub
     String reulst = string;
     try {
       if (string.contains("-")) reulst = string.substring(string.indexOf("-") + 1);
@@ -834,7 +828,6 @@ public class ContributeEngine {
             try {
               Thread.sleep(300);
             } catch (InterruptedException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
             Lizzie.frame.renderVarTree(0, 0, true, false);
@@ -866,7 +859,6 @@ public class ContributeEngine {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     Utils.showMsg(
@@ -887,7 +879,6 @@ public class ContributeEngine {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     File autoSaveFile =
@@ -916,7 +907,6 @@ public class ContributeEngine {
       SGFParser.save(Lizzie.board, autoSaveFile.getPath());
       if (game.complete) game.saved = true;
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -927,7 +917,6 @@ public class ContributeEngine {
   }
 
   private void maybePlayLastMove(ContributeGameInfo game) {
-    // TODO Auto-generated method stub
     if (game.moveList != null && game.moveList.size() > 0) {
       ContributeMoveInfo move = game.moveList.get(game.moveList.size() - 1);
       BoardHistoryNode lastNode = Lizzie.board.getHistory().getMainEnd();
@@ -1086,7 +1075,6 @@ public class ContributeEngine {
                 Thread.sleep(50);
                 timeCount++;
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 break;
               }
               if (changeWatchingGameIndex >= 0) {
@@ -1134,7 +1122,6 @@ public class ContributeEngine {
           }
 
           private void changeGame(int index) {
-            // TODO Auto-generated method stub
             setGameToBoard(contributeGames.get(watchingGameIndex), watchingGameIndex, false);
             if (Lizzie.config.contributeWatchAlwaysLastMove) Lizzie.frame.lastMove();
           }
@@ -1144,12 +1131,10 @@ public class ContributeEngine {
   }
 
   public void setWatchGame(int index) {
-    // TODO Auto-generated method stub
     changeWatchingGameIndex = index;
   }
 
   public int getGameMaxIndex() {
-    // TODO Auto-generated method stub
     if (contributeGames == null || contributeGames.size() == 0) return 0;
     return contributeGames.size() - 1;
   }

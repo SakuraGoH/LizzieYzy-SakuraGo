@@ -156,7 +156,6 @@ public class EngineFailedMessage extends JDialog {
                 bw.close();
                 Runtime.getRuntime().exec("powershell /c start dignostic.bat");
               } catch (IOException s) {
-                // TODO Auto-generated catch block
                 s.printStackTrace();
               }
             }

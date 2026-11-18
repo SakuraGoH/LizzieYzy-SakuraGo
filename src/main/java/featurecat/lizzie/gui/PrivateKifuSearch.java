@@ -76,7 +76,6 @@ public class PrivateKifuSearch extends JFrame {
       this.setIconImage(ImageIO.read(MoreEngines.class.getResourceAsStream("/assets/logo.png")));
       setLocationRelativeTo(Lizzie.frame);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -698,7 +697,6 @@ class MyButtonCopyPriEditor extends AbstractCellEditor implements TableCellEdito
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -785,7 +783,6 @@ class MyButtonEditEditor extends AbstractCellEditor implements TableCellEditor {
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -839,10 +836,8 @@ class MyButtonOpenHtmlPriEditor extends AbstractCellEditor implements TableCellE
             try {
               desktop.browse(new URI(URL));
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             } catch (URISyntaxException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -864,7 +859,6 @@ class MyButtonOpenHtmlPriEditor extends AbstractCellEditor implements TableCellE
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -928,7 +922,6 @@ class MyButtonOpenPriEditor extends AbstractCellEditor implements TableCellEdito
                 socketGetFile.SocketGetFile(name, date, file);
               }
             } catch (UnsupportedEncodingException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -950,7 +943,6 @@ class MyButtonOpenPriEditor extends AbstractCellEditor implements TableCellEdito
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }

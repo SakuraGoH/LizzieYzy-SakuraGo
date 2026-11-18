@@ -197,7 +197,6 @@ public class RightClickMenu extends JPopupMenu {
       iconSearch.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/search.png")));
       iconRemovePoint.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/clear.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     // insertmode = new JFontMenuItem("进入插入棋子模式");

@@ -46,7 +46,6 @@ public class CheckVersion extends JDialog {
       int y = (int) screensize.getHeight() / 2 - this.getHeight() / 2;
       setLocation(x, y);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -111,10 +110,8 @@ public class CheckVersion extends JDialog {
               Desktop.getDesktop()
                   .browse(new URI("https://aistudio.baidu.com/aistudio/datasetdetail/116865"));
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             } catch (URISyntaxException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -150,10 +147,8 @@ public class CheckVersion extends JDialog {
             try {
               Desktop.getDesktop().browse(new URI("https://github.com/yzyray/lizzieyzy/releases"));
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             } catch (URISyntaxException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
             //            setVisible(false);

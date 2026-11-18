@@ -90,7 +90,6 @@ public class WaitForAnalysis extends JDialog {
             try {
               Thread.sleep(300);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             Lizzie.frame.flashAutoAnaSaveAndLoad();
@@ -102,7 +101,6 @@ public class WaitForAnalysis extends JDialog {
             try {
               Thread.sleep(1000);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             setVisible(false);

@@ -39,13 +39,10 @@ public class ReadBoardStream extends Thread {
           }
       }
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (JSONException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       // e.printStackTrace();
     }
   }
@@ -55,7 +52,6 @@ public class ReadBoardStream extends Thread {
       out.write((command + "\n").getBytes());
       out.flush();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       //  e.printStackTrace();
     }
   }

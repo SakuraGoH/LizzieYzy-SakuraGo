@@ -170,7 +170,6 @@ public class SubBoardRenderer {
   }
 
   private boolean maybeCleanBranch() {
-    // TODO Auto-generated method stub
     if ((Lizzie.board.getHistory().isBlacksTurn() && !Lizzie.config.showBlackCandidates)
         || (!Lizzie.board.getHistory().isBlacksTurn() && !Lizzie.config.showWhiteCandidates)) {
       clearBranch();
@@ -212,7 +211,6 @@ public class SubBoardRenderer {
   }
 
   private void drawPlay(Graphics2D g) {
-    // TODO Auto-generated method stub
     // if (Lizzie.frame.extraMode == 1) {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
@@ -777,7 +775,6 @@ public class SubBoardRenderer {
     branchOpt = Optional.of(branch);
     variationOpt = Optional.of(variation);
 
-    //
     //    List<String> variation = suggestedMove.get().variation;
     //    Branch branch = null;
     //    if (Lizzie.frame.toolbar.isEnginePk && Lizzie.frame.toolbar.isGenmove)

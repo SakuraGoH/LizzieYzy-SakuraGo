@@ -41,7 +41,6 @@ public class SetKataPDA extends JDialog {
     //    this.addWindowListener(
     //        new WindowAdapter() {
     //          public void windowClosing(WindowEvent e) {
-    //
     //            if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
     //            setVisible(false);
     //          }
@@ -335,7 +334,6 @@ public class SetKataPDA extends JDialog {
       int y = (int) screensize.getHeight() / 2 - this.getHeight() / 2;
       setLocation(x, y);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
   }

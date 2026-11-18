@@ -151,7 +151,6 @@ public class FloatBoard extends JDialog {
           ImageIO.read(getClass().getResourceAsStream("/assets/edit.png"))
               .getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -344,7 +343,6 @@ public class FloatBoard extends JDialog {
         new MouseWheelListener() {
           @Override
           public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
             if (e.getWheelRotation() > 0) {
               if (boardRenderer.isShowingBranch()) {
                 doBranch(1);
@@ -462,7 +460,6 @@ public class FloatBoard extends JDialog {
   }
 
   private void toggleHide() {
-    // TODO Auto-generated method stub
     hideSuggestion = !hideSuggestion;
     if (hideSuggestion) btnHideShow.setIcon(plus);
     else {
@@ -479,7 +476,6 @@ public class FloatBoard extends JDialog {
   }
 
   protected void reSetPos() {
-    // TODO Auto-generated method stub
     this.setPos(tempX, tempY, tempWidth, tempHeight, boardType);
   }
 
@@ -524,7 +520,6 @@ public class FloatBoard extends JDialog {
           Utils.zoomIn(20),
           posWidth - Utils.zoomIn(40),
           posHeight - Utils.zoomIn(40));
-    // TODO Auto-generated method stub
     if (!hideSuggestion || editMode) {
       Graphics2D g0 = (Graphics2D) cachedImage.getGraphics();
       boardRenderer.setLocation(Utils.zoomIn(20), Utils.zoomIn(20));
@@ -577,7 +572,6 @@ public class FloatBoard extends JDialog {
     thread.start();
   }
 
-  //
   //  private int[] convertmousexytocoords(int x, int y) {
   //    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
   //    if (boardCoordinates.isPresent()) {
@@ -729,7 +723,6 @@ public class FloatBoard extends JDialog {
   }
 
   public void setPos(int x, int y, int width, int height, int boardType) {
-    // TODO Auto-generated method stub
     if (width <= 0 || height <= 0) {
       setVisible(false);
       return;
@@ -777,13 +770,11 @@ public class FloatBoard extends JDialog {
   //  }
 
   public void setBoardType() {
-    // TODO Auto-generated method stub
     if (isScaled && boardType == 1) this.boardRenderer.boardType = -1;
     else this.boardRenderer.boardType = boardType;
   }
 
   public void setPonderState(boolean isPondering) {
-    // TODO Auto-generated method stub
     if (isPondering) btnStopGo.setIcon(toStop);
     else btnStopGo.setIcon(toPlay);
   }

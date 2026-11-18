@@ -150,7 +150,6 @@ public class BoardRenderer {
   private String nextBlunderScore;
 
   public void setOrder(int index) {
-    // TODO Auto-generated method stub
     boardIndex = index;
   }
 
@@ -1449,7 +1448,6 @@ public class BoardRenderer {
         try {
           latch.await();
         } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
@@ -2167,7 +2165,6 @@ public class BoardRenderer {
   }
 
   private void drawPvVisits(Graphics2D g, int stoneX, int stoneY, int pvVisits, int mvNum) {
-    // TODO Auto-generated method stub
     g.setColor(Color.ORANGE);
     if (pvVisits >= 1000)
       g.fillRect(
@@ -2202,7 +2199,6 @@ public class BoardRenderer {
 
   private void drawLastMovePvVisits(
       Graphics2D g, int stoneX, int stoneY, int pvVisits, int moveNum) {
-    // TODO Auto-generated method stub
     g.setColor(Color.ORANGE);
     if (pvVisits >= 1000)
       g.fillRect(
@@ -3083,7 +3079,6 @@ public class BoardRenderer {
   }
 
   private void drawOrder(Graphics2D g, int x, int y, int order, boolean blackToPlay) {
-    // TODO Auto-generated method stub
     if (shouldShowPreviousBestMoves()) blackToPlay = !blackToPlay;
     drawStringForOrder(
         g,
@@ -3379,7 +3374,6 @@ public class BoardRenderer {
   }
 
   private void drawCircleBackground(Graphics2D g, int moveX, int moveY) {
-    // TODO Auto-generated method stub
     if (isFancyBoard) {
       g.setPaint(paint);
       Composite comp = g.getComposite();
@@ -3396,7 +3390,6 @@ public class BoardRenderer {
   }
 
   private boolean notEnoughSuggestionAt(int coordX, int coordY, List<MoveData> bestMoves) {
-    // TODO Auto-generated method stub
     if (bestMoves.isEmpty()) return true;
     if ((Lizzie.board.getHistory().isBlacksTurn() && Lizzie.config.showBlackCandidates)
         || (!Lizzie.board.getHistory().isBlacksTurn() && Lizzie.config.showWhiteCandidates)) {
@@ -3426,7 +3419,6 @@ public class BoardRenderer {
   }
 
   private void drawNextBlunderFirstMove(Graphics2D g) {
-    // TODO Auto-generated method stub
     int moveX = x + scaledMarginWidth + squareWidth * nextMoveX;
     int moveY = y + scaledMarginHeight + squareHeight * nextMoveY;
     if (Lizzie.config.usePureStone)
@@ -3518,7 +3510,6 @@ public class BoardRenderer {
       double score,
       boolean isGoodMove,
       double curMaxScore) {
-    // TODO Auto-generated method stub
     fillCircle(g, moveX, moveY, stoneRadius + 1);
     g.setStroke(new BasicStroke(Math.max(stoneRadius / 7f, 2f)));
     g.setColor(color);
@@ -3612,7 +3603,6 @@ public class BoardRenderer {
 
   private void drawNextMoveBlunder(
       Graphics2D g, Color color, int moveX, int moveY, double winrate, boolean isGoodMove) {
-    // TODO Auto-generated method stub
     fillCircle(g, moveX, moveY, stoneRadius + 1);
     g.setStroke(new BasicStroke(Math.max(stoneRadius / 7f, 2f)));
     g.setColor(color);

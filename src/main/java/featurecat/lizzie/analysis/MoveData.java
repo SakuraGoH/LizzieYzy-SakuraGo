@@ -117,7 +117,6 @@ public class MoveData {
   //    result.winrate = 50.0;
   //    result.oriwinrate = 50.0;
   //    result.playouts = -999;
-  //
   //    return result;
   //  }
 

@@ -380,7 +380,9 @@ public class EngineGameSession implements Runnable {
       data.bestMoves = new ArrayList<>(bestMoves);
       data.isKataData = engine.isKatago;
       data.engineName = engine.currentEnginename;
-      data.winrate = bestMoves.get(0).winrate;
+      // 保留这一步落子时的历史胜率，避免黑方思考时把上一步白棋的曲线点
+      // 改写成当前黑方胜率（双引擎对局中两者会被看成同一个值）。
+      if (data.winrate < -50) data.winrate = bestMoves.get(0).winrate;
       data.setPlayouts(MoveData.getPlayouts(bestMoves));
     }
     refreshIfActive();

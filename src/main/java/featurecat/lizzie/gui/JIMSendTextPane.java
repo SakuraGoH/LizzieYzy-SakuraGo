@@ -205,14 +205,10 @@ public class JIMSendTextPane extends JTextPane implements MouseListener {
   }
 
   @Override
-  public void mouseClicked(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseClicked(MouseEvent e) {}
 
   @Override
   public void mousePressed(MouseEvent e) {
-    // TODO Auto-generated method stub
     if (e.getButton() == MouseEvent.BUTTON3) {
       copy.setEnabled(isCanCopy());
       paste.setEnabled(isClipboardString());
@@ -222,20 +218,11 @@ public class JIMSendTextPane extends JTextPane implements MouseListener {
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseReleased(MouseEvent e) {}
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseExited(MouseEvent e) {}
 }

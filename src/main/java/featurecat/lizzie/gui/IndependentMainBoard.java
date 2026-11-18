@@ -123,7 +123,6 @@ public class IndependentMainBoard extends JFrame {
     try {
       lock.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/Locked.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -132,7 +131,6 @@ public class IndependentMainBoard extends JFrame {
     try {
       unLock.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/Unlocked.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     lockUnlock = new JButton();
@@ -181,7 +179,6 @@ public class IndependentMainBoard extends JFrame {
     try {
       closeIcon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/close.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -223,7 +220,6 @@ public class IndependentMainBoard extends JFrame {
 
       topIcon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/top.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -232,7 +228,6 @@ public class IndependentMainBoard extends JFrame {
     try {
       btm.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/btm.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -452,7 +447,6 @@ public class IndependentMainBoard extends JFrame {
         new MouseWheelListener() {
           @Override
           public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
 
             if (e.getWheelRotation() > 0) {
               if (boardRenderer.isShowingBranch()) {
@@ -633,7 +627,6 @@ public class IndependentMainBoard extends JFrame {
   }
 
   protected void paintButton(Graphics g) {
-    // TODO Auto-generated method stub
     Graphics2D g1 = (Graphics2D) g;
     final AffineTransform t = g1.getTransform();
     t.setToScale(1, 1);
@@ -674,7 +667,6 @@ public class IndependentMainBoard extends JFrame {
     int width = Utils.zoomOut(mainPanel.getWidth());
     int height = Utils.zoomOut(mainPanel.getHeight());
     BufferedImage cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
-    // TODO Auto-generated method stub
     Graphics2D g0 = (Graphics2D) cachedImage.getGraphics();
 
     boardRenderer.setLocation(0, 0);
@@ -910,7 +902,6 @@ public class IndependentMainBoard extends JFrame {
       return false;
     }
     //    if (isPlayingAgainstLeelaz) {
-    //
     //      return true;
     //    }
     //    if (Lizzie.leelaz.isPondering()) {
@@ -1048,7 +1039,6 @@ public class IndependentMainBoard extends JFrame {
   }
 
   private boolean tryToMarkup(int x, int y) {
-    // TODO Auto-generated method stub
     if (Lizzie.frame.isMarkuping) {
       Optional<int[]> boardCoordinates;
       boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
@@ -1107,7 +1097,6 @@ public class IndependentMainBoard extends JFrame {
   }
 
   private boolean tryToRemoveMarkup(int x, int y) {
-    // TODO Auto-generated method stub
     if (Lizzie.frame.isMarkuping) {
       Optional<int[]> boardCoordinates;
       boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);

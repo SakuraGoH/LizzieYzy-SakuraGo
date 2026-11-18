@@ -46,8 +46,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
   @Override
   public Dimension getPreferredSize(JComponent c) {
 
-    // TODO Auto-generated method stub
-
     c.setPreferredSize(new Dimension(9, 9));
 
     return super.getPreferredSize(c);
@@ -60,23 +58,18 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
     Graphics2D g2 = (Graphics2D) g;
 
     //  判断滚动条是垂直的 还是水平的
-    //
     //        if (this.scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-    //
     //          // 设置画笔
-    //
     //          gp =
     //              new GradientPaint(
     //                  0, 0, new Color(80, 80, 80), 0,0, new Color(80, 80, 80));
     //        }
-    //
     //        if (this.scrollbar.getOrientation() == JScrollBar.HORIZONTAL) {
 
     //    gp =
     //        new GradientPaint(
     //            0, 0, new Color(80, 80, 80), 0, trackBounds.height, new Color(80, 80, 80));
     // //      }
-    //
     //    g2.setPaint(gp);
     g2.setColor(new Color(0, 0, 0));
     // 填充Track
@@ -146,7 +139,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
   //    int[] yPoints = {centerY, centerY + 5, centerY + 5};
   //    g.fillPolygon(xPoints, yPoints, 3);
   //  }
-  //
   //  private void drawPolygonDown(Graphics2D g, int centerX, int centerY) {
   //    int[] xPoints = {centerX, centerX - 6, centerX + 6};
   //    int[] yPoints = {centerY, centerY - 5, centerY - 5};
@@ -161,7 +153,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
       try {
         down.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallDown.png")));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       JButton button = new JButton(down);
@@ -175,7 +166,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
       try {
         down.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallRight.png")));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       JButton button = new JButton(down);
@@ -198,7 +188,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
       try {
         up.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallUp.png")));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       JButton button = new JButton(up);
@@ -216,7 +205,6 @@ public class DemoScrollBarUI extends BasicScrollBarUI {
       try {
         up.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/smallLeft.png")));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
       JButton button = new JButton(up);

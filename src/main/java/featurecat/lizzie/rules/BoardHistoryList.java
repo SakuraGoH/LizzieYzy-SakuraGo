@@ -277,7 +277,6 @@ public class BoardHistoryList {
   //    }
   //    return head;
   //  }
-  //
   public BoardHistoryNode getFirstAnalyzedNode2() {
     BoardHistoryNode node = head;
     if (!node.getData().bestMoves2.isEmpty()) return node;
@@ -588,10 +587,8 @@ public class BoardHistoryList {
   //  public void addStone(int x, int y, Stone color) {
   //    synchronized (this) {
   //      if (!Board.isValid(x, y) || this.getStones()[Board.getIndex(x, y)] != Stone.EMPTY) return;
-  //
   //      Stone[] stones = this.getData().stones;
   //      Zobrist zobrist = this.getData().zobrist;
-  //
   //      // set the stone at (x, y) to color
   //      stones[Board.getIndex(x, y)] = color;
   //      zobrist.toggleStone(x, y, color);
@@ -712,7 +709,6 @@ public class BoardHistoryList {
   }
 
   public String getCurrentTurnPlayerShortName() {
-    // TODO Auto-generated method stub
     String name;
     if (isBlacksTurn()) {
       name = getGameInfo().getPlayerBlack();

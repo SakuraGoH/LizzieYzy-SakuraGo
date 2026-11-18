@@ -46,7 +46,6 @@ public class SetMatchAiPara extends JDialog {
             ImageIO.read(getClass().getResourceAsStream("/assets/matchform.png"))
                 .getScaledInstance(708, 96, java.awt.Image.SCALE_SMOOTH));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
@@ -55,7 +54,6 @@ public class SetMatchAiPara extends JDialog {
             ImageIO.read(getClass().getResourceAsStream("/assets/matchformeng.png"))
                 .getScaledInstance(708, 96, java.awt.Image.SCALE_SMOOTH));
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }

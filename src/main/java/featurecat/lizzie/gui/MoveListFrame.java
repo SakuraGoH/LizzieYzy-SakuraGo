@@ -942,10 +942,7 @@ public class MoveListFrame extends JFrame {
           }
 
           @Override
-          public void focusLost(FocusEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void focusLost(FocusEvent e) {}
         });
 
     winrateDiffRange2.addFocusListener(
@@ -957,10 +954,7 @@ public class MoveListFrame extends JFrame {
           }
 
           @Override
-          public void focusLost(FocusEvent e) {
-            // TODO Auto-generated method stub
-
-          }
+          public void focusLost(FocusEvent e) {}
         });
 
     Document dtRange1 = winrateDiffRange1.getDocument();
@@ -973,7 +967,6 @@ public class MoveListFrame extends JFrame {
               range1 = FORMAT_INT.parse(winrateDiffRange1.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -999,7 +992,6 @@ public class MoveListFrame extends JFrame {
               range1 = FORMAT_INT.parse(winrateDiffRange1.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -1025,7 +1017,6 @@ public class MoveListFrame extends JFrame {
               range1 = FORMAT_INT.parse(winrateDiffRange1.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -1055,7 +1046,6 @@ public class MoveListFrame extends JFrame {
               range2 = FORMAT_INT.parse(winrateDiffRange2.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -1081,7 +1071,6 @@ public class MoveListFrame extends JFrame {
               range2 = FORMAT_INT.parse(winrateDiffRange2.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -1107,7 +1096,6 @@ public class MoveListFrame extends JFrame {
               range2 = FORMAT_INT.parse(winrateDiffRange2.getText()).intValue();
 
             } catch (ParseException s) {
-              // TODO Auto-generated catch block
               error = true;
             }
             if (error) {
@@ -1465,7 +1453,6 @@ public class MoveListFrame extends JFrame {
               }
 
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -1493,7 +1480,6 @@ public class MoveListFrame extends JFrame {
               }
 
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -1521,7 +1507,6 @@ public class MoveListFrame extends JFrame {
               }
 
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -1837,7 +1822,6 @@ public class MoveListFrame extends JFrame {
   }
 
   private void applyChkPeriod() {
-    // TODO Auto-generated method stub
     if (chkCurrent.isSelected()) {
       Lizzie.config.moveListFilterCurrent = true;
       Lizzie.config.uiConfig.put("move-list-filter-current", Lizzie.config.moveListFilterCurrent);
@@ -1881,7 +1865,6 @@ public class MoveListFrame extends JFrame {
   }
 
   private void updateCurrentLastMove() {
-    // TODO Auto-generated method stub
     if ((showBranch.getSelectedIndex() == 0
             && Lizzie.board.getHistory().getCurrentHistoryNode().isMainTrunk())
         || showBranch.getSelectedIndex() == 1) {
@@ -1892,7 +1875,6 @@ public class MoveListFrame extends JFrame {
   }
 
   private void setFilterStatus() {
-    // TODO Auto-generated method stub
     if (Lizzie.config.moveListFilterCurrent) chkCurrent.setSelected(true);
     else if (Lizzie.config.matchAiFirstMove <= 1
         && Lizzie.config.matchAiLastMove == Lizzie.config.openingEndMove)
@@ -1917,14 +1899,12 @@ public class MoveListFrame extends JFrame {
   }
 
   private void updatePercentPlayouts() {
-    // TODO Auto-generated method stub
     boolean error = false;
     double percent = Lizzie.config.matchAiPercentsPlayouts;
     try {
       percent = FORMAT_PERCENT.parse(percentPlayouts.getText()).doubleValue();
 
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (percent > 100 || percent < 0) error = true;
@@ -1938,14 +1918,12 @@ public class MoveListFrame extends JFrame {
   }
 
   private void updateSuggestionMoves() {
-    // TODO Auto-generated method stub
     boolean error = false;
     int moves = Lizzie.config.matchAiMoves;
     try {
       moves = FORMAT_INT.parse(suggestionMoves.getText()).intValue();
 
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (moves < 1) error = true;
@@ -1959,13 +1937,11 @@ public class MoveListFrame extends JFrame {
   }
 
   private void customEndUpdate() {
-    // TODO Auto-generated method stub
     boolean error = false;
     int gameCustomEnd = Lizzie.config.gameStatisticsCustomEnd;
     try {
       gameCustomEnd = FORMAT_INT.parse(customEnd.getText()).intValue();
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (error) {
@@ -1980,13 +1956,11 @@ public class MoveListFrame extends JFrame {
   }
 
   private void customStartUpdate() {
-    // TODO Auto-generated method stub
     boolean error = false;
     int gameCustomStart = Lizzie.config.gameStatisticsCustomStart;
     try {
       gameCustomStart = FORMAT_INT.parse(customStart.getText()).intValue();
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (error) {
@@ -2001,13 +1975,11 @@ public class MoveListFrame extends JFrame {
   }
 
   private void middleEndMoveUpdate() {
-    // TODO Auto-generated method stub
     boolean error = false;
     int curParse2Move = Lizzie.config.middleEndMove;
     try {
       curParse2Move = FORMAT_INT.parse(middleEndMove.getText()).intValue();
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (error) {
@@ -2023,13 +1995,11 @@ public class MoveListFrame extends JFrame {
   }
 
   private void openingEndMoveUpdate() {
-    // TODO Auto-generated method stub
     boolean error = false;
     int curParse1Move = Lizzie.config.openingEndMove;
     try {
       curParse1Move = FORMAT_INT.parse(openingEndMove.getText()).intValue();
     } catch (ParseException s) {
-      // TODO Auto-generated catch block
       error = true;
     }
     if (error) {
@@ -2047,7 +2017,6 @@ public class MoveListFrame extends JFrame {
   protected void reSetLoc() {
     //	  bottomPanel.setPreferredSize(
     //	          new Dimension(getWidth(), isShowingWinrateGraph ? getHeight() / 4 + 95 : 100));
-    // TODO Auto-generated method stub
     if (Lizzie.config.isShowingMoveList) {
       topPanel.setVisible(true);
       bottomPanel.setPreferredSize(
@@ -5648,7 +5617,6 @@ public class MoveListFrame extends JFrame {
             break;
         }
 
-        //
         //      g.drawLine(
         //              posx + ((movenum + 2) * width / numMoves),
         //              posy
@@ -5661,7 +5629,6 @@ public class MoveListFrame extends JFrame {
         //                      0),
         //              posx + (movenum * width / numMoves),
         //              posy + height - Math.max(((int) (matchValue * height / 100) - 20), 0));
-        //
         node = node.previous().get();
         movenum--;
       }
@@ -5752,7 +5719,6 @@ public class MoveListFrame extends JFrame {
         g.drawLine(x, 0, x, posy + origParams[3]);
         g.setColor(Color.BLACK);
         g.drawString(moveNumString, x + 3, posy + this.origParams[3] - 10);
-        //
 
         if (mmovenum > 0) {
           x = posx + ((curMouseOverNode.getData().moveNumber - 1) * width / numMoves);
@@ -5763,7 +5729,6 @@ public class MoveListFrame extends JFrame {
           g.setColor(Color.BLACK);
           g.drawString(moveNumString, x + 3, posy + this.origParams[3] - 10);
         }
-        //
         g.setStroke(preStroke);
         if (lastOkMoveSave > 0 && !firstNodeAnalyzed) {
           g.setColor(Color.ORANGE);
@@ -5944,7 +5909,6 @@ public class MoveListFrame extends JFrame {
       bigMistakeInfo bigMistakeInfo,
       int index,
       boolean isScore) {
-    // TODO Auto-generated method stub
     if (index == mouseOverBigMistakeIndex) {
       g.setColor(Color.YELLOW);
       g.setStroke(
@@ -5981,7 +5945,6 @@ public class MoveListFrame extends JFrame {
         String.valueOf(bigMistakeInfo.moveNumber),
         width / 20 + index * width / 10 - widthFont / 2,
         height - 5);
-    //
     g.setFont(new Font(Config.sysDefaultFontName, Font.PLAIN, Config.frameFontSize));
     g.drawString(
         String.format(Locale.ENGLISH, "%.1f", bigMistakeInfo.diffWinrate) + (isScore ? "" : "%"),

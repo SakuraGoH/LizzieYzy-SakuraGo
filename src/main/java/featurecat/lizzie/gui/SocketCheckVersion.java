@@ -20,7 +20,6 @@ public class SocketCheckVersion {
   Socket socket = null;
 
   public void SocketCheckVersion(boolean isAutoCheck) {
-    // TODO Auto-generated method stub
     String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
     Lizzie.config.uiConfig.put("auto-check-date", date);
     BufferedReader br = null;
@@ -58,16 +57,13 @@ public class SocketCheckVersion {
                     socket.close();
                     //                    msg = new SMessage();
                     //                    msg.setMessage(
-                    //
                     // "检查更新失败...请重试或下载最新版Lizzie,链接:https://pan.baidu.com/s/1q615GHD62F92mNZbTYfcxA");
                     // msg.setVisible(true);
                     Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
                   } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -107,7 +103,6 @@ public class SocketCheckVersion {
             if (!isAutoCheck) {
               //              msg = new SMessage();
               //              msg.setMessage(
-              //
               // "检查更新失败,请重试或下载最新版Lizzie,链接:https://aistudio.baidu.com/aistudio/datasetdetail/116865");
               Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
             }
@@ -137,7 +132,6 @@ public class SocketCheckVersion {
           pw.close();
           socket.close();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       else {
@@ -146,7 +140,6 @@ public class SocketCheckVersion {
         if (!isAutoCheck) {
           //          msg = new SMessage();
           //          msg.setMessage(
-          //
           // "检查更新失败...请重试或下载最新版Lizzie,链接:https://pan.baidu.com/s/1q615GHD62F92mNZbTYfcxA");
           Utils.showMsg(Lizzie.resourceBundle.getString("Socket.connectFailed"));
         }

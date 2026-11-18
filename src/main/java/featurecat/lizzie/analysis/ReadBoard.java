@@ -247,7 +247,6 @@ public class ReadBoard {
       try {
         process = processBuilder.start();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         if (!usePipe) {
           Utils.showMsg(e.getLocalizedMessage());
           SMessage msg = new SMessage();
@@ -776,7 +775,6 @@ public class ReadBoard {
           try {
             Thread.sleep(500);
           } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
           }
           Lizzie.frame.lastMove();
@@ -801,7 +799,6 @@ public class ReadBoard {
   }
 
   private boolean isStoneDiff(int m, Stone[] stones, int x, int y) {
-    // TODO Auto-generated method stub
     Stone stone = stones[Board.getIndex(x, y)];
     if (m == 0 && stone != Stone.EMPTY) {
       if (Lizzie.frame.bothSync && lastMovePlayByLizzie) {
@@ -928,7 +925,6 @@ public class ReadBoard {
   }
 
   public void sendLossFocus() {
-    // TODO Auto-generated method stub
     if (!Lizzie.config.readBoardGetFocus) return;
     sendCommand("loss");
   }

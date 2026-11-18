@@ -13,7 +13,6 @@ public class MultiOutputStream extends OutputStream {
 
   @Override
   public void write(int b) throws IOException {
-    // TODO Auto-generated method stub
     outputStream1.write(b);
     outputStream2.write(b);
   }

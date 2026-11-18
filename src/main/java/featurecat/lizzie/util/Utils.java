@@ -774,7 +774,6 @@ public class Utils {
                 playVoice(File.separator + "sound" + File.separator + "Stone.wav", false);
               }
             } catch (Exception e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             msemaphoretryroom++;
@@ -788,7 +787,6 @@ public class Utils {
     try {
       playVoice(File.separator + "sound" + File.separator + seconds + ".wav", true);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -799,7 +797,6 @@ public class Utils {
     try {
       courseFile = file.getCanonicalPath();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     String filePath = courseFile + wav;
@@ -892,7 +889,6 @@ public class Utils {
   }
 
   public static void addNewThemeAs(String themeName) {
-    // TODO Auto-generated method stub
     try {
       copy("/assets/newtheme/black.png", "theme" + File.separator + themeName);
       copy("/assets/newtheme/white.png", "theme" + File.separator + themeName);
@@ -900,27 +896,22 @@ public class Utils {
       copy("/assets/newtheme/background.jpg", "theme" + File.separator + themeName);
       copy("/assets/newtheme/theme.txt", "theme" + File.separator + themeName);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   public static void copyCaptureTsumeGo() {
-    // TODO Auto-generated method stub
     try {
       copy("/assets/captureTsumeGo/CaptureTsumeGo1.2.jar", "captureTsumeGo");
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   public static void copyClockHelper() {
-    // TODO Auto-generated method stub
     try {
       copy("/assets/clockHelper/invisibleFrame.jar", "clockHelper");
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -934,24 +925,12 @@ public class Utils {
   }
 
   public static void copyReadBoardJava(String javaReadBoardName) {
-    // TODO Auto-generated method stub
     try {
       copy("/assets/readboard_java/" + javaReadBoardName, "readboard_java");
       copy("/assets/readboard_java/help.docx", "readboard_java");
       copy("/assets/readboard_java/help_en.docx", "readboard_java");
       copy("/assets/readboard_java/help_jp.docx", "readboard_java");
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-
-  public static void copyFoxReq() {
-    // TODO Auto-generated method stub
-    try {
-      copy("/assets/foxReq/FoxRequest.jar", "foxReq");
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -959,7 +938,6 @@ public class Utils {
   @SuppressWarnings("unchecked")
   public static List<MoveData> getBestMovesFromJsonArray(
       JSONArray moveInfos, boolean sideToMove, boolean isBlack) {
-    // TODO Auto-generated method stub
     ArrayList<MoveData> bestMoves = new ArrayList<MoveData>();
     for (int i = 0; i < moveInfos.length(); i++) {
       JSONObject moveInfo = moveInfos.getJSONObject(i);
@@ -1001,7 +979,6 @@ public class Utils {
 
   public static ArrayList<Double> getOwnershipArrayFromJsonArray(
       JSONArray ownerShipInfos, boolean isBlack) {
-    // TODO Auto-generated method stub
     try {
       List<Object> objectArray = ownerShipInfos.toList();
       ArrayList<Double> ownershipArray = new ArrayList<Double>();

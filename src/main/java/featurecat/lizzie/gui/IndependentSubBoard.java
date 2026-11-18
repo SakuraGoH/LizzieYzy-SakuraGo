@@ -86,7 +86,6 @@ public class IndependentSubBoard extends JFrame {
     try {
       lock.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/Locked.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -95,7 +94,6 @@ public class IndependentSubBoard extends JFrame {
     try {
       unLock.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/Unlocked.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     lockUnlock = new JButton();
@@ -143,7 +141,6 @@ public class IndependentSubBoard extends JFrame {
     try {
       closeIcon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/close.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -190,7 +187,6 @@ public class IndependentSubBoard extends JFrame {
 
       topIcon.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/top.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -199,7 +195,6 @@ public class IndependentSubBoard extends JFrame {
     try {
       btm.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/btm.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -339,7 +334,6 @@ public class IndependentSubBoard extends JFrame {
   }
 
   private void paintMianPanel(Graphics g) {
-    // TODO Auto-generated method stub
     int width = Utils.zoomOut(mainPanel.getWidth());
     int height = Utils.zoomOut(mainPanel.getHeight());
     BufferedImage cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
@@ -397,7 +391,6 @@ public class IndependentSubBoard extends JFrame {
   }
 
   public void mouseEntered() {
-    // TODO Auto-generated method stub
     lockUnlock.setVisible(true);
     topUntop.setVisible(true);
     btnClose.setVisible(true);
@@ -408,7 +401,6 @@ public class IndependentSubBoard extends JFrame {
   }
 
   public void mouseExited() {
-    // TODO Auto-generated method stub
     topUntop.setVisible(false);
     lockUnlock.setVisible(false);
     btnClose.setVisible(false);

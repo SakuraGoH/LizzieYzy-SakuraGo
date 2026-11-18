@@ -97,7 +97,6 @@ public class FastCommands extends JDialog {
   }
 
   private void closeWindow() {
-    // TODO Auto-generated method stub
     Lizzie.config.fastCommandsWidth = scrollPane.getWidth();
     Lizzie.config.fastCommandsHeight = scrollPane.getHeight();
     setVisible(false);

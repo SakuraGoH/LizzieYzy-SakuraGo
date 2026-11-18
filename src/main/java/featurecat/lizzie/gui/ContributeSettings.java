@@ -268,7 +268,6 @@ public class ContributeSettings extends JDialog {
               URI uri = new URI("https://katagotraining.org/accounts/signup/");
               java.awt.Desktop.getDesktop().browse(uri);
             } catch (Exception e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -409,7 +408,6 @@ public class ContributeSettings extends JDialog {
     //    gbc_panel_3.gridx = 0;
     //    gbc_panel_3.gridy = 9;
     //    if (OS.isWindows()) mainPanel.add(panel_3, gbc_panel_3);
-    //
     //    JFontLabel lblEnableSlowShutdown =
     //        new
     // JFontLabel(Lizzie.resourceBundle.getString("ContributeSettings.lblEnableSlowShutdown"));
@@ -418,17 +416,14 @@ public class ContributeSettings extends JDialog {
 
     //    ImageIcon iconAbout = new ImageIcon();
     //    try {
-    //
     // iconAbout.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     //    } catch (IOException e) {
     //      e.printStackTrace();
     //    }
-    //
     //    JButton btnAboutSlowShutdown = new JButton(iconAbout);
     //    btnAboutSlowShutdown.addActionListener(
     //        new ActionListener() {
     //          public void actionPerformed(ActionEvent e) {
-    //
     // Utils.showMsg(Lizzie.resourceBundle.getString("ContributeSettings.aboutSlowShutdown"));
     //          }
     //        });
@@ -438,7 +433,6 @@ public class ContributeSettings extends JDialog {
     //    chkSlowShutdown = new JFontCheckBox();
     //    chkSlowShutdown.setSelected(Lizzie.config.contributeUseSlowShutdown);
     //    chkSlowShutdown.setToolTipText(slowShutdownTip);
-    //
     //    GridBagConstraints gbc_chckbxNewCheckBox = new GridBagConstraints();
     //    gbc_chckbxNewCheckBox.anchor = GridBagConstraints.WEST;
     //    gbc_chckbxNewCheckBox.gridx = 1;
@@ -477,7 +471,6 @@ public class ContributeSettings extends JDialog {
   }
 
   private void setAferSets(boolean ignore) {
-    // TODO Auto-generated method stub
     txtUserName.setEnabled(!ignore);
     txtPassword.setEnabled(!ignore);
     txtGames.setEnabled(!ignore);

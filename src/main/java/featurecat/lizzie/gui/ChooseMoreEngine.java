@@ -55,7 +55,6 @@ public class ChooseMoreEngine extends JPanel {
   // JTextField txtWidth;
   // JTextField txtHeight;
   // JTextField txtKomi;
-  //
   // JButton scan;
   // JButton delete;
   JButton ok;

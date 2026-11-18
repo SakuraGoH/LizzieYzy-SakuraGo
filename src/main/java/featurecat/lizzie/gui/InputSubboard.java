@@ -17,7 +17,6 @@ public class InputSubboard implements KeyListener, MouseListener, MouseWheelList
 
   //  @Override
   //  public void mouseWheelMoved(MouseWheelEvent e) {
-  //
   //    Lizzie.frame.processSubboardMouseWheelMoved(e);
   //  }
 
@@ -56,26 +55,18 @@ public class InputSubboard implements KeyListener, MouseListener, MouseWheelList
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseReleased(MouseEvent e) {}
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
-
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
   public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
     Lizzie.frame.onMouseExited();
   }
 
   @Override
   public void keyPressed(KeyEvent e) {
-    // TODO Auto-generated method stub
     switch (e.getKeyCode()) {
       case VK_R:
         if (e.isAltDown()) Lizzie.engineManager.stopEngineGame(-1, true);
@@ -87,14 +78,8 @@ public class InputSubboard implements KeyListener, MouseListener, MouseWheelList
   }
 
   @Override
-  public void keyReleased(KeyEvent arg0) {
-    // TODO Auto-generated method stub
-
-  }
+  public void keyReleased(KeyEvent arg0) {}
 
   @Override
-  public void keyTyped(KeyEvent arg0) {
-    // TODO Auto-generated method stub
-
-  }
+  public void keyTyped(KeyEvent arg0) {}
 }

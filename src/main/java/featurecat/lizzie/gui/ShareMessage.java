@@ -45,10 +45,8 @@ public class ShareMessage extends JDialog {
             try {
               desktop.browse(new URI(links));
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             } catch (URISyntaxException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }

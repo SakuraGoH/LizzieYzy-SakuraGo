@@ -144,7 +144,6 @@ public class EditShareFrame extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/config.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

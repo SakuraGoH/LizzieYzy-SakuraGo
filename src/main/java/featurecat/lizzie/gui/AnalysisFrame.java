@@ -318,13 +318,11 @@ public class AnalysisFrame extends JFrame {
         new MouseMotionListener() {
           @Override
           public void mouseDragged(MouseEvent e) {
-            // TODO Auto-generated method stub
             mouseMoved(e);
           }
 
           @Override
           public void mouseMoved(MouseEvent e) {
-            // TODO Auto-generated method stub
             if (!Lizzie.config.anaFrameUseMouseMove || clickOrder != -1) return;
             Point p = e.getPoint();
             int row = table.rowAtPoint(p);
@@ -364,7 +362,6 @@ public class AnalysisFrame extends JFrame {
         new MouseWheelListener() {
           @Override
           public void mouseWheelMoved(MouseWheelEvent e) {
-            // TODO Auto-generated method stub
             if (clickOrder != -1) {
               if (e.getWheelRotation() > 0) {
                 Lizzie.frame.doBranch(1);
@@ -481,7 +478,6 @@ public class AnalysisFrame extends JFrame {
   }
 
   private void paintBottomPanel(Graphics g0, int width, int height) {
-    // TODO Auto-generated method stub
     int minHeight = 22;
     int trueHeight = height - minHeight;
     int totalPlayouts = 0;
@@ -956,7 +952,6 @@ public class AnalysisFrame extends JFrame {
               return data.order + 1 + "(" + resourceBundle.getString("AnalysisFrame.actual") + ")";
             else return data.order + 1;
           case 1:
-            //
             // if(Lizzie.board.convertNameToCoordinates(data.coordinate)[0]==Lizzie.frame.suggestionclick[0]&&Lizzie.board.convertNameToCoordinates(data.coordinate)[1]==Lizzie.frame.suggestionclick[1])
             // {return "*"+data.coordinate;}
             // else

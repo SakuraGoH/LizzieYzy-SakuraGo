@@ -77,7 +77,6 @@ public class PublicKifuSearch extends JFrame {
             try {
               Lizzie.config.persist();
             } catch (IOException es) {
-              // TODO Auto-generated catch block
             }
             setVisible(false);
           }
@@ -101,7 +100,6 @@ public class PublicKifuSearch extends JFrame {
     try {
       this.setIconImage(ImageIO.read(MoreEngines.class.getResourceAsStream("/assets/logo.png")));
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
     table = new JTable();
@@ -637,7 +635,6 @@ public class PublicKifuSearch extends JFrame {
   //    }
   //    try {
   //      c = DriverManager.getConnection("jdbc:oracle:thin:@ip:port:ORCL", name, pass);
-  //
   //    } catch (SQLException e) {
   //      e.printStackTrace();
   //    }
@@ -713,7 +710,6 @@ class MyButtonCopyEditor extends AbstractCellEditor implements TableCellEditor {
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -777,7 +773,6 @@ class MyButtonOpenEditor extends AbstractCellEditor implements TableCellEditor {
                 socketGetFile.SocketGetFile(name, date, file);
               }
             } catch (UnsupportedEncodingException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -799,7 +794,6 @@ class MyButtonOpenEditor extends AbstractCellEditor implements TableCellEditor {
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }
@@ -853,10 +847,8 @@ class MyButtonOpenHtmlEditor extends AbstractCellEditor implements TableCellEdit
             try {
               desktop.browse(new URI(URL));
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             } catch (URISyntaxException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
           }
@@ -878,7 +870,6 @@ class MyButtonOpenHtmlEditor extends AbstractCellEditor implements TableCellEdit
 
   @Override
   public Object getCellEditorValue() {
-    // TODO Auto-generated method stub
     return null;
   }
 }

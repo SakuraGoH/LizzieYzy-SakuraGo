@@ -724,7 +724,6 @@ public class BoardHistoryNode {
   }
 
   public void resetMoveNumberList() {
-    // TODO Auto-generated method stub
     if (!this.previous.isPresent()) return;
     boolean isNewBranch =
         this.previous.get().variations.get(0) != this && Lizzie.config.newMoveNumberInBranch;
@@ -776,7 +775,6 @@ public class BoardHistoryNode {
   }
 
   public boolean checkForRemovedStone() {
-    // TODO Auto-generated method stub
     boolean removedStone = this.hasRemovedStone;
     Optional<BoardHistoryNode> node = previous;
     while (!removedStone && node.isPresent()) {

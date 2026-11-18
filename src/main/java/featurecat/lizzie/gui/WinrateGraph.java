@@ -190,7 +190,6 @@ public class WinrateGraph {
       int margin = strokeRadius;
       //      int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
       //      if (node.getData().blackToPlay) {
-      //
       //      } else {
       //        g.setColor(Color.BLACK);
       //      }

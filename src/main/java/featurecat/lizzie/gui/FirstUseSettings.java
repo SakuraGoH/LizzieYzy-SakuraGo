@@ -53,7 +53,6 @@ public class FirstUseSettings extends JDialog {
     try {
       iconSettings.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/settings.png")));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     JFontLabel lblMouseOverSuggestion =
@@ -733,7 +732,6 @@ public class FirstUseSettings extends JDialog {
             try {
               Lizzie.config.save();
             } catch (IOException e1) {
-              // TODO Auto-generated catch block
               e1.printStackTrace();
             }
             if (!firstTime && Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
@@ -886,7 +884,6 @@ public class FirstUseSettings extends JDialog {
   }
 
   public void setChkSuggestionInfo() {
-    // TODO Auto-generated method stub
     chkWinrate.setSelected(Lizzie.config.showWinrateInSuggestion);
     chkPlayouts.setSelected(Lizzie.config.showPlayoutsInSuggestion);
     chkScoreLead.setSelected(Lizzie.config.showScoremeanInSuggestion);

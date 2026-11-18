@@ -90,7 +90,6 @@ public class DrawPainting extends JDialog {
       Cursor cursor = tk.createCustomCursor(image, new Point(0, 0), "norm");
       this.setCursor(cursor);
     } catch (IOException e1) {
-      // TODO Auto-generated catch block
       e1.printStackTrace();
     }
 
@@ -129,7 +128,6 @@ public class DrawPainting extends JDialog {
         new MouseMotionListener() {
           @Override
           public void mouseDragged(MouseEvent e) {
-            // TODO Auto-generated method stub
             //  System.out.println("1");
             DrawPoint p1 = new DrawPoint((e.getX()), (e.getY()), colorIndex);
             list.add(p1);
@@ -137,10 +135,7 @@ public class DrawPainting extends JDialog {
           }
 
           @Override
-          public void mouseMoved(MouseEvent arg0) {
-            // TODO Auto-generated method stub
-
-          }
+          public void mouseMoved(MouseEvent arg0) {}
         });
     btnPanel = new JPanel();
     btnPanel.setBackground(new Color(0, 0, 0, 0));
@@ -195,7 +190,6 @@ public class DrawPainting extends JDialog {
                   Config.menuIconSize * 2, Config.menuIconSize * 2, java.awt.Image.SCALE_SMOOTH));
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -285,7 +279,6 @@ public class DrawPainting extends JDialog {
   }
 
   protected void saveLastColor() {
-    // TODO Auto-generated method stub
     switch (colorIndex) {
       case BLUEPEN:
         Lizzie.config.lastPaintingColor = 0;
@@ -301,7 +294,6 @@ public class DrawPainting extends JDialog {
   }
 
   protected void setColorButton() {
-    // TODO Auto-generated method stub
     switch (colorIndex) {
       case BLUEPEN:
         btnBlue.setIcon(iconBlue2);
@@ -355,7 +347,6 @@ public class DrawPainting extends JDialog {
   }
 
   private void setColor(PEN_COLOR color, Graphics2D g0) {
-    // TODO Auto-generated method stub
     switch (color) {
       case BLUEPEN:
         g0.setColor(Color.BLUE);

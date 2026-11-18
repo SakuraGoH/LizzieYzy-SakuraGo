@@ -118,7 +118,6 @@ public class AnalysisEngine {
         process = processBuilder.start();
         isLoaded = true;
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         showErrMsg(
             resourceBundle.getString("Leelaz.engineFailed") + ": " + e.getLocalizedMessage());
         process = null;
@@ -168,7 +167,6 @@ public class AnalysisEngine {
         }
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -270,7 +268,6 @@ public class AnalysisEngine {
   }
 
   public void normalQuit() {
-    // TODO Auto-generated method stub
     isNormalEnd = true;
     if (this.useJavaSSH) this.javaSSH.close();
     else this.process.destroyForcibly();

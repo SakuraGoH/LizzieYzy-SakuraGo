@@ -123,7 +123,6 @@ public class KataEstimate {
       try {
         process = processBuilder.start();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         showErrMsg(e);
         process = null;
         return;
@@ -185,7 +184,6 @@ public class KataEstimate {
         }
       }
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -546,7 +544,6 @@ public class KataEstimate {
                 Thread.sleep(300);
                 //  hasTempTerritory = false;
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
               if (territoryCountTemp == territoryCount) {
@@ -577,7 +574,6 @@ public class KataEstimate {
     if (Lizzie.config.useZenEstimate) sendCommand("territory");
     else sendCommand("kata-raw-nn 0");
     // Lizzie.gtpConsole.addLineforce("count");
-    //
     //  sendCommand("score_statistics");
     if (!hasResult) {
       Runnable runnable2 =
@@ -586,7 +582,6 @@ public class KataEstimate {
               try {
                 Thread.sleep(5000);
               } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
               if (!hasResult) {
