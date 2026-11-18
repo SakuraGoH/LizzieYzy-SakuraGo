@@ -12356,7 +12356,7 @@ public class LizzieFrame extends JFrame {
                 Runtime.getRuntime()
                     .exec(
                         Utils.java64Path1
-                            + " -jar clockHelper"
+                            + " -Xms16m -Xmx128m -jar clockHelper"
                             + File.separator
                             + javaReadBoardName);
             success = true;
@@ -12373,7 +12373,7 @@ public class LizzieFrame extends JFrame {
                   Runtime.getRuntime()
                       .exec(
                           Utils.java64Path2
-                              + " -jar clockHelper"
+                              + " -Xms16m -Xmx128m -jar clockHelper"
                               + File.separator
                               + javaReadBoardName);
               success = true;
@@ -12391,7 +12391,7 @@ public class LizzieFrame extends JFrame {
                   Runtime.getRuntime()
                       .exec(
                           Utils.java32Path
-                              + " -jar clockHelper"
+                              + " -Xms16m -Xmx128m -jar clockHelper"
                               + File.separator
                               + javaReadBoardName);
               success = true;
@@ -12404,7 +12404,10 @@ public class LizzieFrame extends JFrame {
         if (!success) {
           processClockHelper =
               Runtime.getRuntime()
-                  .exec("java -jar clockHelper" + File.separator + javaReadBoardName);
+                  .exec(
+                      "java -Xms16m -Xmx128m -jar clockHelper"
+                          + File.separator
+                          + javaReadBoardName);
         }
       } catch (Exception e) {
         Utils.showMsg(e.getLocalizedMessage());

@@ -58,6 +58,7 @@ public class Lizzie {
 
   /** Launches the game window, and runs the game. */
   public static void main(String[] args) throws IOException {
+    MemoryBootstrap.tuneAndRestartIfNeeded(args);
     mainArgs = args;
     config = new Config();
     if (config.logConsoleToFile) {
