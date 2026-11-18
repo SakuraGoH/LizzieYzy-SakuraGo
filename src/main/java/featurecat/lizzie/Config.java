@@ -391,6 +391,20 @@ public class Config {
 
   /** 引擎对战时同时进行的对局数(1 表示原有单局/顺序多盘模式)。 */
   public int enginePkParallelGames = 1;
+  /** 上一次引擎对战使用的黑白引擎与时间/计算量设置。 */
+  public int enginePkLastBlack = 0;
+
+  public int enginePkLastWhite = 0;
+  public boolean enginePkLastGenmove = true;
+  public boolean enginePkLastTimeChecked = true;
+  public String enginePkLastTimeBlack = "2";
+  public String enginePkLastTimeWhite = "2";
+  public boolean enginePkLastPlayoutsChecked = false;
+  public String enginePkLastPlayoutsBlack = "";
+  public String enginePkLastPlayoutsWhite = "";
+  public boolean enginePkLastFirstPlayoutsChecked = false;
+  public String enginePkLastFirstPlayoutsBlack = "";
+  public String enginePkLastFirstPlayoutsWhite = "";
 
   /** 同时进行对局数的上限，防止误设过多进程。 */
   public static final int ENGINE_PK_PARALLEL_MAX = 16;
@@ -1395,6 +1409,19 @@ public class Config {
     enginePkParallelGames =
         Math.min(
             ENGINE_PK_PARALLEL_MAX, Math.max(1, uiConfig.optInt("engine-pk-parallel-games", 1)));
+    enginePkLastBlack = Math.max(0, uiConfig.optInt("engine-pk-last-black", 0));
+    enginePkLastWhite = Math.max(0, uiConfig.optInt("engine-pk-last-white", 0));
+    enginePkLastGenmove = uiConfig.optBoolean("engine-pk-last-genmove", true);
+    enginePkLastTimeChecked = uiConfig.optBoolean("engine-pk-last-time-checked", true);
+    enginePkLastTimeBlack = uiConfig.optString("engine-pk-last-time-black", "2");
+    enginePkLastTimeWhite = uiConfig.optString("engine-pk-last-time-white", "2");
+    enginePkLastPlayoutsChecked = uiConfig.optBoolean("engine-pk-last-playouts-checked", false);
+    enginePkLastPlayoutsBlack = uiConfig.optString("engine-pk-last-playouts-black", "");
+    enginePkLastPlayoutsWhite = uiConfig.optString("engine-pk-last-playouts-white", "");
+    enginePkLastFirstPlayoutsChecked =
+        uiConfig.optBoolean("engine-pk-last-first-playouts-checked", false);
+    enginePkLastFirstPlayoutsBlack = uiConfig.optString("engine-pk-last-first-playouts-black", "");
+    enginePkLastFirstPlayoutsWhite = uiConfig.optString("engine-pk-last-first-playouts-white", "");
     alwaysGtp = uiConfig.optBoolean("always-gtp", true);
     noCapture = uiConfig.optBoolean("no-capture", false);
     showrect = uiConfig.optInt("show-move-rect", 1);

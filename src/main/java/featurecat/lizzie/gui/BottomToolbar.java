@@ -2124,6 +2124,7 @@ public class BottomToolbar extends JPanel {
     if (chkAutoSub.isSelected()) {
       autoPlaySub();
     }
+    restoreEnginePkSettings();
     setGenmove();
     if (chkenginePkBatch.isSelected()) txtenginePkBatch.setEnabled(true);
     else txtenginePkBatch.setEnabled(false);
@@ -3414,6 +3415,60 @@ public class BottomToolbar extends JPanel {
     enginePkWhite.addItemListener(enginePkWhiteLis);
   }
 
+  /** 恢复上一次引擎对战设置。 */
+  public void restoreEnginePkSettings() {
+    isGenmoveToolbar = Lizzie.config.enginePkLastGenmove;
+    chkenginePkTime.setSelected(Lizzie.config.enginePkLastTimeChecked);
+    if (!Lizzie.config.enginePkLastTimeBlack.isEmpty())
+      txtenginePkTime.setText(Lizzie.config.enginePkLastTimeBlack);
+    if (!Lizzie.config.enginePkLastTimeWhite.isEmpty())
+      txtenginePkTimeWhite.setText(Lizzie.config.enginePkLastTimeWhite);
+    chkenginePkPlayouts.setSelected(Lizzie.config.enginePkLastPlayoutsChecked);
+    if (!Lizzie.config.enginePkLastPlayoutsBlack.isEmpty())
+      txtenginePkPlayputs.setText(Lizzie.config.enginePkLastPlayoutsBlack);
+    if (!Lizzie.config.enginePkLastPlayoutsWhite.isEmpty())
+      txtenginePkPlayputsWhite.setText(Lizzie.config.enginePkLastPlayoutsWhite);
+    chkenginePkFirstPlayputs.setSelected(Lizzie.config.enginePkLastFirstPlayoutsChecked);
+    if (!Lizzie.config.enginePkLastFirstPlayoutsBlack.isEmpty())
+      txtenginePkFirstPlayputs.setText(Lizzie.config.enginePkLastFirstPlayoutsBlack);
+    if (!Lizzie.config.enginePkLastFirstPlayoutsWhite.isEmpty())
+      txtenginePkFirstPlayputsWhite.setText(Lizzie.config.enginePkLastFirstPlayoutsWhite);
+  }
+
+  private void saveEnginePkSettings() {
+    Lizzie.config.enginePkLastBlack = Math.max(0, engineBlackToolbar);
+    Lizzie.config.enginePkLastWhite = Math.max(0, engineWhiteToolbar);
+    Lizzie.config.enginePkLastGenmove = isGenmoveToolbar;
+    Lizzie.config.enginePkLastTimeChecked = chkenginePkTime.isSelected();
+    Lizzie.config.enginePkLastTimeBlack = txtenginePkTime.getText().trim();
+    Lizzie.config.enginePkLastTimeWhite = txtenginePkTimeWhite.getText().trim();
+    Lizzie.config.enginePkLastPlayoutsChecked = chkenginePkPlayouts.isSelected();
+    Lizzie.config.enginePkLastPlayoutsBlack = txtenginePkPlayputs.getText().trim();
+    Lizzie.config.enginePkLastPlayoutsWhite = txtenginePkPlayputsWhite.getText().trim();
+    Lizzie.config.enginePkLastFirstPlayoutsChecked = chkenginePkFirstPlayputs.isSelected();
+    Lizzie.config.enginePkLastFirstPlayoutsBlack = txtenginePkFirstPlayputs.getText().trim();
+    Lizzie.config.enginePkLastFirstPlayoutsWhite = txtenginePkFirstPlayputsWhite.getText().trim();
+    Lizzie.config.uiConfig.put("engine-pk-last-black", Lizzie.config.enginePkLastBlack);
+    Lizzie.config.uiConfig.put("engine-pk-last-white", Lizzie.config.enginePkLastWhite);
+    Lizzie.config.uiConfig.put("engine-pk-last-genmove", Lizzie.config.enginePkLastGenmove);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-time-checked", Lizzie.config.enginePkLastTimeChecked);
+    Lizzie.config.uiConfig.put("engine-pk-last-time-black", Lizzie.config.enginePkLastTimeBlack);
+    Lizzie.config.uiConfig.put("engine-pk-last-time-white", Lizzie.config.enginePkLastTimeWhite);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-playouts-checked", Lizzie.config.enginePkLastPlayoutsChecked);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-playouts-black", Lizzie.config.enginePkLastPlayoutsBlack);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-playouts-white", Lizzie.config.enginePkLastPlayoutsWhite);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-first-playouts-checked", Lizzie.config.enginePkLastFirstPlayoutsChecked);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-first-playouts-black", Lizzie.config.enginePkLastFirstPlayoutsBlack);
+    Lizzie.config.uiConfig.put(
+        "engine-pk-last-first-playouts-white", Lizzie.config.enginePkLastFirstPlayoutsWhite);
+  }
+
   public void removeEngineLis() {
     enginePkBlack.removeItemListener(enginePkBlackLis);
     enginePkWhite.removeItemListener(enginePkWhiteLis);
@@ -3494,6 +3549,7 @@ public class BottomToolbar extends JPanel {
   }
 
   public boolean startEngineGame() {
+    saveEnginePkSettings();
     int engineBlack = engineBlackToolbar;
     int engineWhite = engineWhiteToolbar;
     int timeBlack = -1,

@@ -1862,8 +1862,16 @@ public class EngineManager {
       LizzieFrame.toolbar.enginePkBlack.addItem("[" + (i + 1) + "]" + engineDt.name);
       LizzieFrame.toolbar.enginePkWhite.addItem("[" + (i + 1) + "]" + engineDt.name);
     }
-    LizzieFrame.toolbar.engineBlackToolbar = 0;
-    LizzieFrame.toolbar.engineWhiteToolbar = 0;
+    int engineCount = LizzieFrame.toolbar.enginePkBlack.getItemCount();
+    int lastBlack = Math.min(Math.max(0, Lizzie.config.enginePkLastBlack), engineCount - 1);
+    int lastWhite = Math.min(Math.max(0, Lizzie.config.enginePkLastWhite), engineCount - 1);
+    if (lastBlack == lastWhite && engineCount > 1) {
+      lastWhite = lastBlack == engineCount - 1 ? lastBlack - 1 : lastBlack + 1;
+    }
+    LizzieFrame.toolbar.engineBlackToolbar = lastBlack;
+    LizzieFrame.toolbar.engineWhiteToolbar = lastWhite;
+    LizzieFrame.toolbar.enginePkBlack.setSelectedIndex(lastBlack);
+    LizzieFrame.toolbar.enginePkWhite.setSelectedIndex(lastWhite);
     LizzieFrame.toolbar.addEngineLis();
     LizzieFrame.menu.updateEngineMenu();
     if (!isEmpty) {
