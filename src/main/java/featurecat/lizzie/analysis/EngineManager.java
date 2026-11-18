@@ -1451,55 +1451,26 @@ public class EngineManager {
                   }
                 }
               }
+              // 分析模式对战：让当前一方的引擎持续分析，由 notifyAutoPK 按时间/playouts 落子；
+              // 不能先用 genmove，否则 genmove 应答会走人机对弈的落子路径，对局无法继续。
+              isEngineGame = true;
+              isPreEngineGame = false;
+              Leelaz black = engineList.get(engineGameInfo.blackEngineIndex);
+              Leelaz white = engineList.get(engineGameInfo.whiteEngineIndex);
+              black.played = false;
+              white.played = false;
               if (Lizzie.board.getHistory().getMainEnd().getData().blackToPlay) {
-                Lizzie.leelaz = engineList.get(engineGameInfo.blackEngineIndex);
-                Lizzie.leelaz.genmoveForPk("b");
-                Lizzie.leelaz = engineList.get(engineGameInfo.whiteEngineIndex);
+                Lizzie.leelaz = black;
               } else {
-                Lizzie.leelaz = engineList.get(engineGameInfo.whiteEngineIndex);
-                Lizzie.leelaz.genmoveForPk("w");
-                Lizzie.leelaz = engineList.get(engineGameInfo.blackEngineIndex);
+                Lizzie.leelaz = white;
               }
-              int cmdNumberTemp = Lizzie.leelaz.cmdNumber;
-              Runnable runnable1 =
-                  new Runnable() {
-                    public void run() {
-                      while (!Lizzie.leelaz.isResponseUpToDate()) {
-                        try {
-                          Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                          e.printStackTrace();
-                        }
-                      }
-                      Lizzie.leelaz.ponder();
-                      Lizzie.leelaz.clearBestMoves();
-                    }
-                  };
-              Thread thread1 = new Thread(runnable1);
-              thread1.start();
-
-              Runnable runnable =
-                  new Runnable() {
-                    public void run() {
-                      while (Lizzie.leelaz.cmdNumber == cmdNumberTemp) {
-                        try {
-                          Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                          e.printStackTrace();
-                        }
-                      }
-                      isEngineGame = true;
-                      isPreEngineGame = false;
-                      Lizzie.leelaz.played = false;
-                      setInfoAfterEngineGame();
-                      if (firstTime) {
-                        Lizzie.frame.resetMovelistFrameandAnalysisFrame();
-                        LizzieFrame.menu.updateMenuStatusForEngine();
-                      }
-                    }
-                  };
-              Thread thread = new Thread(runnable);
-              thread.start();
+              Lizzie.leelaz.clearBestMoves();
+              Lizzie.leelaz.ponder();
+              setInfoAfterEngineGame();
+              if (firstTime) {
+                Lizzie.frame.resetMovelistFrameandAnalysisFrame();
+                LizzieFrame.menu.updateMenuStatusForEngine();
+              }
             }
           };
       Thread thread = new Thread(runnable);

@@ -77,15 +77,15 @@ public class GtpConsolePane extends JFrame {
 
       gtpFont = gtpFont.deriveFont(Font.PLAIN, Config.frameFontSize);
 
-      // 关键：如果日志里有中文或特殊符号，用雅黑兜底
+      // 关键：如果日志里有中文或特殊符号，用等宽逻辑字体兜底，保证 GTP 输出列对齐。
       java.awt.Font fallbackFont =
-          new java.awt.Font("Microsoft YaHei, Consolas, Dialog", Font.PLAIN, Config.frameFontSize);
-      // 将两个字体合并，优先用 SourceCodePro（控制台显示好看），遇到不支持的用雅黑
+          new java.awt.Font(Font.MONOSPACED, Font.PLAIN, Config.frameFontSize);
+      // 将两个字体合并，优先用 SourceCodePro（控制台显示好看），遇到不支持的用等宽字体
       gtpFont = gtpFont.canDisplayUpTo("中文测试") == -1 ? gtpFont : fallbackFont;
 
     } catch (IOException | FontFormatException e) {
       e.printStackTrace();
-      gtpFont = new Font("Microsoft YaHei, Monospaced", Font.PLAIN, Config.frameFontSize);
+      gtpFont = new Font(Font.MONOSPACED, Font.PLAIN, Config.frameFontSize);
     }
     docQueue = new ArrayDeque<>();
     boolean persisted =
@@ -208,9 +208,8 @@ public class GtpConsolePane extends JFrame {
   private void addDocs(DocType doc) {
     SimpleAttributeSet attrSet = new SimpleAttributeSet();
     StyleConstants.setForeground(attrSet, doc.contentColor);
-    if (doc.isCommand) {
-      StyleConstants.setFontFamily(attrSet, Lizzie.config.uiFontName);
-    }
+    // 控制台所有内容都用等宽字体，命令和引擎回复才能按列对齐。
+    StyleConstants.setFontFamily(attrSet, gtpFont.getFamily());
     StyleConstants.setFontSize(attrSet, doc.fontSize);
     String insertContent = doc.content;
     if (insertContent.length() > max_length / 10) {
@@ -319,7 +318,7 @@ public class GtpConsolePane extends JFrame {
       return;
     }
     setDocs(
-        (isBlack ? "○" : "●") + engineName + "> " + command + "\n",
+        String.format("%s%-12s> %s", isBlack ? "○" : "●", engineName, command) + "\n",
         Color.WHITE,
         true,
         Config.frameFontSize);
@@ -329,7 +328,11 @@ public class GtpConsolePane extends JFrame {
     if (command == null || command.trim().length() == 0) {
       return;
     }
-    setDocs(engineName + "> " + command + "\n", Color.WHITE, true, Config.frameFontSize);
+    setDocs(
+        String.format("%-14s> %s", engineName, command) + "\n",
+        Color.WHITE,
+        true,
+        Config.frameFontSize);
   }
 
   public void addEstimateCommand(String command, int commandNumber) {
@@ -349,21 +352,21 @@ public class GtpConsolePane extends JFrame {
     if (line == null || line.trim().length() == 0) {
       return;
     }
-    setDocs(" " + line, Color.ORANGE, false, Config.frameFontSize);
+    setDocs("    " + line, Color.ORANGE, false, Config.frameFontSize);
   }
 
   public void addLine(String line) {
     if (line == null || line.trim().length() == 0) {
       return;
     }
-    setDocs(" " + line, Color.GREEN, false, Config.frameFontSize);
+    setDocs("    " + line, Color.GREEN, false, Config.frameFontSize);
   }
 
   public void addLineEstimate(String line) {
     if (line == null || line.trim().length() == 0) {
       return;
     }
-    setDocs(" " + line, Color.GRAY, false, Config.frameFontSize);
+    setDocs("    " + line, Color.GRAY, false, Config.frameFontSize);
   }
 
   private void postCommand(ActionEvent e) {
@@ -521,7 +524,7 @@ public class GtpConsolePane extends JFrame {
   }
 
   public void addErrorLine(String line) {
-    setDocs(line, new Color(255, 0, 0), false, Config.frameFontSize);
+    setDocs("    " + line, new Color(255, 0, 0), false, Config.frameFontSize);
   }
 
   public void setViewEnd() {
