@@ -193,6 +193,17 @@ public class Lizzie {
     frame.reSetLoc();
     frame.showMainPanel();
     frame.addResizeLis();
+    new Thread(
+            () -> {
+              try {
+                Thread.sleep(2500);
+              } catch (InterruptedException ignored) {
+              }
+              SwingUtilities.invokeLater(
+                  featurecat.lizzie.gui.UiMemoryCleaner::flushWindowsSkinCache);
+            },
+            "ui-memory-cleaner")
+        .start();
     SwingUtilities.invokeLater(
         new Thread() {
           public void run() {

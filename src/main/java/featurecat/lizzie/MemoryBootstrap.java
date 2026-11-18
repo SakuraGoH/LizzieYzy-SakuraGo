@@ -42,6 +42,10 @@ final class MemoryBootstrap {
       command.add(java.getAbsolutePath());
       command.add("-Xms16m");
       command.add("-Xmx2g");
+      String spec = System.getProperty("java.specification.version", "1.8");
+      if (!spec.startsWith("1.")) {
+        command.add("--add-opens=java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED");
+      }
       if (code.isFile()) {
         command.add("-jar");
         command.add(code.getAbsolutePath());
