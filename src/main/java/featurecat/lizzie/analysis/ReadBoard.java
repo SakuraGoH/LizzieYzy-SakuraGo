@@ -8,6 +8,7 @@ import featurecat.lizzie.gui.SMessage;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Stone;
+import featurecat.lizzie.util.SilentClicker;
 import featurecat.lizzie.util.Utils;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,6 +49,12 @@ public class ReadBoard {
   private boolean needGenmove = false;
   private boolean showInBoard = false;
   private boolean isSyncing = false;
+  private int boardScreenX = -1;
+  private int boardScreenY = -1;
+  private int boardScreenWidth = 0;
+  private int boardScreenHeight = 0;
+  private float boardScreenScale = 1f;
+  private volatile int boardClearGeneration;
   // private long startTime;
   private boolean javaReadBoard = false;
   private String javaReadBoardName = "readboard-1.6.2-shaded.jar";
@@ -518,9 +525,41 @@ public class ReadBoard {
     }
     if (line.startsWith("inboard")) {
       //	Lizzie.gtpConsole.addLine(line);
+      String[] params = line.trim().split(" ");
+      if (params.length == 6) {
+        // 记住棋盘在屏幕上的位置，自动落子时可直接向目标窗口发送点击消息，不移动鼠标。
+        int newX = Integer.parseInt(params[1]);
+        int newY = Integer.parseInt(params[2]);
+        int newWidth = Integer.parseInt(params[3]);
+        int newHeight = Integer.parseInt(params[4]);
+        float newScale = 1f;
+        if (params[5].startsWith("99")) {
+          String[] scaled = params[5].split("_");
+          if (scaled.length > 1) {
+            try {
+              newScale = Float.parseFloat(scaled[1]);
+            } catch (NumberFormatException ignored) {
+            }
+          }
+        }
+        if (newX != boardScreenX
+            || newY != boardScreenY
+            || newWidth != boardScreenWidth
+            || newHeight != boardScreenHeight
+            || newScale != boardScreenScale) {
+          // 页面被缩放/移动后，旧棋盘的延迟刷新不能作用到新棋盘上。
+          boardClearGeneration++;
+          Lizzie.board.mouseOnNode = null;
+          Lizzie.board.isMouseOnStone = false;
+        }
+        boardScreenX = newX;
+        boardScreenY = newY;
+        boardScreenWidth = newWidth;
+        boardScreenHeight = newHeight;
+        boardScreenScale = newScale;
+      }
       if (hideFromPlace) return;
       showInBoard = true;
-      String[] params = line.trim().split(" ");
       if (params.length == 6) {
         if (params[5].startsWith("99")) {
           String[] param = params[5].split("_");
@@ -822,6 +861,70 @@ public class ReadBoard {
     if (usePipe) {
       sendCommandTo(command);
     } else if (readBoardStream != null) readBoardStream.sendCommand(command);
+  }
+
+  /** 不移动鼠标的自动落子：按 readboard 的棋盘屏幕坐标换算目标点，直接向目标窗口发送点击消息。 如果尚未收到棋盘位置，返回 false，由调用方回退到原 place 命令。 */
+  public boolean silentPlace(int x, int y) {
+    if (boardScreenWidth <= 0
+        || boardScreenHeight <= 0
+        || x < 0
+        || y < 0
+        || x >= Board.boardWidth
+        || y >= Board.boardHeight) return false;
+    boolean hidFloat = false;
+    if (hideFloadBoardBeforePlace
+        && Lizzie.frame.floatBoard != null
+        && Lizzie.frame.floatBoard.isVisible()) {
+      Lizzie.frame.floatBoard.setVisible(false);
+      hideFromPlace = true;
+      hidFloat = true;
+    }
+    int screenX =
+        Math.round(
+            boardScreenX * boardScreenScale
+                + (float) (x + 0.5) * boardScreenWidth * boardScreenScale / Board.boardWidth);
+    int screenY =
+        Math.round(
+            boardScreenY * boardScreenScale
+                + (float) (y + 0.5) * boardScreenHeight * boardScreenScale / Board.boardHeight);
+    boolean clicked = SilentClicker.click(screenX, screenY);
+    if (hidFloat) {
+      javax.swing.Timer restore =
+          new javax.swing.Timer(
+              350,
+              e -> {
+                hideFromPlace = false;
+                if (Lizzie.frame.floatBoard != null) Lizzie.frame.floatBoard.setVisible(true);
+              });
+      restore.setRepeats(false);
+      restore.start();
+    }
+    if (!clicked) return false;
+    lastMovePlayByLizzie = true;
+    if (Lizzie.frame.isPlayingAgainstLeelaz) needGenmove = true;
+    // 静默点击不会触发 readboard 的 placeComplete 回调，手动把棋盘定位到最新一手。
+    // 如果期间用户清空了棋盘，则不能再把旧棋局定位到最后，否则会把最后一手标记带到新棋盘。
+    int clearGeneration = boardClearGeneration;
+    javax.swing.SwingUtilities.invokeLater(
+        () -> {
+          if (Lizzie.frame != null && clearGeneration == boardClearGeneration) {
+            Lizzie.frame.lastMove();
+          }
+        });
+    return true;
+  }
+
+  public void onBoardCleared() {
+    boardClearGeneration++;
+    lastMovePlayByLizzie = false;
+    hideFromPlace = false;
+    if (Lizzie.board != null) {
+      Lizzie.board.mouseOnNode = null;
+      Lizzie.board.isMouseOnStone = false;
+    }
+    if (Lizzie.frame.floatBoard != null && hideFloadBoardBeforePlace) {
+      Lizzie.frame.floatBoard.setVisible(true);
+    }
   }
 
   public void sendLossFocus() {

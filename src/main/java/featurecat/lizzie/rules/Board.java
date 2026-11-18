@@ -1873,7 +1873,9 @@ public class Board {
           && Lizzie.frame.readBoard != null
           && Lizzie.frame.readBoard.process != null
           && Lizzie.frame.readBoard.process.isAlive()) {
-        Lizzie.frame.readBoard.sendCommand("place " + x + " " + y);
+        if (!Lizzie.frame.readBoard.silentPlace(x, y)) {
+          Lizzie.frame.readBoard.sendCommand("place " + x + " " + y);
+        }
       }
       // 记录落子前的当前节点（parent）
       BoardHistoryNode placeParent = history.getCurrentHistoryNode();
@@ -2977,9 +2979,14 @@ public class Board {
   //	    initializeForPk();
   //	  }
   public void clear(boolean isEngineGame) {
+    // 清空棋盘时清除鼠标悬停节点，避免旧的最后一手/分支标记被带到新棋盘。
+    mouseOnNode = null;
+    isMouseOnStone = false;
+    mouseOnStoneCoords = LizzieFrame.outOfBoundCoordinate;
     LizzieFrame.winrateGraph.resetMaxScoreLead();
     if (Lizzie.frame.readBoard != null) {
       Lizzie.frame.readBoard.firstSync = true;
+      Lizzie.frame.readBoard.onBoardCleared();
     }
     // 先保存当前贴目（在 initialize 替换 history 之前）
     double currentKomi = history.getGameInfo().getKomi();

@@ -336,9 +336,37 @@ public class BoardRenderer {
     g.setColor(oldColor);
   }
 
+  /** readboard 在窗口缩放后可能把旧坐标/候选点当成最后一手。这里只在坐标确实有棋子时使用它， 否则退回到当前棋盘上真实存在的最后一颗子。 */
+  private Optional<int[]> ensureLastMoveOnStone(Optional<int[]> lastMove, Board board) {
+    Stone[] stones = board.getStones();
+    if (lastMove.isPresent()) {
+      int[] lm = lastMove.get();
+      if (lm[0] >= 0
+          && lm[0] < Board.boardWidth
+          && lm[1] >= 0
+          && lm[1] < Board.boardHeight
+          && stones[Board.getIndex(lm[0], lm[1])] != Stone.EMPTY) {
+        return lastMove;
+      }
+    }
+    int[] numbers = board.getMoveNumberList();
+    int bestIndex = -1;
+    int bestNumber = 0;
+    for (int i = 0; i < numbers.length; i++) {
+      if (numbers[i] > bestNumber) {
+        bestNumber = numbers[i];
+        bestIndex = i;
+      }
+    }
+    if (bestIndex < 0) return Optional.empty();
+    return Optional.of(new int[] {bestIndex % Board.boardWidth, bestIndex / Board.boardWidth});
+  }
+
   private void drawLastMoveMark(Graphics2D g, BoardHistoryNode mouseOnNode) {
     if (mouseOnNode.getData().lastMove.isPresent()) {
-      int[] lastMove = mouseOnNode.getData().lastMove.get();
+      Optional<int[]> checked = ensureLastMoveOnStone(mouseOnNode.getData().lastMove, Lizzie.board);
+      if (!checked.isPresent()) return;
+      int[] lastMove = checked.get();
       int stoneX = x + scaledMarginWidth + squareWidth * lastMove[0];
       int stoneY = y + scaledMarginHeight + squareHeight * lastMove[1];
       switch (Lizzie.config.stoneIndicatorType) {
@@ -1926,6 +1954,7 @@ public class BoardRenderer {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     Board board = Lizzie.board;
     Optional<int[]> lastMoveOpt = branchOpt.map(b -> b.data.lastMove).orElse(board.getLastMove());
+    lastMoveOpt = ensureLastMoveOnStone(lastMoveOpt, board);
     drawPass(g, board, lastMoveOpt);
     boolean showAllinBranch = false;
     if (Lizzie.config.showMoveAllInBranch
