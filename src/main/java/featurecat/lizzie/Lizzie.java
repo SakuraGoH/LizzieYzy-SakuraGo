@@ -195,12 +195,17 @@ public class Lizzie {
     frame.addResizeLis();
     new Thread(
             () -> {
-              try {
-                Thread.sleep(2500);
-              } catch (InterruptedException ignored) {
+              // Windows LAF 会在菜单/工具栏首次绘制时缓存大量皮肤位图；分批清理，
+              // 避开启动阶段仍在创建的控件，避免清理后立刻又被绘制缓存填满。
+              for (int i = 0; i < 8; i++) {
+                try {
+                  Thread.sleep(i == 0 ? 2500 : 4000);
+                } catch (InterruptedException ignored) {
+                  return;
+                }
+                SwingUtilities.invokeLater(
+                    featurecat.lizzie.gui.UiMemoryCleaner::flushWindowsSkinCache);
               }
-              SwingUtilities.invokeLater(
-                  featurecat.lizzie.gui.UiMemoryCleaner::flushWindowsSkinCache);
             },
             "ui-memory-cleaner")
         .start();

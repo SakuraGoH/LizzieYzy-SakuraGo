@@ -41,10 +41,12 @@ final class MemoryBootstrap {
       List<String> command = new ArrayList<>();
       command.add(java.getAbsolutePath());
       command.add("-Xms16m");
-      command.add("-Xmx2g");
+      command.add("-Xmx1g");
+      command.add("-XX:+UseSerialGC");
       String spec = System.getProperty("java.specification.version", "1.8");
       if (!spec.startsWith("1.")) {
         command.add("--add-opens=java.desktop/com.sun.java.swing.plaf.windows=ALL-UNNAMED");
+        command.add("--add-opens=java.desktop/sun.swing=ALL-UNNAMED");
       }
       if (code.isFile()) {
         command.add("-jar");
