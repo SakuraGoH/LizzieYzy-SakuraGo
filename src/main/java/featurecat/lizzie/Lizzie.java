@@ -188,11 +188,15 @@ public class Lizzie {
   public static void start(int index, boolean loadDefault) {
     board = new Board();
     frame = new LizzieFrame();
-    LizzieFrame.toolbar.setPopupMenu();
-    LizzieFrame.menu.doubleMenu(true);
     frame.reSetLoc();
     frame.showMainPanel();
     frame.addResizeLis();
+    // 双菜单图标读取/缩放较慢，等主窗口先显示出来再构建。
+    SwingUtilities.invokeLater(
+        () -> {
+          LizzieFrame.toolbar.setPopupMenu();
+          LizzieFrame.menu.doubleMenu(true);
+        });
     MemoryJanitor.start();
     new Thread(
             () -> {

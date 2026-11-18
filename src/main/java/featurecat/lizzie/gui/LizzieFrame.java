@@ -9752,6 +9752,7 @@ public class LizzieFrame extends JFrame {
           setVisible(true);
           // setExtendedState 在窗口尚未显示时可能被 Windows 忽略，显示后按上次状态恢复一次。
           if (restoreMaximized) setExtendedState(Frame.MAXIMIZED_BOTH);
+          featurecat.lizzie.util.StartupSplash.close();
           scheduleStartupToFront();
           reSetLoc();
           setCommentPaneContent();
