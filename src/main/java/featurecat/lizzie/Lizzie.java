@@ -193,6 +193,7 @@ public class Lizzie {
     frame.reSetLoc();
     frame.showMainPanel();
     frame.addResizeLis();
+    MemoryJanitor.start();
     new Thread(
             () -> {
               // Windows LAF 会在菜单/工具栏首次绘制时缓存大量皮肤位图；分批清理，
