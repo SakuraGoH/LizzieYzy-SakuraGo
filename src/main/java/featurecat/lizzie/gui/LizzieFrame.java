@@ -386,8 +386,6 @@ public class LizzieFrame extends JFrame {
   String titleBeforeTrying;
   public BrowserFrame browserFrame;
   public BrowserInitializing browserInitializing;
-  /** 野狐协议直连的“原棋盘显示选点”透明覆盖层。 */
-  public FloatBoard foxDirectOverlay;
   //  JFrame frame;
   //  ArrayList<String> urlList;
   //  int urlIndex;
@@ -5119,7 +5117,6 @@ public class LizzieFrame extends JFrame {
     if (independentMainBoard != null && independentMainBoard.isVisible())
       independentMainBoard.refresh();
     if (floatBoard != null && floatBoard.isVisible()) floatBoard.refresh();
-    if (foxDirectOverlay != null && foxDirectOverlay.isVisible()) foxDirectOverlay.refresh();
     appendComment();
     repaint();
   }
@@ -5132,7 +5129,6 @@ public class LizzieFrame extends JFrame {
     if (independentMainBoard != null && independentMainBoard.isVisible())
       independentMainBoard.refresh();
     if (floatBoard != null && floatBoard.isVisible()) floatBoard.refresh();
-    if (foxDirectOverlay != null && foxDirectOverlay.isVisible()) foxDirectOverlay.refresh();
     appendComment();
     switch (mode) {
       case 1:

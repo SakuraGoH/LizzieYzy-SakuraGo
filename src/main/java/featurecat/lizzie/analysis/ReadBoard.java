@@ -55,30 +55,6 @@ public class ReadBoard {
   private int boardScreenHeight = 0;
   private float boardScreenScale = 1f;
   private volatile int boardClearGeneration;
-
-  public boolean hasBoardScreenPosition() {
-    return boardScreenWidth > 0 && boardScreenHeight > 0;
-  }
-
-  public int getBoardScreenX() {
-    return boardScreenX;
-  }
-
-  public int getBoardScreenY() {
-    return boardScreenY;
-  }
-
-  public int getBoardScreenWidth() {
-    return boardScreenWidth;
-  }
-
-  public int getBoardScreenHeight() {
-    return boardScreenHeight;
-  }
-
-  public float getBoardScreenScale() {
-    return boardScreenScale;
-  }
   // private long startTime;
   private boolean javaReadBoard = false;
   private String javaReadBoardName = "readboard-1.6.2-shaded.jar";
@@ -580,7 +556,6 @@ public class ReadBoard {
         boardScreenWidth = newWidth;
         boardScreenHeight = newHeight;
         boardScreenScale = newScale;
-        featurecat.lizzie.analysis.fox.FoxDirectOverlay.sync();
       }
       if (hideFromPlace) return;
       showInBoard = true;

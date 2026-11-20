@@ -95,7 +95,6 @@ public final class FoxDirectController {
 
     Lizzie.config.foxDirectPort = port;
     Lizzie.config.uiConfig.put("fox-direct-port", port);
-    FoxDirectOverlay.sync();
     log(
         "协议直连已启动，端口 "
             + port
@@ -118,7 +117,6 @@ public final class FoxDirectController {
     bridge = null;
     engine = null;
     inputLocked = false;
-    FoxDirectOverlay.hide();
     log("协议直连已停止");
   }
 
