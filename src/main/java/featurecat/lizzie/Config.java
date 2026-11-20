@@ -650,6 +650,12 @@ public class Config {
   /** 野狐协议直连监听端口。默认 6000，可在野狐直连窗口中修改。 */
   public int foxDirectPort = 6000;
 
+  public boolean foxDirectShowOnBoard = false;
+  public int foxDirectBoardX = -1;
+  public int foxDirectBoardY = -1;
+  public int foxDirectBoardWidth = 0;
+  public int foxDirectBoardHeight = 0;
+
   public boolean continueWithBestMove = false;
   public boolean directlyWithBestMove = true;
 
@@ -1393,6 +1399,11 @@ public class Config {
     lastFoxName = uiConfig.optString("last-fox-name", "");
     foxDirectPort = uiConfig.optInt("fox-direct-port", 6000);
     if (foxDirectPort <= 0 || foxDirectPort > 65535) foxDirectPort = 6000;
+    foxDirectShowOnBoard = uiConfig.optBoolean("fox-direct-show-on-board", false);
+    foxDirectBoardX = uiConfig.optInt("fox-direct-board-x", -1);
+    foxDirectBoardY = uiConfig.optInt("fox-direct-board-y", -1);
+    foxDirectBoardWidth = uiConfig.optInt("fox-direct-board-width", 0);
+    foxDirectBoardHeight = uiConfig.optInt("fox-direct-board-height", 0);
     continueWithBestMove = uiConfig.optBoolean("continue-with-best-move", false);
     directlyWithBestMove = uiConfig.optBoolean("directly-with-best-move", false);
     delayShowCandidates = uiConfig.optBoolean("delay-show-candidates", false);

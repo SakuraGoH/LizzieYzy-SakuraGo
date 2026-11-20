@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.fox.FoxDirectController;
+import featurecat.lizzie.analysis.fox.FoxDirectOverlay;
 import featurecat.lizzie.util.Utils;
 import java.awt.Insets;
 import java.awt.Window;
@@ -11,21 +12,25 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 
-/** 野狐协议直连的独立设置窗口：监听端口 + 启动/停止。 */
+/** 野狐协议直连的独立设置窗口：监听端口 + 启动/停止 + 原棋盘选点。 */
 public class FoxDirectWindow extends JDialog {
   private final JFontTextField txtPort = new JFontTextField();
   private final JFontLabel lblStatus = new JFontLabel();
   private final JFontButton btnToggle = new JFontButton();
   private final JFontButton btnClose =
       new JFontButton(Lizzie.resourceBundle.getString("FoxDirect.close"));
+  private final JFontCheckBox chkShowOnBoard =
+      new JFontCheckBox(Lizzie.resourceBundle.getString("FoxDirect.showOnBoard"));
+  private final JFontButton btnCalibrate =
+      new JFontButton(Lizzie.resourceBundle.getString("FoxDirect.calibrate"));
 
   public FoxDirectWindow(Window owner) {
     super(owner, Lizzie.resourceBundle.getString("FoxDirect.title"), ModalityType.MODELESS);
     setResizable(false);
     setAlwaysOnTop(Lizzie.frame != null && Lizzie.frame.isAlwaysOnTop());
     setLayout(null);
-    setSize(420, 150);
-    Lizzie.setFrameSize(this, 420, 150);
+    setSize(420, 195);
+    Lizzie.setFrameSize(this, 420, 195);
     setLocationRelativeTo(owner);
 
     JFontLabel lblPort = new JFontLabel(Lizzie.resourceBundle.getString("FoxDirect.port"));
@@ -41,12 +46,20 @@ public class FoxDirectWindow extends JDialog {
     lblStatus.setBounds(18, 52, 380, 22);
     add(lblStatus);
 
+    chkShowOnBoard.setBounds(18, 82, 250, 24);
+    chkShowOnBoard.setSelected(Lizzie.config.foxDirectShowOnBoard);
+    add(chkShowOnBoard);
+    btnCalibrate.setMargin(new Insets(0, 4, 0, 4));
+    btnCalibrate.setBounds(280, 80, 100, 26);
+    btnCalibrate.setFocusable(false);
+    add(btnCalibrate);
+
     btnToggle.setMargin(new Insets(0, 4, 0, 4));
-    btnToggle.setBounds(150, 92, 120, 28);
+    btnToggle.setBounds(150, 130, 120, 28);
     btnToggle.setFocusable(false);
     add(btnToggle);
     btnClose.setMargin(new Insets(0, 4, 0, 4));
-    btnClose.setBounds(280, 92, 100, 28);
+    btnClose.setBounds(280, 130, 100, 28);
     btnClose.setFocusable(false);
     add(btnClose);
 
@@ -78,6 +91,15 @@ public class FoxDirectWindow extends JDialog {
         });
 
     btnClose.addActionListener(e -> dispose());
+
+    chkShowOnBoard.addActionListener(
+        e -> {
+          Lizzie.config.foxDirectShowOnBoard = chkShowOnBoard.isSelected();
+          Lizzie.config.uiConfig.put(
+              "fox-direct-show-on-board", Lizzie.config.foxDirectShowOnBoard);
+          FoxDirectOverlay.sync();
+        });
+    btnCalibrate.addActionListener(e -> BoardAreaSelector.open());
     addWindowListener(
         new WindowAdapter() {
           public void windowClosing(WindowEvent e) {
@@ -99,5 +121,6 @@ public class FoxDirectWindow extends JDialog {
       lblStatus.setText(Lizzie.resourceBundle.getString("FoxDirect.stopped"));
       btnToggle.setText(Lizzie.resourceBundle.getString("FoxDirect.start"));
     }
+    FoxDirectOverlay.sync();
   }
 }

@@ -35,10 +35,28 @@ public final class WindowFocusHelper {
     boolean AttachThreadInput(int idAttach, int idAttachTo, boolean attach);
 
     void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+
+    int GetWindowLong(Pointer hwnd, int index);
+
+    int SetWindowLong(Pointer hwnd, int index, int value);
   }
 
   private interface Kernel32 extends Library {
     int GetCurrentThreadId();
+  }
+
+  public static void setClickThrough(Window window) {
+    if (window == null || !WINDOWS || USER32 == null) return;
+    try {
+      Pointer hwnd = Native.getWindowPointer(window);
+      if (hwnd == null) return;
+      final int gwlExStyle = -20;
+      final int wsExLayered = 0x00080000;
+      final int wsExTransparent = 0x00000020;
+      int style = USER32.GetWindowLong(hwnd, gwlExStyle);
+      USER32.SetWindowLong(hwnd, gwlExStyle, style | wsExLayered | wsExTransparent);
+    } catch (Throwable ignored) {
+    }
   }
 
   public static void forceForeground(Window window) {
